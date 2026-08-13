@@ -52,8 +52,8 @@ ie221-smart-library-management/
 │  └─ .env                       # (Không commit) Cấu hình URL gọi API
 │
 ├─ docs/                         # Tài liệu của đồ án (Bắt buộc)
-│  ├─ BaoCao_Nhom11.pdf          # Báo cáo chi tiết nghiệp vụ và hệ thống
-│  ├─ Slides_Nhom11.pdf          # Slide thuyết trình (Tối đa 10-12 trang)
+│  ├─ BaoCao_Final.pdf           # Báo cáo chi tiết nghiệp vụ và hệ thống
+│  ├─ Slide_Final.pdf            # Slide thuyết trình (Tối đa 10-12 trang)
 │  └─ KhaiBaoAI.md               # Bảng kê khai chi tiết các prompt AI đã dùng
 │
 ├─ README.md                     # Hướng dẫn dự án
@@ -88,7 +88,7 @@ source .venv/Scripts/activate # Git Bash
 uv run fastapi dev
 ```
 
-API Documentation (Swagger UI) sẽ có tại: `http://localhost:8000/docs`
+API Documentation (Scalar UI) sẽ có tại: `http://localhost:8000/docs`
 
 ### 3. Khởi chạy Frontend (ReactJS)
 
