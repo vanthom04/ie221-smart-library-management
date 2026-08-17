@@ -39,3 +39,15 @@ class InsufficientPermissionError(DomainError):
     """User đã xác thực hợp lệ nhưng không đủ quyền."""
 
     status_code = 403
+
+
+class FileTooLargeError(DomainError):
+    """Dung lượng file quá lớn."""
+
+    status_code = 413
+
+
+class UnsupportedFileTypeError(DomainError):
+    """Định dạng file không hỗ trợ."""
+
+    status_code = 415

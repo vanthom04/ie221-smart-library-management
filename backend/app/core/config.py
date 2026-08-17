@@ -24,6 +24,15 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
 
+    # Upload
+    MAX_UPLOAD_SIZE_MB: int = 5
+
+    # Cloudinary
+    CLOUDINARY_CLOUD_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
+    CLOUDINARY_UPLOAD_FOLDER: str = "smart-library-management"
+
 
 @lru_cache
 def get_settings() -> Settings:
