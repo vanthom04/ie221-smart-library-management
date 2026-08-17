@@ -1,0 +1,2 @@
+# Ignore frontend directory from GitHub language statistics
+frontend/** linguist-detectable=false
