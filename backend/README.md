@@ -1,191 +1,286 @@
 # ⚙️ Backend — Smart Library Management
 
-API server cho hệ thống Quản Lý Thư Viện & Mượn Trả Sách Thông Minh, được xây dựng với **FastAPI**, **SQLAlchemy (Async)**, và **PostgreSQL**.
+API server cho hệ thống **Quản Lý Thư Viện & Mượn Trả Sách Thông Minh** (Smart Library Management), được xây dựng trên nền tảng **FastAPI**, **SQLAlchemy 2.0 (Async)**, và **PostgreSQL**.
+
+---
+
+## 🌟 Chức năng nổi bật
+
+- **Kiến trúc Layered Architecture (Phân tầng rõ ràng)**: Phân chia rõ ràng giữa Router (API) ➔ Service (Business Logic) ➔ Repository (Data Access) ➔ Schema (Pydantic) ➔ Model (SQLAlchemy ORM).
+- **Hệ thống Xác thực & Phân quyền (Auth & RBAC)**:
+  - Mã hóa mật khẩu an toàn với **Argon2** (thông qua `pwdlib`).
+  - Cấp phát **JWT Access Token** (truyền qua header `Authorization: Bearer <token>`).
+  - Quản lý **Refresh Token Rotation** bảo mật với HTTP-only Cookie (`samesite="lax"`, `secure`), lưu hash SHA-256 trong CSDL.
+  - Phân quyền theo vai trò (Role-Based Access Control - RBAC) với 2 vai trò chính: `ADMIN` và `USER`.
+  - Hỗ trợ đổi mật khẩu, tự động thu hồi (revoke) toàn bộ phiên đăng nhập trên các thiết bị khác.
+- **Quản lý Tài khoản & Trạng thái User**:
+  - API lấy thông tin cá nhân (`GET /api/v1/users/me`).
+  - Quản trị viên (Admin) có quyền khóa (`LOCKED`) hoặc mở khóa (`ACTIVE`) tài khoản người dùng, lập tức thu hồi mọi Refresh Token đang hoạt động.
+- **Xử lý Lỗi Chuẩn hóa & Custom OpenAPI Docs**:
+  - Hệ thống ngoại lệ domain (`DomainError`, `InvalidCredentialsError`, `EmailAlreadyExistsError`, `InvalidTokenError`, `UserNotFoundError`, `InsufficientPermissionError`).
+  - Bắt lỗi validation input (422) và trả về định dạng tiếng Việt chuẩn hóa (`ErrorResponse` & `FieldError`).
+  - Tích hợp giao diện tài liệu API trực quan hiện đại **Scalar UI** tại `/docs` và tùy chỉnh OpenAPI schema linh hoạt.
+- **Mô hình Dữ liệu Thư viện Toàn diện (13 Entities)**:
+  - Quản lý danh mục (`categories`), nhà xuất bản (`publishers`), tác giả (`authors`), sách (`books`), liên kết tác giả - sách (`book_authors`).
+  - Quản lý mượn/trả sách (`borrow_records`, `borrow_items`), đặt trước sách (`reservations`, `reservation_items`), tiền phạt quá hạn (`fines`).
+  - Đăng ký nhật ký tìm kiếm AI (`ai_search_logs` hỗ trợ lưu JSONB result).
+  - Tối ưu hóa truy vấn tìm kiếm tiêu đề sách với **PostgreSQL GIN Trigram Index** (`gin_trgm_ops`).
+
+---
 
 ## 🚀 Công nghệ sử dụng
 
-| Công nghệ                                              | Phiên bản | Mục đích                      |
-| :----------------------------------------------------- | :-------: | :---------------------------- |
-| [Python](https://www.python.org/)                      |   3.12    | Ngôn ngữ chính                |
-| [FastAPI](https://fastapi.tiangolo.com/)               |   0.14x   | Web framework (async)         |
-| [SQLAlchemy](https://www.sqlalchemy.org/)              |   2.0.x   | ORM (hỗ trợ async)            |
-| [PostgreSQL](https://www.postgresql.org/)              |     —     | Cơ sở dữ liệu                 |
-| [asyncpg](https://github.com/MagicStack/asyncpg)       |  0.31.x   | PostgreSQL async driver       |
-| [Alembic](https://alembic.sqlalchemy.org/)             |  1.19.x   | Database migrations           |
-| [PyJWT](https://pyjwt.readthedocs.io/)                 |  2.13.x   | JSON Web Token (xác thực)     |
-| [pwdlib](https://github.com/frankie567/pwdlib)         |   0.3.x   | Mã hóa mật khẩu (Argon2)      |
-| [Pydantic Settings](https://docs.pydantic.dev/latest/) |     —     | Quản lý biến môi trường       |
-| [Scalar](https://scalar.com/)                          |   1.8.x   | API Documentation UI          |
-| [uv](https://docs.astral.sh/uv/)                       |     —     | Package & environment manager |
+| Công nghệ                                              | Phiên bản  | Mục đích                                            |
+| :----------------------------------------------------- | :--------: | :-------------------------------------------------- |
+| [Python](https://www.python.org/)                      |  `>=3.12`  | Ngôn ngữ lập trình chính                            |
+| [FastAPI](https://fastapi.tiangolo.com/)               | `>=0.141`  | Web framework bất đồng bộ (async)                   |
+| [SQLAlchemy](https://www.sqlalchemy.org/)              | `>=2.0.52` | ORM với AsyncEngine & AsyncSession                  |
+| [PostgreSQL](https://www.postgresql.org/)              |     —      | Hệ quản trị cơ sở dữ liệu quan hệ                   |
+| [asyncpg](https://github.com/MagicStack/asyncpg)       | `>=0.31.0` | Driver PostgreSQL bất đồng bộ hiệu năng cao         |
+| [Alembic](https://alembic.sqlalchemy.org/)             | `>=1.19.1` | Quản lý database migration                          |
+| [PyJWT](https://pyjwt.readthedocs.io/)                 | `>=2.13.0` | Tạo và xác thực JSON Web Token                      |
+| [pwdlib](https://github.com/frankie567/pwdlib)         | `>=0.3.1`  | Mã hóa & băm mật khẩu chuẩn Argon2                  |
+| [Pydantic Settings](https://docs.pydantic.dev/latest/) |     —      | Đọc và validate biến môi trường từ `.env`           |
+| [Scalar FastAPI](https://scalar.com/)                  | `>=1.8.2`  | Giao diện API Documentation (Scalar UI)             |
+| [uv](https://docs.astral.sh/uv/)                       |     —      | Công cụ quản lý package & venv siêu nhanh bằng Rust |
 
-## 📂 Cấu trúc thư mục
+---
+
+## 🏗️ Kiến trúc & Cấu trúc thư mục
+
+### Mẫu kiến trúc (Layered Architecture)
+
+```text
+HTTP Request ──► CORS / Middleware ──► API Router (v1)
+                                            │
+                                            ▼
+                                     Service Layer (Business Logic)
+                                            │
+                                            ▼
+                                  Repository Layer (Data Access)
+                                            │
+                                            ▼
+                                  SQLAlchemy AsyncSession ──► PostgreSQL
+```
+
+### Cấu trúc dự án
 
 ```text
 backend/
-├── app/                        # Code chính của ứng dụng
-│   ├── api/                    # API routers (endpoint definitions)
-│   │   ├── v1/                 # API v1 endpoints
-│   │   │   └── router.py       # Main API v1 router
-│   │   ├── deps.py             # Common API dependencies
-│   │   └── __init__.py
-│   ├── core/                   # Cấu hình chung
-│   │   ├── config.py           # Settings (đọc từ .env qua Pydantic)
-│   │   └── __init__.py
-│   ├── db/                     # Kết nối & cấu hình database
-│   │   ├── base.py             # Declarative Base với Naming Convention
-│   │   ├── session.py          # Async Engine, SessionLocal & get_db dependency
-│   │   └── __init__.py
-│   ├── models/                 # SQLAlchemy ORM models (table definitions)
-│   │   └── __init__.py
-│   ├── repositories/           # Lớp truy vấn CSDL (CRUD operations)
-│   │   └── __init__.py
-│   ├── schemas/                # Pydantic schemas (request/response validation)
-│   │   └── __init__.py
-│   ├── services/               # Business logic layer
-│   │   └── __init__.py
-│   ├── __init__.py
-│   └── main.py                 # FastAPI app entry point (CORS, Scalar docs)
-├── alembic/                    # Database migration scripts
-│   ├── versions/               # Auto-generated migration files
+├── app/                        # Mã nguồn chính của ứng dụng
+│   ├── api/                    # Tầng API Controllers & Endpoints
+│   │   ├── v1/                 # API Version 1
+│   │   │   ├── auth/           # Endpoints đăng ký, đăng nhập, refresh, logout, đổi mật khẩu
+│   │   │   │   ├── deps.py     # Dependency riêng cho AuthService
+│   │   │   │   └── router.py
+│   │   │   ├── users/          # Endpoints người dùng (profile me, lock, unlock)
+│   │   │   │   ├── deps.py     # Dependency riêng cho UserService
+│   │   │   │   └── router.py
+│   │   │   └── router.py       # Main Router gom tất cả v1 modules
+│   │   └── deps.py             # Common API Dependencies (get_db, CurrentUser, require_admin)
+│   ├── core/                   # Cấu hình cốt lõi & Tiện ích chung
+│   │   ├── config.py           # Class Settings đọc biến môi trường
+│   │   ├── exceptions.py       # Các lớp ngoại lệ Domain (DomainError, InvalidCredentials, ...)
+│   │   ├── openapi.py          # Custom OpenAPI schema generator (override 422 response)
+│   │   └── security.py         # Hàm băm mật khẩu Argon2, JWT token, SHA-256 refresh hash
+│   ├── db/                     # Quản lý kết nối CSDL & Base models
+│   │   ├── base.py             # Declarative Base với Naming Convention (pk, fk, uq, ix, ck)
+│   │   ├── mixins.py           # Repositories reusable mixins (UUIDPkMixin, TimestampMixin, CreatedAtMixin)
+│   │   └── session.py          # Async Engine, AsyncSessionLocal & get_db dependency
+│   ├── models/                 # SQLAlchemy ORM Models (Bảng CSDL)
+│   │   ├── user.py             # User & UserRole/UserStatus Enums
+│   │   ├── refresh_token.py    # RefreshToken lưu hash token & trạng thái revoked
+│   │   ├── category.py         # Danh mục sách
+│   │   ├── publisher.py        # Nhà xuất bản
+│   │   ├── author.py           # Tác giả
+│   │   ├── book.py             # Sách (tích hợp GIN Trigram index)
+│   │   ├── book_author.py      # Bảng trung gian Sách - Tác giả
+│   │   ├── borrow_record.py    # Phếu mượn sách & BorrowStatus Enum
+│   │   ├── borrow_item.py      # Chi tiết mượn sách
+│   │   ├── reservation.py      # Phiếu đặt trước & ReservationStatus Enum
+│   │   ├── reservation_item.py # Chi tiết đặt trước
+│   │   ├── fine.py             # Tiền phạt quá hạn & PaymentStatus Enum
+│   │   └── ai_search_log.py    # Lịch sử tìm kiếm AI (JSONB)
+│   ├── repositories/           # Tầng Truy vấn CSDL (CRUD Data Access)
+│   │   ├── user_repository.py          # Thao tác CSDL cho User
+│   │   └── refresh_token_repository.py # Thao tác CSDL cho RefreshToken
+│   ├── schemas/                # Pydantic Schemas (Request/Response Validation)
+│   │   ├── auth.py             # Schema Login, ChangePassword
+│   │   ├── user.py             # Schema CreateUser, UserRead
+│   │   ├── token.py            # Schema Token, TokenPair, TokenPayload
+│   │   └── error.py            # Schema ErrorResponse, FieldError
+│   ├── services/               # Tầng Nghiệp vụ (Business Logic)
+│   │   ├── auth_service.py     # Xử lý login, register, issue/refresh token, logout, change password
+│   │   └── user_service.py     # Xử lý lock/unlock tài khoản
+│   └── main.py                 # FastAPI Application Entry Point
+├── alembic/                    # Database Migrations
+│   ├── versions/               # Các tệp script migration
 │   ├── env.py                  # Alembic environment config (kết nối target_metadata = Base.metadata)
-│   └── script.py.mako          # Migration template
-├── alembic.ini                 # Alembic configuration
-├── pyproject.toml              # Project metadata & dependencies (uv)
-├── uv.lock                     # Lock file (dependencies cố định)
-├── .python-version             # Python version (3.12)
-├── .env                        # (Không commit) Biến môi trường
-├── .env.example                # Biến môi trường mẫu
-└── .gitignore                  # Cấu hình Git ignore
+│   └── script.py.mako          # Template script migration
+├── alembic.ini                 # Cấu hình Alembic
+├── pyproject.toml              # Cấu hình dự án & dependencies (uv)
+├── uv.lock                     # Lock file cố định phiên bản gói
+├── .python-version             # Khai báo phiên bản Python (3.12)
+├── .env.example                # File mẫu biến môi trường
+└── README.md                   # Tài liệu hướng dẫn sử dụng
 ```
 
-## 🛠️ Hướng dẫn cài đặt
+---
 
-### Yêu cầu
+## 🗃️ Cơ sở dữ liệu & Các bảng chính (Entities)
 
-- **Python** >= 3.12
-- **uv** — Công cụ quản lý package Python ([Hướng dẫn cài đặt](https://docs.astral.sh/uv/getting-started/installation/))
-- **PostgreSQL** — Database server
+Hệ thống được thiết kế chuẩn mực với 13 bảng dữ liệu quan hệ:
 
-### Cài đặt và chạy
+1. **`users`**: Quản lý thông tin tài khoản người dùng, vai trò (`admin`, `user`), trạng thái (`active`, `locked`).
+2. **`refresh_tokens`**: Lưu trữ chuỗi hash SHA-256 của Refresh Token, thời gian hết hạn và trạng thái thu hồi (`revoked`).
+3. **`categories`**: Danh mục phân loại sách.
+4. **`publishers`**: Thông tin các nhà xuất bản.
+5. **`authors`**: Thông tin các tác giả.
+6. **`books`**: Thông tin chi tiết sách, số lượng tổng/sẵn có, mã ISBN, và chỉ mục GIN Trigram cho tìm kiếm tiêu đề.
+7. **`book_authors`**: Bảng liên kết nhiều-nhiều giữa Sách và Tác giả.
+8. **`borrow_records`**: Phiếu mượn sách, quản lý ngày mượn, hạn trả, ngày trả thực tế và trạng thái (`borrowing`, `returned`, `overdue`).
+9. **`borrow_items`**: Danh sách các cuốn sách thuộc một phiếu mượn.
+10. **`reservations`**: Phiếu đặt giữ sách trước, trạng thái (`pending`, `approved`, `cancelled`, `expired`).
+11. **`reservation_items`**: Danh sách sách đặt giữ trong một phiếu đặt.
+12. **`fines`**: Thông tin tiền phạt do trả sách quá hạn, số ngày quá hạn, số tiền phạt và trạng thái thanh toán (`unpaid`, `paid`).
+13. **`ai_search_logs`**: Nhật ký tìm kiếm bằng AI của người dùng (lưu câu truy vấn và mảng ID sách kết quả dưới dạng `JSONB`).
+
+---
+
+## 🛠️ Hướng dẫn cài đặt & Chạy ứng dụng
+
+### 1. Yêu cầu môi trường
+
+- **Python** `>= 3.12`
+- **uv** (Package manager): [Hướng dẫn cài đặt uv](https://docs.astral.sh/uv/getting-started/installation/)
+- **PostgreSQL** Server đang hoạt động
+
+### 2. Các bước khởi chạy
 
 ```bash
 # 1. Di chuyển vào thư mục backend
 cd backend
 
-# 2. Cài đặt dependencies (uv tự tạo .venv)
+# 2. Đồng bộ và cài đặt toàn bộ dependencies (uv tự động tạo .venv)
 uv sync
 
-# 3. Kích hoạt virtual environment
-# Windows:
+# 3. Kích hoạt môi trường ảo (Virtual Environment)
+# Trên Windows (PowerShell / CMD):
 .venv\Scripts\activate
-# macOS/Linux:
+# Trên macOS / Linux:
 source .venv/bin/activate
-# Git Bash:
-source .venv/Scripts/activate
 
-# 4. Tạo file biến môi trường
+# 4. Tạo file cấu hình môi trường từ mẫu
 cp .env.example .env
 
-# 5. Cấu hình biến môi trường trong file .env
-#    (xem phần "Biến môi trường" bên dưới)
+# 5. Cập nhật các thông số kết nối Database & Secret Key trong file .env
 
-# 6. Chạy database migration
+# 6. Chạy Migration để tạo cấu trúc bảng trong PostgreSQL
 alembic upgrade head
 
-# 7. Khởi chạy dev server
+# 7. Khởi chạy server ở chế độ Development
 uv run fastapi dev
 ```
 
-API server sẽ chạy tại: **<http://localhost:8000>**
+Server sẽ khởi chạy tại: **`http://localhost:8000`**
 
-API Documentation (Scalar UI) tại: **<http://localhost:8000/docs>**
+Giao diện tài liệu API (Scalar UI): **`http://localhost:8000/docs`**
 
-## ⚙️ Biến môi trường
+---
 
-Tạo file `.env` từ `.env.example` và cấu hình các giá trị sau:
+## ⚙️ Cấu hình Biến môi trường (`.env`)
 
-### App
+Các cấu hình chính trong file `.env`:
 
-| Biến                   | Mô tả                           | Giá trị mặc định                         |
-| :--------------------- | :------------------------------ | :--------------------------------------- |
-| `PROJECT_NAME`         | Tên project hiển thị            | `Smart Library Management Backend`       |
-| `API_V1_PREFIX`        | Prefix cho API v1               | `/api/v1`                                |
-| `ENVIRONMENT`          | Môi trường chạy                 | `local` (`local`/`staging`/`production`) |
-| `BACKEND_CORS_ORIGINS` | Danh sách origin được phép CORS | `["http://localhost:5173"]`              |
+### App Settings
 
-### Security
+| Biến môi trường        | Mô tả                                       | Giá trị mặc định                   |
+| :--------------------- | :------------------------------------------ | :--------------------------------- |
+| `PROJECT_NAME`         | Tên ứng dụng                                | `Smart Library Management Backend` |
+| `API_V1_PREFIX`        | Đường dẫn prefix cho API v1                 | `/api/v1`                          |
+| `ENVIRONMENT`          | Môi trường vận hành (`local`/`production`)  | `local`                            |
+| `BACKEND_CORS_ORIGINS` | Danh sách origin cho phép CORS (JSON array) | `["http://localhost:5173"]`        |
 
-| Biến                          | Mô tả                                                 | Giá trị mặc định |
-| :---------------------------- | :---------------------------------------------------- | :--------------- |
-| `SECRET_KEY`                  | Khóa bí mật cho JWT (tạo bằng `openssl rand -hex 32`) | —                |
-| `ALGORITHM`                   | Thuật toán JWT                                        | `HS256`          |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Thời gian hết hạn access token (phút)                 | `30`             |
-| `REFRESH_TOKEN_EXPIRE_DAYS`   | Thời gian hết hạn refresh token (ngày)                | `7`              |
-| `COOKIE_SECURE`               | Bật secure cookie (bắt buộc `true` khi deploy HTTPS)  | `false`          |
+### Security Settings
 
-### Database
+| Biến môi trường               | Mô tả                                                         | Giá trị mặc định |
+| :---------------------------- | :------------------------------------------------------------ | :--------------- |
+| `SECRET_KEY`                  | Khóa bí mật dùng ký JWT (Tạo bằng `openssl rand -hex 32`)     | _Bắt buộc_       |
+| `ALGORITHM`                   | Thuật toán mã hóa JWT                                         | `HS256`          |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Thời gian sống của Access Token (phút)                        | `30`             |
+| `REFRESH_TOKEN_EXPIRE_DAYS`   | Thời gian sống của Refresh Token (ngày)                       | `7`              |
+| `COOKIE_SECURE`               | Bật Secure Cookie (Đặt `True` khi chạy HTTPS trên Production) | `False`          |
 
-| Biến           | Mô tả                            | Ví dụ                                                          |
-| :------------- | :------------------------------- | :------------------------------------------------------------- |
-| `DATABASE_URL` | Connection string đến PostgreSQL | `postgresql+asyncpg://user:password@localhost:5432/library_db` |
+### Database Settings
 
-## 🗃️ Database & Migration
+| Biến môi trường | Mô tả                                               | Định dạng mẫu                                                  |
+| :-------------- | :-------------------------------------------------- | :------------------------------------------------------------- |
+| `DATABASE_URL`  | Chuỗi kết nối PostgreSQL Async via `asyncpg` driver | `postgresql+asyncpg://user:password@localhost:5432/library_db` |
 
-### SQLAlchemy & Session Management
+---
 
-- **`app/db/base.py`**: Định nghĩa `Base` class sử dụng `DeclarativeBase` với Naming Convention chuẩn (`pk`, `fk`, `uq`, `ix`, `ck`).
-- **`app/db/session.py`**: Khởi tạo `create_async_engine` kết nối PostgreSQL với `AsyncSessionLocal`. Cung cấp `get_db()` dependency tự động quản lý đóng/mở session theo từng HTTP request.
-- **`alembic/env.py`**: Đã kết nối `target_metadata = Base.metadata` và import các models từ `app.models` để tự động phát hiện thay đổi schema khi migrate.
+## 🗃️ Hướng dẫn Quản lý Database Migration (Alembic)
 
-### Thao tác Migration (Alembic)
+Các lệnh Alembic thường dùng:
 
 ```bash
-# Tạo migration mới sau khi thay đổi models
-alembic revision --autogenerate -m "mô tả thay đổi"
+# Tạo script migration mới khi thay đổi SQLAlchemy Models
+alembic revision --autogenerate -m "Mô tả thay đổi schema"
 
-# Chạy migration (cập nhật database)
+# Áp dụng tất cả migration chưa chạy lên CSDL
 alembic upgrade head
 
-# Rollback migration gần nhất
+# Rollback 1 bước migration gần nhất
 alembic downgrade -1
 
-# Xem lịch sử migration
+# Kiểm tra lịch sử các bản migration
 alembic history
 ```
 
-## 🏗️ Kiến trúc
+---
 
-Project sử dụng kiến trúc **Layered Architecture** (phân tầng):
+## 📡 Danh sách API Endpoints hiện tại
 
-```text
-Request → CORS Middleware → API Router (v1) → Service → Repository → Database
-                                              ↕
-                                           Schema (Pydantic)
-```
+### System & Documentation
 
-| Layer          | Thư mục             | Trách nhiệm                                                        |
-| :------------- | :------------------ | :----------------------------------------------------------------- |
-| **API**        | `app/api/`          | Định nghĩa v1 router, endpoints, nhận request, trả response        |
-| **Service**    | `app/services/`     | Xử lý logic nghiệp vụ, validation phức tạp                         |
-| **Repository** | `app/repositories/` | Truy vấn CSDL (CRUD), tách biệt data access                        |
-| **Schema**     | `app/schemas/`      | Validate dữ liệu vào/ra (Pydantic models)                          |
-| **Model**      | `app/models/`       | Định nghĩa bảng CSDL (SQLAlchemy ORM)                              |
-| **Core**       | `app/core/`         | Cấu hình chung (`config.py`), security, JWT                        |
-| **DB**         | `app/db/`           | `Base` class (Naming convention), Async Session engine, `get_db()` |
+| Method | Endpoint               | Mô tả                                                   | Xác thực |
+| :----- | :--------------------- | :------------------------------------------------------ | :------: |
+| `GET`  | `/heathz`              | Kiểm tra trạng thái hoạt động của server (Health check) |  Không   |
+| `GET`  | `/docs`                | Giao diện tài liệu API tương tác (Scalar UI)            |  Không   |
+| `GET`  | `/api/v1/openapi.json` | Khai báo OpenAPI Schema chuẩn chỉnh                     |  Không   |
 
-## 🔒 Xác thực & Middleware
+### Authentication (`/api/v1/auth`)
 
-- **CORS Middleware**: Cấu hình tự động theo `BACKEND_CORS_ORIGINS` trong `.env`.
-- **Access Token**: JWT trong header `Authorization: Bearer <token>`
-- **Refresh Token**: HTTP-only cookie
-- **Mã hóa mật khẩu**: Argon2 (qua `pwdlib`)
+| Method | Endpoint                       | Mô tả                                                                     | Xác thực |
+| :----- | :----------------------------- | :------------------------------------------------------------------------ | :------: |
+| `POST` | `/api/v1/auth/register`        | Đăng ký tài khoản người dùng mới (`201 Created`)                          |  Không   |
+| `POST` | `/api/v1/auth/login`           | Đăng nhập, nhận Access Token (body) & Refresh Token (HTTP-only cookie)    |  Không   |
+| `POST` | `/api/v1/auth/refresh`         | Cấp lại Access Token & xoay vòng Refresh Token từ HTTP-only cookie        |  Cookie  |
+| `POST` | `/api/v1/auth/logout`          | Đăng xuất, thu hồi Refresh Token trong DB & xóa cookie (`204 No Content`) |  Cookie  |
+| `POST` | `/api/v1/auth/change-password` | Đổi mật khẩu & vô hiệu hóa phiên đăng nhập trên mọi thiết bị khác         |  Bearer  |
 
-## 📡 API Endpoints
+### User Management (`/api/v1/users`)
 
-| Method | Endpoint  | Mô tả                         |
-| :----- | :-------- | :---------------------------- |
-| GET    | `/`       | Hello World                   |
-| GET    | `/heathz` | Health check                  |
-| GET    | `/docs`   | API Documentation (Scalar UI) |
+| Method  | Endpoint                         | Mô tả                                                           | Phân quyền  |
+| :------ | :------------------------------- | :-------------------------------------------------------------- | :---------: |
+| `GET`   | `/api/v1/users/me`               | Lấy thông tin chi tiết của người dùng đang đăng nhập            | CurrentUser |
+| `PATCH` | `/api/v1/users/{user_id}/lock`   | Khóa tài khoản người dùng & lập tức thu hồi các phiên đăng nhập |   `ADMIN`   |
+| `PATCH` | `/api/v1/users/{user_id}/unlock` | Mở khóa tài khoản người dùng về trạng thái `ACTIVE`             |   `ADMIN`   |
 
-> Các endpoint nghiệp vụ sẽ được thêm vào `app/api/v1/` theo tiến độ phát triển.
+---
+
+## 🔒 Quy trình Bảo mật & Luồng Xác thực
+
+1. **Đăng nhập (`POST /auth/login`)**:
+   - Client gửi `email` và `password`.
+   - Server kiểm tra thông tin đăng nhập với mật khẩu mã hóa **Argon2** trong DB.
+   - Nếu hợp lệ, server trả về `access_token` trong JSON response body và tự động đặt `refresh_token` ngẫu nhiên 32-bytes vào **HTTP-only Cookie** bảo mật.
+   - Bản băm SHA-256 của `refresh_token` được lưu vào bảng `refresh_tokens`.
+2. **Gọi API cần bảo mật**:
+   - Client gắn Access Token vào header request: `Authorization: Bearer <access_token>`.
+3. **Làm mới Token (`POST /auth/refresh`)**:
+   - Khi Access Token hết hạn (sau 30 phút), client gọi API `/refresh`.
+   - Trình duyệt tự động gửi cookie `refresh_token`. Server kiểm tra tính hợp lệ và trạng thái `revoked`.
+   - Thu hồi Refresh Token cũ, cấp phát một cặp (Access Token + Refresh Token) hoàn toàn mới (**Token Rotation**).
+4. **Đổi mật khẩu / Khóa tài khoản**:
+   - Khi user đổi mật khẩu hoặc bị Admin khóa tài khoản, toàn bộ các bản ghi `refresh_tokens` thuộc user đó sẽ bị chuyển thành `revoked = True`, buộc người dùng phải đăng nhập lại trên tất cả thiết bị.

@@ -1,25 +1,38 @@
-import uuid
-from datetime import datetime
+from enum import StrEnum
 
-from sqlalchemy import UUID, Boolean, DateTime, String, func
+from sqlalchemy import Enum, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+from app.db.mixins import TimestampMixin, UUIDPkMixin
 
 
-class User(Base):
+class UserRole(StrEnum):
+    ADMIN = "admin"
+    USER = "user"
+
+
+class UserStatus(StrEnum):
+    ACTIVE = "active"
+    LOCKED = "locked"
+
+
+class User(UUIDPkMixin, TimestampMixin, Base):
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-
-    full_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    full_name: Mapped[str] = mapped_column(String(150), nullable=False)
+    email: Mapped[str] = mapped_column(String(150), unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[str] = mapped_column(String(50), default="user", nullable=False)
-    status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), server_onupdate=func.now()
+    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    avatar_storage_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="user_role", values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=UserRole.USER,
+    )
+    status: Mapped[UserStatus] = mapped_column(
+        Enum(UserStatus, name="user_status", values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=UserStatus.ACTIVE,
     )

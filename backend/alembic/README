@@ -1,1 +1,111 @@
-Generic single-database configuration.
+# 🛠 Tổng Hợp Lệnh Alembic Thường Dùng
+
+## 1. 🚀 Khởi tạo môi trường (Initialization)
+
+_Chạy lệnh này một lần duy nhất khi bắt đầu tích hợp Alembic vào dự án FastAPI._
+
+- **Khởi tạo cơ bản (Đồng bộ - Sync):**
+
+  ```bash
+  alembic init alembic
+  ```
+
+_(Lệnh này tạo ra thư mục `alembic` chứa các file cấu hình và thư mục con `versions`)_
+
+- **Khởi tạo cho cơ sở dữ liệu Bất đồng bộ (Async) - Khuyên dùng cho FastAPI:**
+
+  ```bash
+  alembic init -t async alembic
+  ```
+
+_(Sử dụng template async, tạo ra file `env.py` được cấu hình sẵn cho `AsyncEngine` như `asyncpg`, `aiomysql`)_
+
+## 2. 📝 Tạo Migration (Revision)
+
+_Lệnh dùng để tạo ra các file script ghi nhận sự thay đổi của cấu trúc cơ sở dữ liệu (tạo bảng, thêm cột,...)._
+
+- **Tạo file migration tự động (Autogenerate):**
+
+  ```bash
+  alembic revision --autogenerate -m "thêm cột email vào bảng users"
+  ```
+
+_(Lệnh thường dùng nhất. Alembic tự động so sánh SQLAlchemy Models với cấu trúc DB hiện tại. Yêu cầu phải khai báo `target_metadata` trong file `env.py`)_
+
+- **Tạo file migration trống (Manual):**
+
+  ```bash
+  alembic revision -m "tạo bảng users"
+  ```
+
+_(Tạo ra một file trống, bạn sẽ phải tự viết code SQL hoặc SQLAlchemy cho hàm `upgrade()` và `downgrade()`)_
+
+## 3. ⬆️ Cập nhật Database (Upgrade)
+
+_Lệnh dùng để áp dụng các thay đổi từ file migration vào cơ sở dữ liệu thực tế._
+
+- **Cập nhật lên phiên bản mới nhất:**
+
+  ```bash
+  alembic upgrade head
+  ```
+
+- **Tiến lên 1 phiên bản (Step +1):**
+
+  ```bash
+  alembic upgrade +1
+  ```
+
+- **Tiến đến một phiên bản cụ thể:**
+
+  ```bash
+  alembic upgrade <revision_id>
+  ```
+
+_(Ví dụ: `alembic upgrade 8b46a2a07c3b`)_
+
+## 4. ⬇️ Khôi phục Database (Downgrade)
+
+_Lệnh dùng để hoàn tác (undo) các thay đổi, lùi cơ sở dữ liệu về phiên bản cũ._
+
+- **Lùi lại 1 phiên bản (Step -1):**
+
+  ```bash
+  alembic downgrade -1
+  ```
+
+- **Lùi về trạng thái gốc (Xóa trắng cấu trúc DB):**
+
+  ```bash
+  alembic downgrade base
+  ```
+
+- **Lùi về một phiên bản cụ thể:**
+
+  ```bash
+  alembic downgrade <revision_id>
+  ```
+
+## 5. 🔍 Xem thông tin (History & Status)
+
+_Lệnh dùng để kiểm tra trạng thái hiện tại của Alembic và lịch sử các migrations._
+
+- **Xem phiên bản migration hiện tại của Database:**
+
+  ```bash
+  alembic current
+  ```
+
+- **Xem lịch sử các migrations:**
+
+  ```bash
+  alembic history
+  ```
+
+_(Thêm cờ `--verbose` hoặc `-v` để xem chi tiết hơn: `alembic history -v`)_
+
+- **Xem các điểm cuối (Heads) của migrations:**
+
+  ```bash
+  alembic heads
+  ```
