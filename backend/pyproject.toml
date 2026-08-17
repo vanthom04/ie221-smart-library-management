@@ -13,3 +13,13 @@ dependencies = [
     "scalar-fastapi>=1.8.2",
     "sqlalchemy[asyncio]>=2.0.52",
 ]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
