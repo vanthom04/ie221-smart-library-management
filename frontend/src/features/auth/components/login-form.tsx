@@ -53,7 +53,10 @@ export const LoginForm = () => {
   }
 
   const onSocial = () => {
-    // addToast({ type: "info", message: "Tính năng đang được phát triển!" })
+    addToast({
+      type: "info",
+      message: "Nút bấm chỉ để làm đẹp, hoàn toàn không có tác dụng."
+    })
   }
 
   return (
