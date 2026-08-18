@@ -4,13 +4,13 @@
 
 ## 👥 Danh sách thành viên (Nhóm 11)
 
-| STT | Tên thành viên  |   MSSV   | Vai trò |
-| :-: | :-------------- | :------: | :------ |
-|  1  | Trần Ngọc Tâm   | 25410300 | ?       |
-|  2  | Hồ Thiên Phúc   | 25410284 | ?       |
-|  3  | Chu Văn Thơm    | 25410314 | ?       |
-|  4  | Trần Bình Trọng | 25410324 | ?       |
-|  5  | Lê Thanh Quốc   | 25410289 | ?       |
+| STT | Tên thành viên  |   MSSV   | Phân công      |
+| :-: | :-------------- | :------: | :------------- |
+|  1  | Trần Ngọc Tâm   | 25410300 | Book Catalog   |
+|  2  | Hồ Thiên Phúc   | 25410284 | Dashboard & QA |
+|  3  | Chu Văn Thơm    | 25410314 | IAM & Infra    |
+|  4  | Trần Bình Trọng | 25410324 | Borrowing Core |
+|  5  | Lê Thanh Quốc   | 25410289 | Fines & AI     |
 
 ## 🚀 Công nghệ sử dụng
 
@@ -41,13 +41,14 @@ ie221-smart-library-management/
 │
 ├─ frontend/                     # Nơi chứa mã nguồn ReactJS (Vite)
 │  ├─ src/                       # Code chính của giao diện
-│  │  ├─ assets/                 # Hình ảnh, icon, font chữ
 │  │  ├─ components/             # Các component dùng chung (Button, Modal, Navbar...)
-│  │  ├─ pages/                  # Các trang chính (Home, Login, Dashboard, Search)
-│  │  ├─ services/               # Các file gọi API đến backend (fetch/axios)
+│  │  ├─ features/               # Mô-đun theo tính năng (Feature-driven)
 │  │  ├─ hooks/                  # Custom React Hooks
-│  │  ├─ utils/                  # Các hàm tiện ích (format ngày, tiền tệ...)
-│  │  └─ main.jsx                # Entry point của React
+│  │  ├─ layouts/                # App Layouts
+│  │  ├─ lib/                    # Utilities & Config Layer
+│  │  ├─ pages/                  # Các trang chính (Home, Login, Dashboard, Search)
+│  │  ├─ router/                 # Route definitions & Middleware
+│  │  └─ main.tsx                # Entry point của React
 │  ├─ package.json               # Quản lý thư viện Node.js
 │  └─ .env                       # (Không commit) Cấu hình URL gọi API
 │

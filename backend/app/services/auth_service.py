@@ -108,9 +108,10 @@ class AuthService:
     async def refresh(self, refresh_token: str) -> TokenPair:
         """Cấp lại cặp token mới dựa trên Refresh Token hợp lệ.
 
-        Kiểm tra tính hợp lệ của refresh token, trạng thái tài khoản. Nếu mọi thứ
-        đều hợp lệ, token cũ sẽ bị thu hồi (revoke) và cấp lại một cặp token mới
-        để xoay vòng (token rotation).
+        Kiểm tra tính hợp lệ của refresh token và trạng thái tài khoản. Nếu mọi thứ
+        đều hợp lệ, thay vì tạo hàng mới, hệ thống sẽ tiến hành cập nhật trực tiếp
+        (token rotation qua phương thức rotate) để cấp lại cặp token mới nhằm hạn chế
+        phình to dữ liệu bảng token.
 
         Args:
             refresh_token (str): Chuỗi refresh token gốc (plain text) từ client.
@@ -130,8 +131,14 @@ class AuthService:
         if user is None or user.status != UserStatus.ACTIVE:
             raise InvalidTokenError("Tài khoản không tồn tại hoặc đã bị khóa!")
 
-        await self._refresh_tokens.revoke(token_row)
-        return await self.issue_tokens(user)
+        new_access_token = create_access_token(user.id)
+        new_refresh_token = generate_refresh_token()
+        await self._refresh_tokens.rotate(
+            token_row,
+            hashed_token=hash_refresh_token(new_refresh_token),
+            expires_at=datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        )
+        return TokenPair(access_token=new_access_token, refresh_token=new_refresh_token)
 
     async def logout(self, refresh_token: str) -> None:
         """Đăng xuất người dùng bằng cách thu hồi (revoke) Refresh Token.
