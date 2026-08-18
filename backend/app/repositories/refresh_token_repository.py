@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.refresh_token import RefreshToken
@@ -79,6 +79,27 @@ class RefreshTokenRepository:
         token.revoked = True
         await self._session.commit()
 
+    async def rotate(self, token: RefreshToken, *, hashed_token: str, expires_at: datetime) -> None:
+        """Cập nhật thay thế (rotate) token hiện có bằng cách ghi đè trực tiếp (UPDATE) thay vì tạo mới.
+
+        Giữ nguyên tính năng bảo mật của token rotation: token cũ nếu bị tái sử dụng
+        sẽ không tìm thấy chuỗi hash trong database nữa (do đã bị ghi đè) và thất bại
+        giống như khi revoke. Đồng thời, cách này giúp tránh sinh thêm bản ghi mới
+        khi có nhiều request refresh liên tục (ví dụ: người dùng nhấn F5), hạn chế tình
+        trạng phình to cơ sở dữ liệu vô ích.
+
+        Args:
+            token (RefreshToken): Đối tượng refresh token hiện tại cần thực hiện rotate.
+            hashed_token (str): Chuỗi băm của refresh token mới.
+            expires_at (datetime): Thời điểm (UTC) hết hạn của refresh token mới.
+
+        Returns:
+            None
+        """  # noqa: E501
+        token.hashed_token = hashed_token
+        token.expires_at = expires_at
+        await self._session.commit()
+
     async def revoke_all_for_user(self, user_id: uuid.UUID) -> None:
         """Thu hồi toàn bộ refresh token của một người dùng cụ thể.
 
@@ -97,3 +118,23 @@ class RefreshTokenRepository:
             update(RefreshToken).where(RefreshToken.user_id == user_id).values(revoked=True)
         )
         await self._session.commit()
+
+    async def delete_stale(self) -> int:
+        """Xóa vĩnh viễn các bản ghi refresh token đã không còn giá trị sử dụng.
+
+        Bao gồm các token đã bị thu hồi (`revoked` do đăng xuất, đổi mật khẩu, hoặc
+        bị admin khóa tài khoản) hoặc các token đã tự động hết hạn tự nhiên.
+        Phương thức này được thiết kế để chạy định kỳ thông qua script/cron job bên ngoài
+        (ví dụ: `app/scripts/cleanup_refresh_tokens.py`), tuyệt đối không gọi trực tiếp
+        trong các request xử lý nghiệp vụ thông thường.
+
+        Returns:
+            int: Số lượng bản ghi đã được xóa khỏi cơ sở dữ liệu.
+        """
+        result = await self._session.execute(
+            delete(RefreshToken).where(
+                or_(RefreshToken.revoked.is_(True), RefreshToken.expires_at < datetime.now(UTC))
+            )
+        )
+        await self._session.commit()
+        return result.rowcount  # type: ignore

@@ -19,6 +19,7 @@ class UserRead(BaseModel):
     full_name: str
     email: EmailStr
     phone: str | None
+    avatar_url: str | None
     role: UserRole
     status: UserStatus
     created_at: datetime
