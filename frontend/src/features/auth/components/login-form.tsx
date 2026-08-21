@@ -74,7 +74,7 @@ export const LoginForm = () => {
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                 <div className="relative">
-                  <MailIcon className="absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
+                  <MailIcon className="pointer-events-none absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     {...field}
                     type="email"
@@ -107,7 +107,7 @@ export const LoginForm = () => {
                   </Link>
                 </div>
                 <div className="relative">
-                  <LockIcon className="absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
+                  <LockIcon className="pointer-events-none absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     {...field}
                     id={field.name}

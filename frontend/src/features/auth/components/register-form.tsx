@@ -2,7 +2,7 @@ import { useState, useTransition } from "react"
 import { Link, useNavigate } from "react-router"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
-import { ArrowRightIcon, EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react"
+import { ArrowRightIcon, EyeIcon, EyeOffIcon, LockIcon, MailIcon, User2Icon } from "lucide-react"
 
 import { api } from "@/lib/axios"
 import { isApiError } from "@/lib/api-error"
@@ -84,7 +84,7 @@ export const RegisterForm = () => {
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Họ và tên</FieldLabel>
                 <div className="relative">
-                  <MailIcon className="absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
+                  <User2Icon className="pointer-events-none absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     {...field}
                     id={field.name}
@@ -107,7 +107,7 @@ export const RegisterForm = () => {
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                 <div className="relative">
-                  <MailIcon className="absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
+                  <MailIcon className="pointer-events-none absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     {...field}
                     type="email"
@@ -131,7 +131,7 @@ export const RegisterForm = () => {
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
                 <div className="relative">
-                  <LockIcon className="absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
+                  <LockIcon className="pointer-events-none absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     {...field}
                     id={field.name}
@@ -165,7 +165,7 @@ export const RegisterForm = () => {
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu</FieldLabel>
                 <div className="relative">
-                  <LockIcon className="absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
+                  <LockIcon className="pointer-events-none absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     {...field}
                     id={field.name}

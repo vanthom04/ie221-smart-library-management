@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-import type { User } from "@/features/users/types"
+import type { User } from "@/features/profile/types"
 
 interface AuthStore {
   accessToken: string | null

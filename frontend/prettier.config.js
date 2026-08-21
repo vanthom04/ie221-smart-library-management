@@ -9,7 +9,7 @@ const config = {
   printWidth: 100,
   arrowParens: "always",
   endOfLine: "auto",
-  quoteProps: "consistent",
+  quoteProps: "preserve",
   jsxSingleQuote: false,
   htmlWhitespaceSensitivity: "ignore",
   plugins: ["prettier-plugin-tailwindcss"],

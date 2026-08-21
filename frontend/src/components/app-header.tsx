@@ -10,7 +10,7 @@ import {
 } from "lucide-react"
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store"
-import { useCurrentUser } from "@/features/users/hooks/use-current-user"
+import { useCurrentUser } from "@/features/profile/hooks/use-current-user"
 
 import { api } from "@/lib/axios"
 import { getInitials } from "@/lib/utils"
@@ -52,7 +52,7 @@ export const AppHeader = () => {
   const currentPage = navItems.find((item) => item.href === location.pathname)
 
   return (
-    <header className="flex items-center justify-between px-6 py-3">
+    <header className="flex items-center justify-between border-b border-border px-6 py-2.5">
       <div className="flex flex-1 flex-col">
         <h3 className="text-base font-semibold">{currentPage?.label ?? "Thư viện"}</h3>
         {currentPage?.description && (
@@ -60,7 +60,7 @@ export const AppHeader = () => {
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-8">
+      <div className="flex items-center justify-center gap-6">
         {user ? (
           <>
             <Button size="icon" variant="ghost" className="relative [&_svg]:size-5!">
@@ -113,7 +113,7 @@ export const AppHeader = () => {
         ) : (
           <Button
             nativeButton={false}
-            className="h-auto bg-blue-500 px-4 py-2.5 hover:bg-blue-500/90"
+            className="h-auto bg-blue-500 px-4 py-2.5"
             render={(buttonProps) => (
               <Link to="/login" {...buttonProps}>
                 Đăng nhập

@@ -1,13 +1,15 @@
 import { createBrowserRouter } from "react-router"
 
 import { FallbackLoader } from "@/components/fallback-loader"
+import { RootErrorBoundary } from "@/components/root-error-boundary"
 
-import { requireAuth, requireGuest } from "./middleware"
+import { loadSession, requireAuth, requireGuest } from "./middleware"
 
 export const router = createBrowserRouter([
   {
     middleware: [requireGuest],
     HydrateFallback: FallbackLoader,
+    ErrorBoundary: RootErrorBoundary,
     children: [
       {
         path: "/login",
@@ -21,42 +23,46 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
+    middleware: [loadSession],
     HydrateFallback: FallbackLoader,
+    ErrorBoundary: RootErrorBoundary,
     lazy: () => import("@/layouts/main-layout").then((m) => ({ Component: m.MainLayout })),
     children: [
       {
         path: "/",
-        lazy: () => import("@/pages/home").then((m) => ({ Component: m.HomePage }))
+        lazy: () => import("@/pages/user/home").then((m) => ({ Component: m.HomePage }))
       },
       {
         path: "/search",
-        lazy: () => import("@/pages/search").then((m) => ({ Component: m.SearchPage }))
+        lazy: () => import("@/pages/user/search").then((m) => ({ Component: m.SearchPage }))
       },
       {
         path: "/book-reservation",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () =>
-          import("@/pages/book-reservation").then((m) => ({ Component: m.BookReservationPage }))
+          import("@/pages/user/book-reservation").then((m) => ({
+            Component: m.BookReservationPage
+          }))
       },
       {
         path: "/borrow-history",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () =>
-          import("@/pages/borrow-history").then((m) => ({ Component: m.BorrowHistoryPage }))
+          import("@/pages/user/borrow-history").then((m) => ({ Component: m.BorrowHistoryPage }))
       },
       {
         path: "/dashboard",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
-        lazy: () => import("@/pages/dashboard").then((m) => ({ Component: m.DashboardPage }))
+        lazy: () => import("@/pages/user/dashboard").then((m) => ({ Component: m.DashboardPage }))
       },
       {
         path: "/profile",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
-        lazy: () => import("@/pages/profile").then((m) => ({ Component: m.ProfilePage }))
+        lazy: () => import("@/pages/user/profile").then((m) => ({ Component: m.ProfilePage }))
       }
     ]
   }
