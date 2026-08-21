@@ -28,12 +28,7 @@ function Marker({
 }: useRender.ComponentProps<"div"> & VariantProps<typeof markerVariants>) {
   return useRender({
     defaultTagName: "div",
-    props: mergeProps<"div">(
-      {
-        className: cn(markerVariants({ variant, className }))
-      },
-      props
-    ),
+    props: mergeProps<"div">({ className: cn(markerVariants({ variant, className })) }, props),
     render,
     state: {
       slot: "marker",

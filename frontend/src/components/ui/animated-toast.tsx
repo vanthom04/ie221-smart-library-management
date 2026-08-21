@@ -52,25 +52,22 @@ export function AnimatedToastProvider({
 }: AnimatedToastProviderProps) {
   const [toasts, setToasts] = React.useState<Toast[]>([])
 
-  const addToast = React.useCallback(
-    (toast: Omit<Toast, "id">) => {
-      const id = Math.random().toString(36).substr(2, 9)
-      setToasts((prev) => {
-        const newToasts = [...prev, { ...toast, id }]
-        return newToasts.slice(-maxToasts)
-      })
-      return id
-    },
-    [maxToasts]
-  )
+  const addToast = (toast: Omit<Toast, "id">) => {
+    const id = Math.random().toString(36).substring(2, 9)
+    setToasts((prev) => {
+      const newToasts = [...prev, { ...toast, id }]
+      return newToasts.slice(-maxToasts)
+    })
+    return id
+  }
 
-  const removeToast = React.useCallback((id: string) => {
+  const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
+  }
 
-  const clearAll = React.useCallback(() => {
+  const clearAll = () => {
     setToasts([])
-  }, [])
+  }
 
   const positionClasses: Record<ToastPosition, string> = {
     "top-right": "top-4 right-4",
@@ -98,8 +95,8 @@ export function AnimatedToastProvider({
               key={toast.id}
               toast={toast}
               index={index}
-              onRemove={() => removeToast(toast.id)}
               isTop={isTop}
+              onRemove={() => removeToast(toast.id)}
             />
           ))}
         </AnimatePresence>
@@ -276,25 +273,30 @@ interface UndoToastProps {
 export function UndoToast({ open, onClose, onUndo, message, duration = 5000 }: UndoToastProps) {
   const [progress, setProgress] = React.useState(100)
 
+  const onAutoClose = React.useEffectEvent(() => {
+    onClose()
+  })
+
   React.useEffect(() => {
     if (open) {
+      const step = 100 / (duration / 100)
       const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev <= 0) {
-            onClose()
-            return 0
-          }
-          return prev - 100 / (duration / 100)
-        })
+        setProgress((prev) => Math.max(0, prev - step))
       }, 100)
-      return () => clearInterval(interval)
+      const timer = setTimeout(() => {
+        onAutoClose()
+      }, duration)
+      return () => {
+        clearInterval(interval)
+        clearTimeout(timer)
+      }
     } else {
       // Avoid calling setState synchronously within an effect to prevent
       // cascading renders. Defer the state update to the next tick.
       const t = setTimeout(() => setProgress(100), 0)
       return () => clearTimeout(t)
     }
-  }, [open, duration, onClose])
+  }, [open, duration])
 
   return (
     <AnimatePresence>
@@ -318,8 +320,8 @@ export function UndoToast({ open, onClose, onUndo, message, duration = 5000 }: U
             </button>
           </div>
           <div
-            className="h-1 bg-primary transition-all duration-100"
             style={{ width: `${progress}%` }}
+            className="h-1 bg-primary transition-all duration-100"
           />
         </motion.div>
       )}

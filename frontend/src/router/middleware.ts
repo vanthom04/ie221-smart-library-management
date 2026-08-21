@@ -31,3 +31,7 @@ export const requireGuest: MiddlewareFunction = async () => {
     throw redirect("/")
   }
 }
+
+export const loadSession: MiddlewareFunction = async () => {
+  await ensureSession()
+}
