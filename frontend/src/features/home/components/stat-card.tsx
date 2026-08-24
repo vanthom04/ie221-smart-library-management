@@ -1,13 +1,13 @@
 import { Link } from "react-router"
+import { ArrowRightIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 import type { StatItemType } from "../types"
-import { ArrowRightIcon } from "lucide-react"
 
 export const StatCard = ({ stat }: { stat: StatItemType }) => {
   return (
-    <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="flex items-start gap-4 rounded-2xl border border-border bg-white p-5">
       <div
         className={cn(
           "flex size-12 shrink-0 items-center justify-center rounded-xl",
