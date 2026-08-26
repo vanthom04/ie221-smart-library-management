@@ -16,8 +16,8 @@
 
 - **Backend:** Python 3, FastAPI. Quản lý môi trường và package bằng `uv`.
 - **Frontend:** ReactJS (khởi tạo qua Vite), JavaScript/TypeScript.
-- **Cơ sở dữ liệu:** PostgreSQL / MySQL (kết hợp SQLAlchemy ORM).
-- **Tích hợp AI:** Sử dụng API của [DeepSeek/OpenAI] để hỗ trợ gợi ý sách thông minh.
+- **Cơ sở dữ liệu:** PostgreSQL (kết hợp SQLAlchemy ORM).
+- **Tích hợp AI:** Sử dụng API của [Groq] để hỗ trợ gợi ý sách thông minh.
 
 ## 📂 Cấu trúc thư mục (Monorepo)
 
@@ -25,6 +25,8 @@ Dự án được chia thành 2 phân hệ chính nằm trong cùng một reposi
 
 ```text
 ie221-smart-library-management/
+├─ .github/                      # Cấu hình GitHub Actions CI/CD workflows
+├─ .vscode/                      # Cấu hình workspace & extension gợi ý cho VS Code
 ├─ backend/                      # Nơi chứa mã nguồn FastAPI (Python)
 │  ├─ alembic/                   # Thư mục chứa các kịch bản migration tự động sinh ra
 │  ├─ app/                       # Code chính của ứng dụng
@@ -57,6 +59,7 @@ ie221-smart-library-management/
 │  ├─ Slide_Final.pdf            # Slide thuyết trình (Tối đa 10-12 trang)
 │  └─ KhaiBaoAI.md               # Bảng kê khai chi tiết các prompt AI đã dùng
 │
+├─ package.json                  # Scripts quản lý và khởi chạy toàn bộ monorepo
 ├─ README.md                     # Hướng dẫn dự án
 └─ .gitignore                    # Bỏ qua các file không cần thiết khi commit
 ```
@@ -66,34 +69,51 @@ ie221-smart-library-management/
 ### 1. Yêu cầu hệ thống (Prerequisites)
 
 - **Python:** >= 3.10
-- **uv:** Công cụ quản lý package Python cực nhanh (Cài đặt: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
-- **Node.js:** >= 18.x
+- **uv:** Công cụ quản lý package Python cực nhanh (Cài đặt: `curl -LsSf https://astral.sh/uv/install.sh | sh` hoặc `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`)
+- **Node.js:** >= 20.x
 - **Git**
 
-### 2. Khởi chạy Backend (FastAPI)
+---
+
+### 2. Khởi chạy nhanh toàn bộ dự án (Khuyến nghị)
+
+Tại thư mục gốc của repository:
+
+```bash
+# 1. Cài đặt các công cụ chạy song song ở root
+npm install
+
+# 2. Tự động cài đặt dependencies cho cả Backend & Frontend
+npm run install:all
+
+# 3. Khởi chạy đồng thời cả Backend (FastAPI) và Frontend (ReactJS)
+npm run dev
+```
+
+- **Frontend:** `http://localhost:5173`
+- **Backend API Docs (Scalar UI / Swagger):** `http://localhost:8000/docs`
+
+---
+
+### 3. Khởi chạy thủ công từng phân hệ (Manual)
+
+#### A. Khởi chạy Backend (FastAPI)
 
 Mở terminal và di chuyển vào thư mục `backend`:
 
 ```bash
 cd backend
 
-# Cài đặt các thư viện (uv sẽ tự động đọc từ pyproject.toml và tạo virtual environment)
+# Cài đặt thư viện bằng uv
 uv sync
 
-# Kích hoạt môi trường ảo (Tuỳ HĐH)
-source .venv/bin/activate     # MacOS/Linux
-source .venv/Scripts/activate # Git Bash
-.venv\Scripts\activate        # Windows
-
-# Chạy server ở chế độ dev
+# Khởi chạy server ở chế độ dev
 uv run fastapi dev
 ```
 
-API Documentation (Scalar UI) sẽ có tại: `http://localhost:8000/docs`
+#### B. Khởi chạy Frontend (ReactJS)
 
-### 3. Khởi chạy Frontend (ReactJS)
-
-Mở một terminal MỚI và di chuyển vào thư mục `frontend`:
+Mở một terminal mới và di chuyển vào thư mục `frontend`:
 
 ```bash
 cd frontend

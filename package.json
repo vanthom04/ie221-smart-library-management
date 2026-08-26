@@ -1,0 +1,31 @@
+{
+  "name": "ie221-smart-library-management",
+  "description": "Đây là kho lưu trữ mã nguồn (repository) cho đồ án kết thúc môn: **Kỹ thuật lập trình Python (IE221)**. Dự án được phát triển theo mô hình Client-Server với giao diện người dùng hiện đại và hệ thống xử lý backend hiệu năng cao, tích hợp AI để tối ưu hóa trải nghiệm mượn trả sách.",
+  "version": "1.0.0",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "install:all": "cd backend && uv sync && cd ../frontend && npm install",
+    "dev": "concurrently -c \"magenta,cyan\" -n \"BACKEND,FRONTEND\" \"cd backend && cross-env PYTHONUTF8=1 uv run fastapi dev\" \"cd frontend && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vanthom04/ie221-smart-library-management.git"
+  },
+  "keywords": [
+    "uit",
+    "ie221",
+    "smart-library-management"
+  ],
+  "author": "Nhóm 11 (IE221.F33.LT.CNTT)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vanthom04/ie221-smart-library-management/issues"
+  },
+  "homepage": "https://github.com/vanthom04/ie221-smart-library-management#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0"
+  }
+}
