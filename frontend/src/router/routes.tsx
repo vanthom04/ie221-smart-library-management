@@ -37,6 +37,11 @@ export const router = createBrowserRouter([
         lazy: () => import("@/pages/user/search").then((m) => ({ Component: m.SearchPage }))
       },
       {
+        path: "/books/:id",
+        lazy: () =>
+          import("@/pages/user/book-detail").then((m) => ({ Component: m.BookDetailPage }))
+      },
+      {
         path: "/book-reservation",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
