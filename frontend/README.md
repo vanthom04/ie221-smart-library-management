@@ -36,37 +36,49 @@ Dự án áp dụng cấu trúc **Feature-driven Architecture**, phân chia mã 
 
 ```text
 frontend/
-├── public/                  # Static assets (favicons, images)
+├── public/                  # Static assets (favicons, images, logos)
 ├── src/
 │   ├── components/          # Components dùng chung toàn hệ thống
 │   │   ├── ui/              # shadcn/ui components (59+ components)
 │   │   ├── app-header.tsx   # Thanh Header điều hướng chính
 │   │   ├── app-sidebar.tsx  # Thanh Sidebar điều hướng ứng dụng
-│   │   └── fallback-loader.tsx # Component loading cho Lazy Routes
+│   │   ├── fallback-loader.tsx # Component loading cho Lazy Routes
+│   │   └── root-error-boundary.tsx # Bắt lỗi toàn cục
 │   ├── features/            # Mô-đun theo tính năng (Feature-driven)
-│   │   ├── auth/            # Tính năng xác thực (Forms, Schemas, Zustand Store)
-│   │   ├── home/            # Trang chủ (Hero Banner, Categories, Stat Cards, Types)
-│   │   └── users/           # Quản lý người dùng (Hooks, Types)
-│   ├── hooks/               # Custom React Hooks toàn cục (use-mobile.ts)
+│   │   ├── auth/            # Xác thực người dùng (Forms, Schemas, Zustand Store)
+│   │   ├── home/            # Trang chủ (Hero Banner, Danh mục, Thẻ thống kê)
+│   │   ├── profile/         # Hồ sơ cá nhân & Bảo mật (Tabs, Forms, Schemas)
+│   │   ├── search/          # Tra cứu & Tìm kiếm sách nâng cao
+│   │   │   ├── components/  # Grid/List Cards, Sticky Filter Sidebar, Drawer, Toolbar
+│   │   │   ├── hooks/       # useSearchFilters hook đồng bộ URL SearchParams
+│   │   │   ├── constants.ts # Hằng số màu sắc, danh mục, cấu hình
+│   │   │   ├── mock-data.ts # Dữ liệu mẫu phong phú
+│   │   │   ├── schemas.ts   # Zod schema cho thanh tìm kiếm
+│   │   │   └── types.ts     # TypeScript interfaces & types
+│   │   ├── user-dashboard/  # Bảng điều khiển bạn đọc (Recharts Charts, Gợi ý, Sách đang mượn)
+│   │   └── users/           # Quản lý người dùng & API Hooks
+│   ├── hooks/               # Custom React Hooks dùng chung (use-mobile.ts)
 │   ├── layouts/             # App Layouts (main-layout.tsx)
 │   ├── lib/                 # Utilities & Config Layer
-│   │   ├── api-error.ts     # Lớp định nghĩa & xử lý chuẩn hóa lỗi API
-│   │   ├── axios.ts         # Axios instance, Interceptors & Auto Refresh Token Queue
+│   │   ├── api-error.ts     # Chuẩn hóa lỗi API
+│   │   ├── axios.ts         # Axios client, Interceptors & Auto Refresh Token Queue
 │   │   ├── query-client.ts  # Cấu hình TanStack React Query Client
 │   │   └── utils.ts         # Utility functions (cn, clsx, tailwind-merge)
-│   ├── pages/               # Page Components (View Routes)
+│   ├── pages/               # Page Views (Lazy-loaded Routes)
 │   │   ├── auth/            # Login (/login), Register (/register)
-│   │   ├── book-reservation/# Đặt trước sách (/book-reservation)
-│   │   ├── borrow-history/  # Lịch sử mượn trả (/borrow-history)
-│   │   ├── dashboard/       # Bảng điều khiển tổng quan (/dashboard)
-│   │   ├── home/            # Trang chủ (/)
-│   │   ├── profile/         # Trang thông tin cá nhân (/profile)
-│   │   └── search/          # Tra cứu & Tìm kiếm sách (/search)
-│   ├── router/              # Route definitions & Middleware
-│   │   ├── middleware.ts    # Route Middleware (requireAuth, requireGuest)
-│   │   └── routes.tsx       # Cấu hình Data Router với React Router v8
-│   ├── globals.css          # Tailwind CSS v4 setup & custom styles
-│   └── main.tsx             # Entry point (Providers & Router setup)
+│   │   └── user/            # Giao diện người dùng
+│   │       ├── home.tsx            # Trang chủ (/)
+│   │       ├── search.tsx          # Tìm kiếm & Lọc sách (/search)
+│   │       ├── book-detail.tsx     # Chi tiết sách (/books/:id)
+│   │       ├── book-reservation.tsx# Đặt trước sách (/book-reservation)
+│   │       ├── borrow-history.tsx  # Lịch sử mượn trả (/borrow-history)
+│   │       ├── dashboard.tsx       # Bảng điều khiển cá nhân (/dashboard)
+│   │       └── profile.tsx         # Hồ sơ & Cài đặt tài khoản (/profile)
+│   ├── router/              # Router definitions & Middlewares
+│   │   ├── middleware.ts    # Route Middleware (requireAuth, requireGuest, loadSession)
+│   │   └── routes.tsx       # Cấu hình Data Router (React Router v8)
+│   ├── globals.css          # Tailwind CSS v4 setup & custom tokens
+│   └── main.tsx             # Entry point (Providers & React Router)
 ├── index.html               # HTML entry point template
 ├── vite.config.ts           # Cấu hình Vite, React Compiler & Path Alias (@)
 ├── tsconfig.json            # Cấu hình TypeScript gốc
@@ -146,19 +158,48 @@ Dự án sử dụng **React Router v8 Data Router** kết hợp với **Route M
 
 - **`requireAuth`**: Bảo vệ các tuyến đường riêng tư. Kiểm tra phiên đăng nhập hiện tại; nếu hết hạn sẽ tự gọi refresh token. Nếu người dùng chưa đăng nhập, tự động chuyển hướng về `/login?redirect=<target_path>`.
 - **`requireGuest`**: Dành cho các trang dành riêng cho khách (`/login`, `/register`). Nếu người dùng đã đăng nhập, tự động chuyển hướng về `/dashboard`.
+- **`loadSession`**: Tự động tải lại phiên làm việc của người dùng khi làm mới trang.
 
 ### Danh sách Trang & Tuyến đường (Routes)
 
 | Đường dẫn (Path)    | Loại Route | Middleware Bảo Vệ | Nội dung Trang                               |
 | :------------------ | :--------: | :---------------: | :------------------------------------------- |
 | `/`                 |   Public   |         —         | Trang chủ giới thiệu hệ thống thư viện       |
-| `/search`           |   Public   |         —         | Trang tìm kiếm & tra cứu đầu sách            |
+| `/search`           |   Public   |         —         | Trang tìm kiếm & tra cứu đầu sách nâng cao   |
+| `/books/:id`        |   Public   |         —         | Trang chi tiết thông tin sách                |
 | `/login`            |   Guest    |  `requireGuest`   | Trang đăng nhập hệ thống                     |
 | `/register`         |   Guest    |  `requireGuest`   | Trang đăng ký tài khoản thành viên           |
 | `/dashboard`        | Protected  |   `requireAuth`   | Bảng điều khiển cá nhân & thống kê mượn sách |
 | `/book-reservation` | Protected  |   `requireAuth`   | Trang quản lý đặt trước sách                 |
 | `/borrow-history`   | Protected  |   `requireAuth`   | Trang theo dõi lịch sử mượn / trả sách       |
 | `/profile`          | Protected  |   `requireAuth`   | Trang xem và cập nhật thông tin cá nhân      |
+
+---
+
+## 🌟 Các tính năng nổi bật (Feature Highlights)
+
+### 1. Tìm kiếm & Tra cứu Sách Nâng Cao (`/search`)
+
+- **Thanh tìm kiếm linh hoạt**: Quản lý bằng `react-hook-form` + `zod`, hỗ trợ gợi ý từ khóa tìm kiếm nhanh (Trending keywords).
+- **Cột bộ lọc Đa tiêu chí Sticky**: Ghim cố định khi cuộn trang (`sticky top-4 lg:self-start`), thanh cuộn nội bộ mượt mà với các tiêu chí: Tình trạng sách, Thể loại, Tác giả, Nhà xuất bản, Ngôn ngữ, Năm xuất bản.
+- **Đồng bộ URL 2 chiều**: Toàn bộ từ khóa tìm kiếm, bộ lọc, chế độ xem (Grid / List), trang hiện tại được tự động đồng bộ lên URL SearchParams giúp chia sẻ liên kết dễ dàng.
+- **Chuyển đổi hiển thị linh hoạt**: Hỗ trợ chuyển đổi nhanh giữa dạng Lưới (Card Grid) và Danh sách (Card List) kèm thông tin vị trí kệ sách chi tiết.
+- **Tương tác nhanh**: Lưu sách vào danh sách yêu thích (Bookmark), Mượn sách / Đặt trước trực tiếp với hệ thống thông báo động `useAnimatedToast`.
+- **Drawer Mobile**: Trải nghiệm lọc sách tiện lợi trên điện thoại và máy tính bảng qua Slide Drawer.
+
+### 2. Bảng điều khiển Bạn đọc (`/dashboard`)
+
+- **Thống kê tổng quan**: Số sách đang mượn, sách quá hạn, tiền phạt chưa thanh toán, yêu cầu đặt trước.
+- **Biểu đồ trực quan (Recharts)**: Biểu đồ xu hướng mượn sách qua các tháng và biểu đồ phân bổ thể loại sách yêu thích (Donut Chart).
+- **Cảnh báo hạn trả**: Thẻ danh sách tài liệu sắp đến hạn trả với màu sắc trực quan giúp tránh bị phạt quá hạn.
+- **Gợi ý thông minh**: Đề xuất đầu sách phù hợp dựa trên thói quen đọc.
+
+### 3. Hồ sơ Cá nhân & Bảo mật (`/profile`)
+
+- Cập nhật thông tin cá nhân, ảnh đại diện, số điện thoại, đơn vị trực thuộc.
+- Đổi mật khẩu tài khoản kèm kiểm tra độ mạnh mật khẩu và Zod validation.
+- Thiết lập bảo mật nâng cao (Xác thực 2 bước 2FA, theo dõi phiên đăng nhập).
+- Quản lý tùy chọn nhận thông báo qua Email / SMS / Thông báo trong ứng dụng.
 
 ---
 
