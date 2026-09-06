@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 
-import { navItems } from "./app-sidebar"
+import { navItems } from "./app-sidebar-nav"
 
 export const AppHeader = () => {
   const location = useLocation()

@@ -19,7 +19,7 @@ export const RegisterPage = () => {
               Bắt đầu hành trình tri thức <br />
               cùng <span className="text-blue-500">Thư viện thông minh</span>
             </h2>
-            <p className="text-[15px] text-accent-foreground">
+            <p className="text-[15px] text-muted-foreground">
               Đăng ký tài khoản để khám phá kho sách phong phú, đặt trước, mượn sách và quản lý dễ
               dàng.
             </p>

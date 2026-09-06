@@ -118,7 +118,7 @@ const jobItems = [
   }
 ] as const
 
-export const categoryItems = [
+const categoryItems = [
   {
     label: "Văn học / Tiểu thuyết",
     value: "fiction_literature",
@@ -171,10 +171,21 @@ export const categoryItems = [
   }
 ] as const
 
+interface ProfileFormValues {
+  full_name: string
+  gender: string
+  email: string
+  phone: string
+  date_of_birth: Date
+  address: string
+  favorite_categories: string
+  job: string
+}
+
 export const ProfileTab = () => {
   const [isEdited, setIsEdited] = useState(false)
 
-  const form = useForm({
+  const form = useForm<ProfileFormValues>({
     defaultValues: {
       full_name: "Chu Văn Thơm",
       gender: "male",
@@ -187,7 +198,7 @@ export const ProfileTab = () => {
     }
   })
 
-  const onSubmit = (values: Record<string, any>) => {
+  const onSubmit = (values: ProfileFormValues) => {
     const payload = {
       ...values,
       date_of_birth: values.date_of_birth.toISOString()

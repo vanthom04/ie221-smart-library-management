@@ -1,17 +1,15 @@
-import { Link } from "react-router"
 import {
   AlertTriangleIcon,
-  ArrowRightIcon,
   BookOpenIcon,
   CheckCircleIcon,
   ClockIcon,
   SparklesIcon
 } from "lucide-react"
 
-import { buttonVariants } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
+import { DashboardCardHeader } from "./dashboard-card-header"
 import { ACTIVITY_TONE_STYLES } from "../constants"
 import type { ActivityItem, ActivityTypeTone } from "../types"
 
@@ -37,21 +35,7 @@ const getActivityIcon = (tone: ActivityTypeTone) => {
 export const RecentActivitiesCard = ({ activities }: RecentActivitiesCardProps) => {
   return (
     <Card className="flex flex-col justify-between shadow-xs">
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <div>
-          <CardTitle className="text-base font-bold">Hoạt động gần đây</CardTitle>
-          <p className="text-xs text-muted-foreground">Nhật ký mượn trả và tương tác</p>
-        </div>
-        <Link
-          to="/borrow-history"
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "sm" }),
-            "h-8 gap-1 text-xs text-primary"
-          )}
-        >
-          Xem tất cả <ArrowRightIcon className="size-3.5" />
-        </Link>
-      </CardHeader>
+      <DashboardCardHeader title="Hoạt động gần đây" description="Nhật ký mượn trả và tương tác" />
 
       <CardContent className="flex flex-1 flex-col gap-4">
         {activities.length === 0 ? (

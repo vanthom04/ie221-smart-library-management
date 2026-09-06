@@ -1,8 +1,9 @@
-import { Label, Pie, PieChart } from "recharts"
+import * as React from "react"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  useRecharts,
   type ChartConfig
 } from "@/components/ui/chart"
 
@@ -14,14 +15,13 @@ interface CategoryDonutChartProps {
   total: number
 }
 
-export const CategoryDonutChart = ({ data, total }: CategoryDonutChartProps) => {
-  const chartConfig = data.reduce<ChartConfig>(
-    (config, item) => ({
-      ...config,
-      [item.categoryKey]: { label: item.label, color: CATEGORY_COLORS[item.categoryKey] }
-    }),
-    {}
-  )
+function CategoryDonutChartContent({ data, total }: CategoryDonutChartProps) {
+  const { Label, Pie, PieChart } = useRecharts()
+
+  const chartConfig = data.reduce<ChartConfig>((config, item) => {
+    config[item.categoryKey] = { label: item.label, color: CATEGORY_COLORS[item.categoryKey] }
+    return config
+  }, {})
 
   const chartData = data.map((item) => ({
     ...item,
@@ -69,5 +69,13 @@ export const CategoryDonutChart = ({ data, total }: CategoryDonutChartProps) => 
         </Pie>
       </PieChart>
     </ChartContainer>
+  )
+}
+
+export const CategoryDonutChart = (props: CategoryDonutChartProps) => {
+  return (
+    <React.Suspense fallback={<div className="mx-auto aspect-square size-44" />}>
+      <CategoryDonutChartContent {...props} />
+    </React.Suspense>
   )
 }

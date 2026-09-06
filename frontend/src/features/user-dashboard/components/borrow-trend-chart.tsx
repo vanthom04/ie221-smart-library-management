@@ -1,8 +1,9 @@
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import * as React from "react"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  useRecharts,
   type ChartConfig
 } from "@/components/ui/chart"
 
@@ -19,7 +20,9 @@ interface BorrowTrendChartProps {
   data: BorrowTrendPoint[]
 }
 
-export function BorrowTrendChart({ data }: BorrowTrendChartProps) {
+function BorrowTrendChartContent({ data }: BorrowTrendChartProps) {
+  const { Area, AreaChart, CartesianGrid, XAxis, YAxis } = useRecharts()
+
   return (
     <ChartContainer config={chartConfig} className="h-55 w-full">
       <AreaChart data={data} margin={{ left: 0, right: 12, top: 12, bottom: 0 }}>
@@ -51,5 +54,13 @@ export function BorrowTrendChart({ data }: BorrowTrendChartProps) {
         />
       </AreaChart>
     </ChartContainer>
+  )
+}
+
+export function BorrowTrendChart(props: BorrowTrendChartProps) {
+  return (
+    <React.Suspense fallback={<div className="h-55 w-full" />}>
+      <BorrowTrendChartContent {...props} />
+    </React.Suspense>
   )
 }

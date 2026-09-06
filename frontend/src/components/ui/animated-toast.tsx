@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, m } from "motion/react"
 import {
   XIcon,
   InfoIcon,
@@ -140,7 +140,7 @@ function ToastItem({ toast, index, onRemove, isTop }: ToastItemProps) {
   }
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: isTop ? -20 : 20, scale: 0.9 }}
       animate={{
@@ -180,7 +180,9 @@ function ToastItem({ toast, index, onRemove, isTop }: ToastItemProps) {
           )}
         </div>
         <button
+          type="button"
           onClick={onRemove}
+          aria-label="Đóng thông báo"
           className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <XIcon className="size-4" />
@@ -189,7 +191,7 @@ function ToastItem({ toast, index, onRemove, isTop }: ToastItemProps) {
 
       {/* Progress bar */}
       {duration > 0 && (
-        <motion.div
+        <m.div
           initial={{ scaleX: 1 }}
           animate={{ scaleX: 0 }}
           transition={{ duration: duration / 1000, ease: "linear" }}
@@ -203,7 +205,7 @@ function ToastItem({ toast, index, onRemove, isTop }: ToastItemProps) {
           )}
         />
       )}
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -245,7 +247,7 @@ export function MinimalToast({ open, onClose, message, type = "default" }: Minim
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
@@ -255,7 +257,7 @@ export function MinimalToast({ open, onClose, message, type = "default" }: Minim
           )}
         >
           {message}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )
@@ -301,7 +303,7 @@ export function UndoToast({ open, onClose, onUndo, message, duration = 5000 }: U
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 50, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -321,9 +323,9 @@ export function UndoToast({ open, onClose, onUndo, message, duration = 5000 }: U
           </div>
           <div
             style={{ width: `${progress}%` }}
-            className="h-1 bg-primary transition-all duration-100"
+            className="h-1 bg-primary transition-[width] duration-100"
           />
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )
@@ -357,7 +359,7 @@ export function NotificationToast({
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: 100, scale: 0.9 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           exit={{ opacity: 0, x: 100, scale: 0.9 }}
@@ -369,7 +371,7 @@ export function NotificationToast({
               {avatar ? (
                 <img
                   src={avatar}
-                  alt="image"
+                  alt={title || "Avatar"}
                   width={40}
                   height={40}
                   className="rounded-full object-cover"
@@ -389,12 +391,14 @@ export function NotificationToast({
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Đóng thông báo"
             className="absolute top-2 right-2 rounded-full p-1 transition-colors hover:bg-muted"
           >
             <XIcon className="size-4 text-muted-foreground" />
           </button>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )
@@ -434,7 +438,7 @@ export function StackedNotifications({
     <div className="fixed top-4 right-4 z-50 w-80">
       <AnimatePresence mode="popLayout">
         {visibleToasts.map((toast, index) => (
-          <motion.div
+          <m.div
             key={toast.id}
             layout
             initial={{ opacity: 0, y: -20, scale: 0.9 }}
@@ -461,24 +465,26 @@ export function StackedNotifications({
                 <p className="mt-0.5 text-sm text-muted-foreground">{toast.message}</p>
               </div>
               <button
+                type="button"
                 onClick={() => onRemove(toast.id)}
+                aria-label="Đóng thông báo"
                 className="rounded-md p-1 transition-colors hover:bg-muted"
               >
                 <XIcon className="size-4 text-muted-foreground" />
               </button>
             </div>
-          </motion.div>
+          </m.div>
         ))}
       </AnimatePresence>
 
       {hiddenCount > 0 && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="mt-2 text-center text-sm text-muted-foreground"
         >
           +{hiddenCount} more notifications
-        </motion.div>
+        </m.div>
       )}
     </div>
   )

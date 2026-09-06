@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router"
-import { motion, AnimatePresence, type Variants } from "motion/react"
+import { m, AnimatePresence, type Variants } from "motion/react"
 
 import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { SearchToolbar } from "@/features/search/components/search-toolbar"
@@ -92,69 +92,59 @@ export const SearchPage = () => {
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
-  // Memoized handlers to prevent child re-renders
-  const handleSelectBook = useCallback(
-    (book: BookItem) => {
-      navigate(`/books/${book.id}`)
-    },
-    [navigate]
-  )
+  const handleSelectBook = (book: BookItem) => {
+    navigate(`/books/${book.id}`)
+  }
 
-  const handleToggleBookmark = useCallback(
-    (bookId: string) => {
-      toggleBookmark(bookId)
-      const target = paginatedBooks.find((b) => b.id === bookId)
-      if (target) {
-        const isNowBookmarked = !target.isBookmarked
-        addToast({
-          type: "info",
-          message: isNowBookmarked
-            ? `Đã thêm "${target.title}" vào danh sách đã lưu.`
-            : `Đã bỏ lưu cuốn "${target.title}".`
-        })
-      }
-    },
-    [toggleBookmark, paginatedBooks, addToast]
-  )
+  const handleToggleBookmark = (bookId: string) => {
+    toggleBookmark(bookId)
+    const target = paginatedBooks.find((b) => b.id === bookId)
+    if (target) {
+      const isNowBookmarked = !target.isBookmarked
+      addToast({
+        type: "info",
+        message: isNowBookmarked
+          ? `Đã thêm "${target.title}" vào danh sách đã lưu.`
+          : `Đã bỏ lưu cuốn "${target.title}".`
+      })
+    }
+  }
 
-  const handleActionClick = useCallback(
-    (book: BookItem, action: "borrow" | "reserve") => {
-      if (action === "borrow") {
-        addToast({
-          type: "success",
-          title: "Mượn sách thành công",
-          message: `Yêu cầu mượn cuốn sách "${book.title}" đã được ghi nhận. Vui lòng đến quầy nhận sách.`
-        })
-      } else {
-        addToast({
-          type: "success",
-          title: "Đặt trước thành công",
-          message: `Bạn đã đặt trước cuốn sách "${book.title}" thành công. Thư viện sẽ gửi thông báo khi có sách.`
-        })
-      }
-    },
-    [addToast]
-  )
+  const handleActionClick = (book: BookItem, action: "borrow" | "reserve") => {
+    if (action === "borrow") {
+      addToast({
+        type: "success",
+        title: "Mượn sách thành công",
+        message: `Yêu cầu mượn cuốn sách "${book.title}" đã được ghi nhận. Vui lòng đến quầy nhận sách.`
+      })
+    } else {
+      addToast({
+        type: "success",
+        title: "Đặt trước thành công",
+        message: `Bạn đã đặt trước cuốn sách "${book.title}" thành công. Thư viện sẽ gửi thông báo khi có sách.`
+      })
+    }
+  }
 
   return (
-    <motion.div
+    <m.div
       variants={pageContainerVariants}
       initial="hidden"
       animate="visible"
       className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 pb-8"
     >
       {/* Top Search Bar & Suggestions */}
-      <motion.div variants={sectionVariants}>
+      <m.div variants={sectionVariants}>
         <SearchBarSection
           query={state.query}
           activeFiltersCount={activeTags.length}
           onSearch={setQuery}
           onOpenMobileFilter={() => setIsMobileDrawerOpen(true)}
         />
-      </motion.div>
+      </m.div>
 
       {/* Main 2-Column Section: Left Filter (w-72) + Right Results (flex-1) */}
-      <motion.section
+      <m.section
         variants={sectionVariants}
         className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[288px_1fr]"
       >
@@ -192,7 +182,7 @@ export const SearchPage = () => {
           {/* Results List / Grid or Empty State with Smooth GPU AnimatePresence */}
           <AnimatePresence mode="popLayout">
             {totalItems === 0 ? (
-              <motion.div
+              <m.div
                 key="empty-state"
                 initial={{ opacity: 0, scale: 0.97, y: 8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -205,9 +195,9 @@ export const SearchPage = () => {
                   onResetFilters={resetFilters}
                   onSelectKeyword={setQuery}
                 />
-              </motion.div>
+              </m.div>
             ) : state.viewMode === "grid" ? (
-              <motion.div
+              <m.div
                 key={`grid-page-${state.page}`}
                 variants={resultContainerVariants}
                 initial="hidden"
@@ -216,11 +206,11 @@ export const SearchPage = () => {
                 className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
               >
                 {paginatedBooks.map((book) => (
-                  <motion.div
+                  <m.div
                     key={book.id}
                     variants={bookCardVariants}
                     whileHover={{ y: -4, transition: { duration: 0.18, ease: "easeOut" } }}
-                    className="h-full transform-gpu will-change-transform"
+                    className="h-full transform-gpu"
                   >
                     <BookCardGrid
                       book={book}
@@ -228,11 +218,11 @@ export const SearchPage = () => {
                       onToggleBookmark={handleToggleBookmark}
                       onActionClick={handleActionClick}
                     />
-                  </motion.div>
+                  </m.div>
                 ))}
-              </motion.div>
+              </m.div>
             ) : (
-              <motion.div
+              <m.div
                 key={`list-page-${state.page}`}
                 variants={resultContainerVariants}
                 initial="hidden"
@@ -241,11 +231,11 @@ export const SearchPage = () => {
                 className="flex flex-col gap-4"
               >
                 {paginatedBooks.map((book) => (
-                  <motion.div
+                  <m.div
                     key={book.id}
                     variants={bookCardVariants}
                     whileHover={{ y: -3, transition: { duration: 0.18, ease: "easeOut" } }}
-                    className="transform-gpu will-change-transform"
+                    className="transform-gpu"
                   >
                     <BookCardList
                       book={book}
@@ -253,9 +243,9 @@ export const SearchPage = () => {
                       onToggleBookmark={handleToggleBookmark}
                       onActionClick={handleActionClick}
                     />
-                  </motion.div>
+                  </m.div>
                 ))}
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
@@ -269,7 +259,7 @@ export const SearchPage = () => {
             onPageSizeChange={setPageSize}
           />
         </div>
-      </motion.section>
+      </m.section>
 
       {/* Mobile / Tablet Filter Drawer */}
       <SearchFilterDrawer
@@ -287,7 +277,7 @@ export const SearchPage = () => {
         onResetFilters={resetFilters}
         onRemoveTag={removeFilterTag}
       />
-    </motion.div>
+    </m.div>
   )
 }
 
