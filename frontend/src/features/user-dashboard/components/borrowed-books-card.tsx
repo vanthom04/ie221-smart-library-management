@@ -1,12 +1,14 @@
 import { Link } from "react-router"
-import { ArrowRightIcon, BookOpenIcon, ClockIcon, MoreVerticalIcon } from "lucide-react"
+import { BookOpenIcon, ClockIcon, MoreVerticalIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button.variants"
+import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 import { BookCoverThumb } from "./book-cover-thumb"
+import { DashboardCardHeader } from "./dashboard-card-header"
 import type { BorrowedBook } from "../types"
 
 interface BorrowedBooksCardProps {
@@ -39,21 +41,10 @@ const getDueBadgeStyle = (daysLeft: number) => {
 export const BorrowedBooksCard = ({ books, onRenew }: BorrowedBooksCardProps) => {
   return (
     <Card className="flex flex-col justify-between shadow-xs">
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <div>
-          <CardTitle className="text-base font-bold">Danh sách đang mượn</CardTitle>
-          <p className="text-xs text-muted-foreground">Theo dõi và gia hạn sách kịp thời</p>
-        </div>
-        <Link
-          to="/borrow-history"
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "sm" }),
-            "h-8 gap-1 text-xs text-primary"
-          )}
-        >
-          Xem tất cả <ArrowRightIcon className="size-3.5" />
-        </Link>
-      </CardHeader>
+      <DashboardCardHeader
+        title="Danh sách đang mượn"
+        description="Theo dõi và gia hạn sách kịp thời"
+      />
 
       <CardContent className="flex flex-1 flex-col gap-4">
         {books.length === 0 ? (
@@ -113,6 +104,7 @@ export const BorrowedBooksCard = ({ books, onRenew }: BorrowedBooksCardProps) =>
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={`Mở tùy chọn cho ${book.title}`}
                       className="size-8 text-muted-foreground hover:text-foreground"
                     >
                       <MoreVerticalIcon className="size-4" />

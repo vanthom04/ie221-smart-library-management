@@ -52,6 +52,7 @@ export const SearchFilterDrawer = ({
             type="button"
             variant="ghost"
             size="icon-sm"
+            aria-label="Đóng bộ lọc tìm kiếm"
             onClick={() => onOpenChange(false)}
             className="cursor-pointer rounded-full"
           >

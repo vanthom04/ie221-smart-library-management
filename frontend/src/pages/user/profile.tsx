@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { motion, AnimatePresence } from "motion/react"
+import { m, AnimatePresence } from "motion/react"
 import {
   BellIcon,
   BookIcon,
@@ -69,7 +69,7 @@ export const ProfilePage = () => {
               <Icon /> {tab.label}
               {/* Animated Indicator */}
               {isActive && (
-                <motion.div
+                <m.div
                   initial={false}
                   layoutId="active-tab-indicator"
                   className="absolute right-0 bottom-0 left-0 h-[1.5px] rounded-lg bg-primary"
@@ -100,6 +100,7 @@ export const ProfilePage = () => {
                   <button
                     type="button"
                     onClick={() => {}}
+                    aria-label="Thay đổi ảnh đại diện"
                     className="absolute right-0 bottom-0 inline-flex size-6.5 items-center justify-center rounded-full border border-border/60 bg-white shadow hover:bg-muted [&_svg]:size-3.5"
                   >
                     <CameraIcon />
@@ -201,7 +202,7 @@ export const ProfilePage = () => {
         </div>
         {/* Right Column */}
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -213,7 +214,7 @@ export const ProfilePage = () => {
             {activeTab === "security" && <SecurityTab />}
             {activeTab === "notifications" && <NotificationsTab />}
             {activeTab === "settings" && <SettingsTab />}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     </div>

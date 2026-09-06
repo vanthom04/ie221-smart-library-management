@@ -13,6 +13,7 @@ import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
+import { AuthSocialButton } from "./auth-social-button"
 import { registerSchema, type RegisterValues } from "../schemas"
 
 export const RegisterForm = () => {
@@ -209,22 +210,12 @@ export const RegisterForm = () => {
           <div className="h-px flex-1 bg-muted-foreground/15" />
         </div>
         <div className="mt-4 grid grid-cols-2 gap-4">
-          <Button
-            variant="outline"
-            onClick={onSocial}
-            className="h-10 bg-transparent hover:bg-background"
-          >
-            <img className="size-4" src="/icons/google.svg" alt="Google" />
-            <span className="text-[13px]">Đăng ký với Google</span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onSocial}
-            className="h-10 bg-transparent hover:bg-background"
-          >
-            <img className="size-4" src="/icons/facebook.svg" alt="Facebook" />
-            <span className="text-[13px]">Đăng ký với Facebook</span>
-          </Button>
+          <AuthSocialButton iconSrc="/icons/google.svg" iconAlt="Google" onClick={onSocial}>
+            Đăng ký với Google
+          </AuthSocialButton>
+          <AuthSocialButton iconSrc="/icons/facebook.svg" iconAlt="Facebook" onClick={onSocial}>
+            Đăng ký với Facebook
+          </AuthSocialButton>
         </div>
         <div className="mt-6 flex items-center justify-center">
           <p className="text-sm text-muted-foreground">

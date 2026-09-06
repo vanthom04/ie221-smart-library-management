@@ -17,7 +17,7 @@ export const LoginPage = () => {
           <h2 className="text-3xl font-bold">
             Chào mừng bạn <span className="text-primary">trở lại!</span>
           </h2>
-          <p className="text-[15px] text-accent-foreground">
+          <p className="text-[15px] text-muted-foreground">
             Đăng nhập để tiếp tục hành trình khám phá tri thức và quản lý việc mượn sách của bạn.
           </p>
         </div>
