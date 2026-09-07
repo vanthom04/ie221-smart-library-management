@@ -1,0 +1,15 @@
+[project]
+name = "smart-library-management-backend"
+version = "1.0.0"
+description = "API server cho hệ thống Quản Lý Thư Viện & Mượn Trả Sách Thông Minh, được xây dựng với FastAPI, SQLAlchemy, và PostgreSQL."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.19.1",
+    "asyncpg>=0.31.0",
+    "fastapi[standard]>=0.141.1",
+    "pwdlib[argon2]>=0.3.1",
+    "pyjwt>=2.13.0",
+    "scalar-fastapi>=1.8.2",
+    "sqlalchemy[asyncio]>=2.0.52",
+]
