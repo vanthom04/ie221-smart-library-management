@@ -1,191 +1,139 @@
-# ⚙️ Backend — Smart Library Management
+# 📚 Hệ Thống Quản Lý Thư Viện & Mượn Trả Sách Thông Minh
 
-API server cho hệ thống Quản Lý Thư Viện & Mượn Trả Sách Thông Minh, được xây dựng với **FastAPI**, **SQLAlchemy (Async)**, và **PostgreSQL**.
+Đây là kho lưu trữ mã nguồn (repository) cho đồ án kết thúc môn: **Kỹ thuật lập trình Python (IE221)**. Dự án được phát triển theo mô hình Client-Server với giao diện người dùng hiện đại và hệ thống xử lý backend hiệu năng cao, tích hợp AI để tối ưu hóa trải nghiệm mượn trả sách.
+
+## 👥 Danh sách thành viên (Nhóm 11)
+
+| STT | Tên thành viên  |   MSSV   | Phân công      |
+| :-: | :-------------- | :------: | :------------- |
+|  1  | Trần Ngọc Tâm   | 25410300 | Book Catalog   |
+|  2  | Hồ Thiên Phúc   | 25410284 | Dashboard & QA |
+|  3  | Chu Văn Thơm    | 25410314 | IAM & Infra    |
+|  4  | Trần Bình Trọng | 25410324 | Borrowing Core |
+|  5  | Lê Thanh Quốc   | 25410289 | Fines & AI     |
 
 ## 🚀 Công nghệ sử dụng
 
-| Công nghệ                                              | Phiên bản | Mục đích                      |
-| :----------------------------------------------------- | :-------: | :---------------------------- |
-| [Python](https://www.python.org/)                      |   3.12    | Ngôn ngữ chính                |
-| [FastAPI](https://fastapi.tiangolo.com/)               |   0.14x   | Web framework (async)         |
-| [SQLAlchemy](https://www.sqlalchemy.org/)              |   2.0.x   | ORM (hỗ trợ async)            |
-| [PostgreSQL](https://www.postgresql.org/)              |     —     | Cơ sở dữ liệu                 |
-| [asyncpg](https://github.com/MagicStack/asyncpg)       |  0.31.x   | PostgreSQL async driver       |
-| [Alembic](https://alembic.sqlalchemy.org/)             |  1.19.x   | Database migrations           |
-| [PyJWT](https://pyjwt.readthedocs.io/)                 |  2.13.x   | JSON Web Token (xác thực)     |
-| [pwdlib](https://github.com/frankie567/pwdlib)         |   0.3.x   | Mã hóa mật khẩu (Argon2)      |
-| [Pydantic Settings](https://docs.pydantic.dev/latest/) |     —     | Quản lý biến môi trường       |
-| [Scalar](https://scalar.com/)                          |   1.8.x   | API Documentation UI          |
-| [uv](https://docs.astral.sh/uv/)                       |     —     | Package & environment manager |
+- **Backend:** Python 3, FastAPI. Quản lý môi trường và package bằng `uv`.
+- **Frontend:** ReactJS (khởi tạo qua Vite), JavaScript/TypeScript.
+- **Cơ sở dữ liệu:** PostgreSQL (kết hợp SQLAlchemy ORM).
+- **Tích hợp AI:** Sử dụng API của [Groq] để hỗ trợ gợi ý sách thông minh.
 
-## 📂 Cấu trúc thư mục
+## 📂 Cấu trúc thư mục (Monorepo)
+
+Dự án được chia thành 2 phân hệ chính nằm trong cùng một repository để dễ dàng quản lý cho làm việc nhóm:
 
 ```text
-backend/
-├── app/                        # Code chính của ứng dụng
-│   ├── api/                    # API routers (endpoint definitions)
-│   │   ├── v1/                 # API v1 endpoints
-│   │   │   └── router.py       # Main API v1 router
-│   │   ├── deps.py             # Common API dependencies
-│   │   └── __init__.py
-│   ├── core/                   # Cấu hình chung
-│   │   ├── config.py           # Settings (đọc từ .env qua Pydantic)
-│   │   └── __init__.py
-│   ├── db/                     # Kết nối & cấu hình database
-│   │   ├── base.py             # Declarative Base với Naming Convention
-│   │   ├── session.py          # Async Engine, SessionLocal & get_db dependency
-│   │   └── __init__.py
-│   ├── models/                 # SQLAlchemy ORM models (table definitions)
-│   │   └── __init__.py
-│   ├── repositories/           # Lớp truy vấn CSDL (CRUD operations)
-│   │   └── __init__.py
-│   ├── schemas/                # Pydantic schemas (request/response validation)
-│   │   └── __init__.py
-│   ├── services/               # Business logic layer
-│   │   └── __init__.py
-│   ├── __init__.py
-│   └── main.py                 # FastAPI app entry point (CORS, Scalar docs)
-├── alembic/                    # Database migration scripts
-│   ├── versions/               # Auto-generated migration files
-│   ├── env.py                  # Alembic environment config (kết nối target_metadata = Base.metadata)
-│   └── script.py.mako          # Migration template
-├── alembic.ini                 # Alembic configuration
-├── pyproject.toml              # Project metadata & dependencies (uv)
-├── uv.lock                     # Lock file (dependencies cố định)
-├── .python-version             # Python version (3.12)
-├── .env                        # (Không commit) Biến môi trường
-├── .env.example                # Biến môi trường mẫu
-└── .gitignore                  # Cấu hình Git ignore
+ie221-smart-library-management/
+├─ .github/                      # Cấu hình GitHub Actions CI/CD workflows
+├─ .vscode/                      # Cấu hình workspace & extension gợi ý cho VS Code
+├─ backend/                      # Nơi chứa mã nguồn FastAPI (Python)
+│  ├─ alembic/                   # Thư mục chứa các kịch bản migration tự động sinh ra
+│  ├─ app/                       # Code chính của ứng dụng
+│  │  ├─ api/                    # Các router định tuyến API (users.py, books.py, ...)
+│  │  ├─ core/                   # Cấu hình chung (config, security, JWT)
+│  │  ├─ db/                     # Kết nối CSDL và các file migration (Alembic)
+│  │  ├─ models/                 # Khai báo các table trong Database (SQLAlchemy)
+│  │  ├─ repositories/           # Lớp truy vấn CSDL (CRUD, SELECT, INSERT...) tách biệt với Service
+│  │  ├─ schemas/                # Pydantic models (validate data in/out)
+│  │  ├─ services/               # Chứa logic xử lý nghiệp vụ và gọi API AI
+│  │  └─ main.py                 # File chạy chính của FastAPI
+│  ├─ pyproject.toml             # Quản lý thư viện Python bởi `uv`
+│  └─ .env                       # (Không commit) Các biến môi trường backend
+│
+├─ frontend/                     # Nơi chứa mã nguồn ReactJS (Vite)
+│  ├─ src/                       # Code chính của giao diện
+│  │  ├─ components/             # Các component dùng chung (Button, Modal, Navbar...)
+│  │  ├─ features/               # Mô-đun theo tính năng (Feature-driven)
+│  │  ├─ hooks/                  # Custom React Hooks
+│  │  ├─ layouts/                # App Layouts
+│  │  ├─ lib/                    # Utilities & Config Layer
+│  │  ├─ pages/                  # Các trang chính (Home, Login, Dashboard, Search)
+│  │  ├─ router/                 # Route definitions & Middleware
+│  │  └─ main.tsx                # Entry point của React
+│  ├─ package.json               # Quản lý thư viện Node.js
+│  └─ .env                       # (Không commit) Cấu hình URL gọi API
+│
+├─ docs/                         # Tài liệu của đồ án (Bắt buộc)
+│  ├─ BaoCao_Final.pdf           # Báo cáo chi tiết nghiệp vụ và hệ thống
+│  ├─ Slide_Final.pdf            # Slide thuyết trình (Tối đa 10-12 trang)
+│  └─ KhaiBaoAI.md               # Bảng kê khai chi tiết các prompt AI đã dùng
+│
+├─ package.json                  # Scripts quản lý và khởi chạy toàn bộ monorepo
+├─ README.md                     # Hướng dẫn dự án
+└─ .gitignore                    # Bỏ qua các file không cần thiết khi commit
 ```
 
-## 🛠️ Hướng dẫn cài đặt
+## 🛠 Hướng dẫn cài đặt và chạy dự án
 
-### Yêu cầu
+### 1. Yêu cầu hệ thống (Prerequisites)
 
-- **Python** >= 3.12
-- **uv** — Công cụ quản lý package Python ([Hướng dẫn cài đặt](https://docs.astral.sh/uv/getting-started/installation/))
-- **PostgreSQL** — Database server
+- **Python:** >= 3.10
+- **uv:** Công cụ quản lý package Python cực nhanh (Cài đặt: `curl -LsSf https://astral.sh/uv/install.sh | sh` hoặc `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`)
+- **Node.js:** >= 20.x
+- **Git**
 
-### Cài đặt và chạy
+---
+
+### 2. Khởi chạy nhanh toàn bộ dự án (Khuyến nghị)
+
+Tại thư mục gốc của repository:
 
 ```bash
-# 1. Di chuyển vào thư mục backend
+# 1. Cài đặt các công cụ chạy song song ở root
+npm install
+
+# 2. Tự động cài đặt dependencies cho cả Backend & Frontend
+npm run install:all
+
+# 3. Khởi chạy đồng thời cả Backend (FastAPI) và Frontend (ReactJS)
+npm run dev
+```
+
+- **Frontend:** `http://localhost:5173`
+- **Backend API Docs (Scalar UI / Swagger):** `http://localhost:8000/docs`
+
+---
+
+### 3. Khởi chạy thủ công từng phân hệ (Manual)
+
+#### A. Khởi chạy Backend (FastAPI)
+
+Mở terminal và di chuyển vào thư mục `backend`:
+
+```bash
 cd backend
 
-# 2. Cài đặt dependencies (uv tự tạo .venv)
+# Cài đặt thư viện bằng uv
 uv sync
 
-# 3. Kích hoạt virtual environment
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-source .venv/bin/activate
-# Git Bash:
-source .venv/Scripts/activate
-
-# 4. Tạo file biến môi trường
-cp .env.example .env
-
-# 5. Cấu hình biến môi trường trong file .env
-#    (xem phần "Biến môi trường" bên dưới)
-
-# 6. Chạy database migration
-alembic upgrade head
-
-# 7. Khởi chạy dev server
+# Khởi chạy server ở chế độ dev
 uv run fastapi dev
 ```
 
-API server sẽ chạy tại: **<http://localhost:8000>**
+#### B. Khởi chạy Frontend (ReactJS)
 
-API Documentation (Scalar UI) tại: **<http://localhost:8000/docs>**
-
-## ⚙️ Biến môi trường
-
-Tạo file `.env` từ `.env.example` và cấu hình các giá trị sau:
-
-### App
-
-| Biến                   | Mô tả                           | Giá trị mặc định                         |
-| :--------------------- | :------------------------------ | :--------------------------------------- |
-| `PROJECT_NAME`         | Tên project hiển thị            | `Smart Library Management Backend`       |
-| `API_V1_PREFIX`        | Prefix cho API v1               | `/api/v1`                                |
-| `ENVIRONMENT`          | Môi trường chạy                 | `local` (`local`/`staging`/`production`) |
-| `BACKEND_CORS_ORIGINS` | Danh sách origin được phép CORS | `["http://localhost:5173"]`              |
-
-### Security
-
-| Biến                          | Mô tả                                                 | Giá trị mặc định |
-| :---------------------------- | :---------------------------------------------------- | :--------------- |
-| `SECRET_KEY`                  | Khóa bí mật cho JWT (tạo bằng `openssl rand -hex 32`) | —                |
-| `ALGORITHM`                   | Thuật toán JWT                                        | `HS256`          |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Thời gian hết hạn access token (phút)                 | `30`             |
-| `REFRESH_TOKEN_EXPIRE_DAYS`   | Thời gian hết hạn refresh token (ngày)                | `7`              |
-| `COOKIE_SECURE`               | Bật secure cookie (bắt buộc `true` khi deploy HTTPS)  | `false`          |
-
-### Database
-
-| Biến           | Mô tả                            | Ví dụ                                                          |
-| :------------- | :------------------------------- | :------------------------------------------------------------- |
-| `DATABASE_URL` | Connection string đến PostgreSQL | `postgresql+asyncpg://user:password@localhost:5432/library_db` |
-
-## 🗃️ Database & Migration
-
-### SQLAlchemy & Session Management
-
-- **`app/db/base.py`**: Định nghĩa `Base` class sử dụng `DeclarativeBase` với Naming Convention chuẩn (`pk`, `fk`, `uq`, `ix`, `ck`).
-- **`app/db/session.py`**: Khởi tạo `create_async_engine` kết nối PostgreSQL với `AsyncSessionLocal`. Cung cấp `get_db()` dependency tự động quản lý đóng/mở session theo từng HTTP request.
-- **`alembic/env.py`**: Đã kết nối `target_metadata = Base.metadata` và import các models từ `app.models` để tự động phát hiện thay đổi schema khi migrate.
-
-### Thao tác Migration (Alembic)
+Mở một terminal mới và di chuyển vào thư mục `frontend`:
 
 ```bash
-# Tạo migration mới sau khi thay đổi models
-alembic revision --autogenerate -m "mô tả thay đổi"
+cd frontend
 
-# Chạy migration (cập nhật database)
-alembic upgrade head
+# Cài đặt thư viện
+npm install
 
-# Rollback migration gần nhất
-alembic downgrade -1
-
-# Xem lịch sử migration
-alembic history
+# Khởi chạy giao diện
+npm run dev
 ```
 
-## 🏗️ Kiến trúc
+Giao diện sẽ chạy tại: `http://localhost:5173`
 
-Project sử dụng kiến trúc **Layered Architecture** (phân tầng):
+## 🤝 Quy trình làm việc nhóm trên Git (Bắt buộc tuân thủ)
 
-```text
-Request → CORS Middleware → API Router (v1) → Service → Repository → Database
-                                              ↕
-                                           Schema (Pydantic)
-```
+Để có lịch sử commit (`beat`) rõ ràng, mọi người hãy tuân thủ quy tắc sau:
 
-| Layer          | Thư mục             | Trách nhiệm                                                        |
-| :------------- | :------------------ | :----------------------------------------------------------------- |
-| **API**        | `app/api/`          | Định nghĩa v1 router, endpoints, nhận request, trả response        |
-| **Service**    | `app/services/`     | Xử lý logic nghiệp vụ, validation phức tạp                         |
-| **Repository** | `app/repositories/` | Truy vấn CSDL (CRUD), tách biệt data access                        |
-| **Schema**     | `app/schemas/`      | Validate dữ liệu vào/ra (Pydantic models)                          |
-| **Model**      | `app/models/`       | Định nghĩa bảng CSDL (SQLAlchemy ORM)                              |
-| **Core**       | `app/core/`         | Cấu hình chung (`config.py`), security, JWT                        |
-| **DB**         | `app/db/`           | `Base` class (Naming convention), Async Session engine, `get_db()` |
-
-## 🔒 Xác thực & Middleware
-
-- **CORS Middleware**: Cấu hình tự động theo `BACKEND_CORS_ORIGINS` trong `.env`.
-- **Access Token**: JWT trong header `Authorization: Bearer <token>`
-- **Refresh Token**: HTTP-only cookie
-- **Mã hóa mật khẩu**: Argon2 (qua `pwdlib`)
-
-## 📡 API Endpoints
-
-| Method | Endpoint  | Mô tả                         |
-| :----- | :-------- | :---------------------------- |
-| GET    | `/`       | Hello World                   |
-| GET    | `/heathz` | Health check                  |
-| GET    | `/docs`   | API Documentation (Scalar UI) |
-
-> Các endpoint nghiệp vụ sẽ được thêm vào `app/api/v1/` theo tiến độ phát triển.
+1. **Không push trực tiếp lên nhánh `main`.**
+2. Mỗi khi làm tính năng mới, tạo nhánh theo cú pháp:
+   - `feature/ten-tinh-nang` (ví dụ: `feature/login-api`)
+   - `fix/ten-loi` (ví dụ: `fix/button-color`)
+3. Cú pháp commit rõ ràng: `[Loại]: Mô tả ngắn gọn`. (Ví dụ: `[Backend]: Thêm API mượn sách`, `[Frontend]: Hoàn thiện UI trang chủ`).
+4. Khi code xong, tạo Pull Request (PR) để các thành viên khác review trước khi merge vào nhánh chính.
