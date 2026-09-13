@@ -17,3 +17,7 @@ async def create_book(book: schemas.BookCreate, db: AsyncSession = Depends(get_d
 async def read_books(db: AsyncSession = Depends(get_db)):
     """API lấy danh sách sách"""
     return await crud.get_books(db=db)
+@router.get("/search", response_model=List[schemas.BookResponse])
+async def search_books_api(keyword: str, db: AsyncSession = Depends(get_db)):
+    """API tìm kiếm sách theo từ khóa (Tiêu đề hoặc Mô tả)"""
+    return await crud.search_books(db=db, keyword=keyword)
