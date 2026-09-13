@@ -4,20 +4,20 @@
 
 ## 👥 Danh sách thành viên (Nhóm 11)
 
-| STT | Tên thành viên  |   MSSV   | Phân công      |
-| :-: | :-------------- | :------: | :------------- |
-|  1  | Trần Ngọc Tâm   | 25410300 | Book Catalog   |
-|  2  | Hồ Thiên Phúc   | 25410284 | Dashboard & QA |
-|  3  | Chu Văn Thơm    | 25410314 | IAM & Infra    |
-|  4  | Trần Bình Trọng | 25410324 | Borrowing Core |
-|  5  | Lê Thanh Quốc   | 25410289 | Fines & AI     |
+| STT | Tên thành viên  |   MSSV   | Vai trò |
+| :-: | :-------------- | :------: | :------ |
+|  1  | Trần Ngọc Tâm   | 25410300 | ?       |
+|  2  | Hồ Thiên Phúc   | 25410284 | ?       |
+|  3  | Chu Văn Thơm    | 25410314 | ?       |
+|  4  | Trần Bình Trọng | 25410324 | ?       |
+|  5  | Lê Thanh Quốc   | 25410289 | ?       |
 
 ## 🚀 Công nghệ sử dụng
 
 - **Backend:** Python 3, FastAPI. Quản lý môi trường và package bằng `uv`.
 - **Frontend:** ReactJS (khởi tạo qua Vite), JavaScript/TypeScript.
-- **Cơ sở dữ liệu:** PostgreSQL (kết hợp SQLAlchemy ORM).
-- **Tích hợp AI:** Sử dụng API của [Groq] để hỗ trợ gợi ý sách thông minh.
+- **Cơ sở dữ liệu:** PostgreSQL / MySQL (kết hợp SQLAlchemy ORM).
+- **Tích hợp AI:** Sử dụng API của [DeepSeek/OpenAI] để hỗ trợ gợi ý sách thông minh.
 
 ## 📂 Cấu trúc thư mục (Monorepo)
 
@@ -25,8 +25,6 @@ Dự án được chia thành 2 phân hệ chính nằm trong cùng một reposi
 
 ```text
 ie221-smart-library-management/
-├─ .github/                      # Cấu hình GitHub Actions CI/CD workflows
-├─ .vscode/                      # Cấu hình workspace & extension gợi ý cho VS Code
 ├─ backend/                      # Nơi chứa mã nguồn FastAPI (Python)
 │  ├─ alembic/                   # Thư mục chứa các kịch bản migration tự động sinh ra
 │  ├─ app/                       # Code chính của ứng dụng
@@ -43,23 +41,21 @@ ie221-smart-library-management/
 │
 ├─ frontend/                     # Nơi chứa mã nguồn ReactJS (Vite)
 │  ├─ src/                       # Code chính của giao diện
+│  │  ├─ assets/                 # Hình ảnh, icon, font chữ
 │  │  ├─ components/             # Các component dùng chung (Button, Modal, Navbar...)
-│  │  ├─ features/               # Mô-đun theo tính năng (Feature-driven)
-│  │  ├─ hooks/                  # Custom React Hooks
-│  │  ├─ layouts/                # App Layouts
-│  │  ├─ lib/                    # Utilities & Config Layer
 │  │  ├─ pages/                  # Các trang chính (Home, Login, Dashboard, Search)
-│  │  ├─ router/                 # Route definitions & Middleware
-│  │  └─ main.tsx                # Entry point của React
+│  │  ├─ services/               # Các file gọi API đến backend (fetch/axios)
+│  │  ├─ hooks/                  # Custom React Hooks
+│  │  ├─ utils/                  # Các hàm tiện ích (format ngày, tiền tệ...)
+│  │  └─ main.jsx                # Entry point của React
 │  ├─ package.json               # Quản lý thư viện Node.js
 │  └─ .env                       # (Không commit) Cấu hình URL gọi API
 │
 ├─ docs/                         # Tài liệu của đồ án (Bắt buộc)
-│  ├─ BaoCao_Final.pdf           # Báo cáo chi tiết nghiệp vụ và hệ thống
-│  ├─ Slide_Final.pdf            # Slide thuyết trình (Tối đa 10-12 trang)
+│  ├─ BaoCao_Nhom11.pdf          # Báo cáo chi tiết nghiệp vụ và hệ thống
+│  ├─ Slides_Nhom11.pdf          # Slide thuyết trình (Tối đa 10-12 trang)
 │  └─ KhaiBaoAI.md               # Bảng kê khai chi tiết các prompt AI đã dùng
 │
-├─ package.json                  # Scripts quản lý và khởi chạy toàn bộ monorepo
 ├─ README.md                     # Hướng dẫn dự án
 └─ .gitignore                    # Bỏ qua các file không cần thiết khi commit
 ```
@@ -69,51 +65,34 @@ ie221-smart-library-management/
 ### 1. Yêu cầu hệ thống (Prerequisites)
 
 - **Python:** >= 3.10
-- **uv:** Công cụ quản lý package Python cực nhanh (Cài đặt: `curl -LsSf https://astral.sh/uv/install.sh | sh` hoặc `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`)
-- **Node.js:** >= 20.x
+- **uv:** Công cụ quản lý package Python cực nhanh (Cài đặt: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- **Node.js:** >= 18.x
 - **Git**
 
----
-
-### 2. Khởi chạy nhanh toàn bộ dự án (Khuyến nghị)
-
-Tại thư mục gốc của repository:
-
-```bash
-# 1. Cài đặt các công cụ chạy song song ở root
-npm install
-
-# 2. Tự động cài đặt dependencies cho cả Backend & Frontend
-npm run install:all
-
-# 3. Khởi chạy đồng thời cả Backend (FastAPI) và Frontend (ReactJS)
-npm run dev
-```
-
-- **Frontend:** `http://localhost:5173`
-- **Backend API Docs (Scalar UI / Swagger):** `http://localhost:8000/docs`
-
----
-
-### 3. Khởi chạy thủ công từng phân hệ (Manual)
-
-#### A. Khởi chạy Backend (FastAPI)
+### 2. Khởi chạy Backend (FastAPI)
 
 Mở terminal và di chuyển vào thư mục `backend`:
 
 ```bash
 cd backend
 
-# Cài đặt thư viện bằng uv
+# Cài đặt các thư viện (uv sẽ tự động đọc từ pyproject.toml và tạo virtual environment)
 uv sync
 
-# Khởi chạy server ở chế độ dev
+# Kích hoạt môi trường ảo (Tuỳ HĐH)
+source .venv/bin/activate     # MacOS/Linux
+source .venv/Scripts/activate # Git Bash
+.venv\Scripts\activate        # Windows
+
+# Chạy server ở chế độ dev
 uv run fastapi dev
 ```
 
-#### B. Khởi chạy Frontend (ReactJS)
+API Documentation (Swagger UI) sẽ có tại: `http://localhost:8000/docs`
 
-Mở một terminal mới và di chuyển vào thư mục `frontend`:
+### 3. Khởi chạy Frontend (ReactJS)
+
+Mở một terminal MỚI và di chuyển vào thư mục `frontend`:
 
 ```bash
 cd frontend

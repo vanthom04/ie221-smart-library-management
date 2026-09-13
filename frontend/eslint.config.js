@@ -1,9 +1,8 @@
 import js from "@eslint/js"
 import globals from "globals"
-import tseslint from "typescript-eslint"
 import reactHooks from "eslint-plugin-react-hooks"
 import reactRefresh from "eslint-plugin-react-refresh"
-import reactCompiler from "eslint-plugin-react-compiler"
+import tseslint from "typescript-eslint"
 import prettierPlugin from "eslint-plugin-prettier"
 import prettierConfig from "eslint-config-prettier"
 import { defineConfig, globalIgnores } from "eslint/config"
@@ -16,8 +15,7 @@ export default defineConfig([
       js.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-      reactCompiler.configs.recommended
+      reactRefresh.configs.vite
     ],
     plugins: {
       prettier: prettierPlugin
@@ -27,10 +25,6 @@ export default defineConfig([
     },
     rules: {
       "prettier/prettier": "warn",
-
-      // === React Hooks & Compiler ===
-      "react-hooks/exhaustive-deps": "warn",
-      "react-compiler/react-compiler": "error",
 
       // === Logic & Best Practices ===
       "no-useless-catch": "off", // Tắt cảnh báo khối catch vô nghĩa
