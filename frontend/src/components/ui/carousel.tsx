@@ -1,20 +1,20 @@
 import * as React from "react"
-
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
 type CarouselOptions = UseCarouselParameters[0]
 type CarouselPlugin = UseCarouselParameters[1]
 
-interface CarouselProps {
+type CarouselProps = {
   opts?: CarouselOptions
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
+  setApi?: (api: CarouselApi) => void
 }
 
 type CarouselContextProps = {
@@ -41,6 +41,7 @@ function useCarousel() {
 function Carousel({
   orientation = "horizontal",
   opts,
+  setApi,
   plugins,
   className,
   children,
@@ -84,14 +85,17 @@ function Carousel({
   )
 
   React.useEffect(() => {
+    if (!api || !setApi) return
+    setApi(api)
+  }, [api, setApi])
+
+  React.useEffect(() => {
     if (!api) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)
 
     return () => {
-      api?.off("reInit", onSelect)
       api?.off("select", onSelect)
     }
   }, [api, onSelect])
