@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from "react"
+
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
 
 import { cn } from "@/lib/utils"
 
-type DrawerContextProps = {
+interface DrawerContextProps {
   hasSnapPoints: boolean
   modal: DrawerPrimitive.Root.Props["modal"]
   showSwipeHandle: boolean
@@ -34,10 +35,7 @@ function Drawer({
   showSwipeHandle?: boolean
 }) {
   const hasSnapPoints = snapPoints != null && snapPoints.length > 0
-  const contextValue = React.useMemo(
-    () => ({ hasSnapPoints, modal, showSwipeHandle, swipeDirection }),
-    [hasSnapPoints, modal, showSwipeHandle, swipeDirection]
-  )
+  const contextValue = { hasSnapPoints, modal, showSwipeHandle, swipeDirection }
 
   return (
     <DrawerContext.Provider value={contextValue}>
