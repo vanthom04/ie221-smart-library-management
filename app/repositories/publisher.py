@@ -1,15 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 from app.models.publisher import Publisher
-from app.schemas.publisher import PublisherCreate, PublisherUpdate
-
-async def get_publisher(db: AsyncSession, publisher_id: int):
-    result = await db.execute(select(Publisher).filter(Publisher.id == publisher_id))
-    return result.scalars().first()
-
-async def get_publishers(db: AsyncSession, skip: int = 0, limit: int = 100):
-    result = await db.execute(select(Publisher).offset(skip).limit(limit))
-    return result.scalars().all()
+from app.schemas.publisher import PublisherCreate
 
 async def create_publisher(db: AsyncSession, publisher: PublisherCreate):
     db_publisher = Publisher(name=publisher.name, address=publisher.address)
@@ -18,16 +10,28 @@ async def create_publisher(db: AsyncSession, publisher: PublisherCreate):
     await db.refresh(db_publisher)
     return db_publisher
 
-async def update_publisher(db: AsyncSession, db_publisher: Publisher, publisher_update: PublisherUpdate):
-    update_data = publisher_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_publisher, key, value)
-    db.add(db_publisher)
+async def get_publishers(db: AsyncSession):
+    result = await db.execute(select(Publisher))
+    return result.scalars().all()
+
+async def get_publisher_by_id(db: AsyncSession, publisher_id: int):
+    result = await db.execute(select(Publisher).filter(Publisher.id == publisher_id))
+    return result.scalar_one_or_none()
+
+async def update_publisher(db: AsyncSession, publisher_id: int, publisher_update: PublisherCreate):
+    db_publisher = await get_publisher_by_id(db, publisher_id)
+    if not db_publisher:
+        return None
+    db_publisher.name = publisher_update.name
+    db_publisher.address = publisher_update.address
     await db.commit()
     await db.refresh(db_publisher)
     return db_publisher
 
-async def delete_publisher(db: AsyncSession, db_publisher: Publisher):
+async def delete_publisher(db: AsyncSession, publisher_id: int):
+    db_publisher = await get_publisher_by_id(db, publisher_id)
+    if not db_publisher:
+        return False
     await db.delete(db_publisher)
     await db.commit()
-    return db_publisher
+    return True

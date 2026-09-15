@@ -70,5 +70,29 @@ export const router = createBrowserRouter([
         lazy: () => import("@/pages/user/profile").then((m) => ({ Component: m.ProfilePage }))
       }
     ]
+  },
+  {
+    path: "/admin",
+    HydrateFallback: FallbackLoader,
+    ErrorBoundary: RootErrorBoundary,
+    lazy: () => import("@/pages/admin/AdminLayout").then((m) => ({ Component: m.default })),
+    children: [
+      {
+        index: true,
+        lazy: () => import("@/pages/admin/CategoryAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "authors",
+        lazy: () => import("@/pages/admin/AuthorAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "publishers",
+        lazy: () => import("@/pages/admin/PublisherAdmin").then((m) => ({ Component: m.default }))
+      }, // <-- Đã thêm dấu phẩy ở đây
+      {
+        path: "books", // <-- ĐÃ THÊM ROUTE CHO BOSS SÁCH
+        lazy: () => import("@/pages/admin/BookAdmin").then((m) => ({ Component: m.default }))
+      }
+    ]
   }
 ])
