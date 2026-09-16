@@ -22,9 +22,7 @@ class BorrowingService:
     def __init__(self, repository: BorrowingRepository) -> None:
         self._repository = repository
 
-    async def create_reservation(
-        self, user: User, payload: ReservationCreate
-    ) -> Reservation:
+    async def create_reservation(self, user: User, payload: ReservationCreate) -> Reservation:
         async with self._repository.transaction():
             books = await self._lock_and_validate_books(payload.items)
             self._ensure_available(books, payload.items)
@@ -36,9 +34,7 @@ class BorrowingService:
     async def list_my_reservations(self, user: User) -> list[Reservation]:
         return await self._repository.list_reservations_for_user(user.id)
 
-    async def list_reservations(
-        self, status: ReservationStatus | None = None
-    ) -> list[Reservation]:
+    async def list_reservations(self, status: ReservationStatus | None = None) -> list[Reservation]:
         return await self._repository.list_reservations(status)
 
     async def approve_reservation(self, reservation_id: uuid.UUID, admin: User) -> Reservation:
@@ -47,9 +43,7 @@ class BorrowingService:
             await self._release_expired_reservations(now)
             reservation = await self._get_reservation(reservation_id, for_update=True)
             self._require_reservation_status(reservation, ReservationStatus.PENDING)
-            books = await self._repository.lock_books(
-                [item.book_id for item in reservation.items]
-            )
+            books = await self._repository.lock_books([item.book_id for item in reservation.items])
             self._ensure_available(books, reservation.items)
             for item in reservation.items:
                 books[item.book_id].available_quantity -= item.quantity
@@ -183,9 +177,7 @@ class BorrowingService:
     async def _get_reservation(
         self, reservation_id: uuid.UUID, *, for_update: bool = False
     ) -> Reservation:
-        reservation = await self._repository.get_reservation(
-            reservation_id, for_update=for_update
-        )
+        reservation = await self._repository.get_reservation(reservation_id, for_update=for_update)
         if reservation is None:
             raise ResourceNotFoundError("Không tìm thấy phiếu đặt trước!")
         return reservation
@@ -217,9 +209,7 @@ class BorrowingService:
             raise InsufficientBookAvailabilityError(f"Không đủ sách sẵn có: {titles}!")
 
     @staticmethod
-    def _require_reservation_status(
-        reservation: Reservation, expected: ReservationStatus
-    ) -> None:
+    def _require_reservation_status(reservation: Reservation, expected: ReservationStatus) -> None:
         if reservation.status != expected:
             raise InvalidOperationError(
                 f"Phiếu đặt trước phải ở trạng thái '{expected.value}' để thực hiện thao tác!"

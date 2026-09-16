@@ -93,9 +93,7 @@ class FakeBorrowingRepository:
     async def refresh_reservation(self, reservation):
         return reservation
 
-    async def create_borrow_record(
-        self, *, user_id, reservation_id, borrow_date, due_date, items
-    ):
+    async def create_borrow_record(self, *, user_id, reservation_id, borrow_date, due_date, items):
         borrow_items = []
         for book_id, quantity in items:
             item = BorrowItem(book_id=book_id, quantity=quantity, returned=False)

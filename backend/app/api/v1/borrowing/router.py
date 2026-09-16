@@ -17,9 +17,7 @@ from app.schemas.borrowing import (
 router = APIRouter(tags=["Borrowing Core"])
 
 
-@router.post(
-    "/reservations", response_model=ReservationRead, status_code=status.HTTP_201_CREATED
-)
+@router.post("/reservations", response_model=ReservationRead, status_code=status.HTTP_201_CREATED)
 async def create_reservation(
     payload: ReservationCreate, current_user: CurrentUser, service: BorrowingSvc
 ) -> ReservationRead:
@@ -109,9 +107,7 @@ async def list_my_borrow_records(
 
 
 @router.get("/borrow-records", response_model=list[BorrowRecordRead])
-async def list_borrow_records(
-    _: RequireAdmin, service: BorrowingSvc
-) -> list[BorrowRecordRead]:
+async def list_borrow_records(_: RequireAdmin, service: BorrowingSvc) -> list[BorrowRecordRead]:
     records = await service.list_borrow_records()
     return [BorrowRecordRead.from_entity(item) for item in records]
 

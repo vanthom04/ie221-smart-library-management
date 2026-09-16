@@ -39,12 +39,7 @@ class BorrowingRepository:
 
     async def lock_books(self, book_ids: Sequence[uuid.UUID]) -> dict[uuid.UUID, Book]:
         # Stable ordering reduces deadlock risk when two requests contain the same books.
-        statement = (
-            select(Book)
-            .where(Book.id.in_(book_ids))
-            .order_by(Book.id)
-            .with_for_update()
-        )
+        statement = select(Book).where(Book.id.in_(book_ids)).order_by(Book.id).with_for_update()
         result = await self._session.execute(statement)
         return {book.id: book for book in result.scalars().all()}
 
@@ -53,8 +48,7 @@ class BorrowingRepository:
     ) -> Reservation:
         reservation = Reservation(user_id=user_id, status=ReservationStatus.PENDING)
         reservation.items = [
-            ReservationItem(book_id=book_id, quantity=quantity)
-            for book_id, quantity in items
+            ReservationItem(book_id=book_id, quantity=quantity) for book_id, quantity in items
         ]
         self._session.add(reservation)
         await self._session.flush()
@@ -83,9 +77,7 @@ class BorrowingRepository:
         result = await self._session.execute(statement)
         return list(result.scalars().all())
 
-    async def list_reservations(
-        self, status: ReservationStatus | None = None
-    ) -> list[Reservation]:
+    async def list_reservations(self, status: ReservationStatus | None = None) -> list[Reservation]:
         statement = select(Reservation).options(
             selectinload(Reservation.items).selectinload(ReservationItem.book)
         )
@@ -176,9 +168,7 @@ class BorrowingRepository:
             .where(
                 ReservationItem.book_id.in_(book_ids),
                 Reservation.user_id != excluding_user_id,
-                Reservation.status.in_(
-                    [ReservationStatus.PENDING, ReservationStatus.APPROVED]
-                ),
+                Reservation.status.in_([ReservationStatus.PENDING, ReservationStatus.APPROVED]),
                 or_(Reservation.expires_at.is_(None), Reservation.expires_at > now),
             )
             .limit(1)

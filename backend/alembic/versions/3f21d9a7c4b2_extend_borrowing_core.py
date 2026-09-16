@@ -71,9 +71,7 @@ def downgrade() -> None:
         type_="check",
     )
     op.drop_constraint("uq_borrow_items_borrow_book", "borrow_items", type_="unique")
-    op.drop_constraint(
-        "uq_reservation_items_reservation_book", "reservation_items", type_="unique"
-    )
+    op.drop_constraint("uq_reservation_items_reservation_book", "reservation_items", type_="unique")
     op.drop_column("borrow_records", "renewed_at")
     op.drop_column("borrow_records", "renewal_count")
     op.drop_constraint(

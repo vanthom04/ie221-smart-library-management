@@ -9,9 +9,7 @@ from app.db.mixins import UUIDPkMixin
 
 class BorrowItem(UUIDPkMixin, Base):
     __tablename__ = "borrow_items"
-    __table_args__ = (
-        UniqueConstraint("borrow_id", "book_id", name="uq_borrow_items_borrow_book"),
-    )
+    __table_args__ = (UniqueConstraint("borrow_id", "book_id", name="uq_borrow_items_borrow_book"),)
 
     borrow_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
