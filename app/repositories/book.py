@@ -42,3 +42,27 @@ async def delete_book(db: AsyncSession, book_id: int):
     await db.delete(db_book)
     await db.commit()
     return True
+
+
+async def search_books(
+        db: AsyncSession,
+        title: str | None = None,
+        category_id: int | None = None,
+        author_id: int | None = None
+):
+    query = select(Book)
+
+    # Nếu có nhập tên sách, tìm kiếm tương đối (chứa từ khóa, không phân biệt hoa thường)
+    if title:
+        query = query.filter(Book.title.ilike(f"%{title}%"))
+
+    # Nếu có chọn thể loại, lọc chính xác theo ID
+    if category_id:
+        query = query.filter(Book.category_id == category_id)
+
+    # Nếu có chọn tác giả, lọc chính xác theo ID
+    if author_id:
+        query = query.filter(Book.author_id == author_id)
+
+    result = await db.execute(query)
+    return result.scalars().all()

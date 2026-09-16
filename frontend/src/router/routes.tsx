@@ -33,6 +33,10 @@ export const router = createBrowserRouter([
         lazy: () => import("@/pages/user/home").then((m) => ({ Component: m.HomePage }))
       },
       {
+        path: "/books",
+        lazy: () => import("@/pages/BookList").then((m) => ({ Component: m.default }))
+      },
+      {
         path: "/search",
         lazy: () => import("@/pages/user/search").then((m) => ({ Component: m.SearchPage }))
       },
@@ -88,9 +92,9 @@ export const router = createBrowserRouter([
       {
         path: "publishers",
         lazy: () => import("@/pages/admin/PublisherAdmin").then((m) => ({ Component: m.default }))
-      }, // <-- Đã thêm dấu phẩy ở đây
+      },
       {
-        path: "books", // <-- ĐÃ THÊM ROUTE CHO BOSS SÁCH
+        path: "books",
         lazy: () => import("@/pages/admin/BookAdmin").then((m) => ({ Component: m.default }))
       }
     ]
