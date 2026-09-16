@@ -41,6 +41,24 @@ class InsufficientPermissionError(DomainError):
     status_code = 403
 
 
+class ResourceNotFoundError(DomainError):
+    """Không tìm thấy tài nguyên nghiệp vụ được yêu cầu."""
+
+    status_code = 404
+
+
+class InvalidOperationError(DomainError):
+    """Trạng thái hiện tại không cho phép thực hiện thao tác."""
+
+    status_code = 409
+
+
+class InsufficientBookAvailabilityError(DomainError):
+    """Số lượng sách sẵn có không đáp ứng yêu cầu."""
+
+    status_code = 409
+
+
 class FileTooLargeError(DomainError):
     """Dung lượng file quá lớn."""
 
