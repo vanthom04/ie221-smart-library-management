@@ -267,6 +267,30 @@ alembic history
 | `PATCH` | `/api/v1/users/{user_id}/lock`   | Khóa tài khoản người dùng & lập tức thu hồi các phiên đăng nhập |   `ADMIN`   |
 | `PATCH` | `/api/v1/users/{user_id}/unlock` | Mở khóa tài khoản người dùng về trạng thái `ACTIVE`             |   `ADMIN`   |
 
+### Borrowing Core (`/api/v1`)
+
+| Method   | Endpoint                                                   | Mô tả                                      | Phân quyền  |
+| :------- | :--------------------------------------------------------- | :----------------------------------------- | :---------: |
+| `POST`   | `/api/v1/reservations`                                     | Tạo phiếu đặt trước                        |    User     |
+| `GET`    | `/api/v1/reservations/me`                                  | Xem các phiếu đặt trước của bản thân       |    User     |
+| `DELETE` | `/api/v1/reservations/{reservation_id}`                    | Hủy phiếu đang chờ hoặc đã duyệt           | Owner/Admin |
+| `GET`    | `/api/v1/reservations`                                     | Danh sách phiếu, có thể lọc theo trạng thái |   `ADMIN`   |
+| `PATCH`  | `/api/v1/reservations/{reservation_id}/approve`            | Duyệt và giữ tồn kho                       |   `ADMIN`   |
+| `PATCH`  | `/api/v1/reservations/{reservation_id}/reject`             | Từ chối phiếu kèm lý do                    |   `ADMIN`   |
+| `POST`   | `/api/v1/reservations/expire`                              | Giải phóng các phiếu giữ chỗ hết hạn       |   `ADMIN`   |
+| `POST`   | `/api/v1/borrow-records`                                   | Lập phiếu mượn trực tiếp                   |   `ADMIN`   |
+| `POST`   | `/api/v1/borrow-records/from-reservation/{reservation_id}` | Chuyển phiếu đã duyệt thành phiếu mượn     |   `ADMIN`   |
+| `GET`    | `/api/v1/borrow-records/me`                                | Xem lịch sử mượn trả của bản thân          |    User     |
+| `GET`    | `/api/v1/borrow-records`                                   | Xem toàn bộ phiếu mượn                     |   `ADMIN`   |
+| `PATCH`  | `/api/v1/borrow-records/{borrow_id}/renew`                 | Gia hạn phiếu mượn                         | Owner/Admin |
+| `PATCH`  | `/api/v1/borrow-records/{borrow_id}/return`                | Xác nhận trả sách và hoàn tồn kho          |   `ADMIN`   |
+
+Mỗi thao tác thay đổi phiếu và tồn kho chạy trong cùng một database transaction. Các hàng
+`books` được khóa bằng `SELECT ... FOR UPDATE` để tránh tồn kho âm khi có yêu cầu đồng thời.
+
+Các quy tắc thời gian có thể cấu hình bằng `RESERVATION_HOLD_DAYS`, `BORROW_DAYS`,
+`RENEWAL_DAYS` và `MAX_RENEWALS` trong file `.env`.
+
 ---
 
 ## 🔒 Quy trình Bảo mật & Luồng Xác thực
