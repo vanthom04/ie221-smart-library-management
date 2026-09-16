@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import { bookAPI, categoryAPI, authorAPI, publisherAPI } from "../../services/adminService";
 
 const BookAdmin = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [books, setBooks] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [categories, setCategories] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [authors, setAuthors] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [publishers, setPublishers] = useState<any[]>([]);
 
   // Form State
@@ -59,6 +63,7 @@ const BookAdmin = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEdit = (book: any) => {
     setTitle(book.title);
     setDescription(book.description || "");

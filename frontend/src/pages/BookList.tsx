@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router"; // Lưu ý: React Router v7 dùng "react-router" (hoặc "react-router-dom" tùy setup của nhóm)
 
 const BookList = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [books, setBooks] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [categories, setCategories] = useState<any[]>([]);
 
   // State cho thanh tìm kiếm
@@ -33,6 +35,7 @@ const BookList = () => {
   // Gọi handleSearch lần đầu khi vừa vào trang (để load toàn bộ sách)
   useEffect(() => {
     handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

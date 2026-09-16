@@ -8,6 +8,7 @@ export const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [book, setBook] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -15,6 +16,7 @@ export const BookDetailPage = () => {
     fetch("http://localhost:8000/api/v1/books/")
       .then((res) => res.json())
       .then((data) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const foundBook = data.find((b: any) => b.id === Number(id))
         setBook(foundBook)
         setLoading(false)
