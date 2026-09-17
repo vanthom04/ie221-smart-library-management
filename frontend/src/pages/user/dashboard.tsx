@@ -20,8 +20,19 @@ import {
   MOCK_SUGGESTED_BOOKS
 } from "@/features/user-dashboard/mock-data"
 
+import { useQuickStats } from "@/features/user-dashboard/hooks/use-quick-stats";
+
 export const DashboardPage = () => {
   const [period, setPeriod] = useState("6m")
+  const { data: stats } = useQuickStats();
+
+  // if (isLoading) {
+  //   return <div className="p-6 text-center text-muted-foreground">Đang tải dữ liệu bảng điều khiển...</div>;
+  // }
+
+  // if (isError) {
+  //   return <div className="p-6 text-center text-red-500">Không thể kết nối đến máy chủ. Vui lòng thử lại sau!</div>;
+  // }
 
   const handleRenewBook = (_bookId: string) => {
     // Sẽ kết nối với API gia hạn sách mượn
@@ -36,7 +47,7 @@ export const DashboardPage = () => {
           subtitle="Hôm nay là một ngày tuyệt vời để học hỏi và khám phá tri thức mới."
         />
 
-        <DashboardQuickStats stats={MOCK_QUICK_STATS} />
+        <DashboardQuickStats stats={stats ?? MOCK_QUICK_STATS} />
 
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <BorrowOverviewCard
