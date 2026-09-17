@@ -1,88 +1,37 @@
-// frontend/src/services/adminService.ts
-import axios from "axios"
-
-const API_URL = "http://localhost:8000/api/v1"
+import { api } from "../lib/axios"
 
 export const authorAPI = {
-  getAll: async () => {
-    const res = await axios.get(`${API_URL}/authors/`)
-    return (res as any).data
-  },
+  getAll: async () => api.get<any[]>("/authors/"),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create: async (data: any) => {
-    const res = await axios.post(`${API_URL}/authors/`, data)
-    return (res as any).data
-  },
+  create: async (data: any) => api.post<any>("/authors/", data),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update: async (id: string, data: any) => {
-    const res = await axios.put(`${API_URL}/authors/${id}`, data)
-    return (res as any).data
-  },
-  delete: async (id: string) => {
-    const res = await axios.delete(`${API_URL}/authors/${id}`)
-    return (res as any).data
-  },
+  update: async (id: string, data: any) => api.put<any>(`/authors/${id}`, data),
+  delete: async (id: string) => api.delete<any>(`/authors/${id}`),
 }
 
 export const categoryAPI = {
-  getAll: async () => {
-    const res = await axios.get(`${API_URL}/categories/`)
-    return (res as any).data
-  },
+  getAll: async () => api.get<any[]>("/categories/"),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create: async (data: any) => {
-    const res = await axios.post(`${API_URL}/categories/`, data)
-    return (res as any).data
-  },
+  create: async (data: any) => api.post<any>("/categories/", data),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update: async (id: string, data: any) => {
-    const res = await axios.put(`${API_URL}/categories/${id}`, data)
-    return (res as any).data
-  },
-  delete: async (id: string) => {
-    const res = await axios.delete(`${API_URL}/categories/${id}`)
-    return (res as any).data
-  },
+  update: async (id: string, data: any) => api.put<any>(`/categories/${id}`, data),
+  delete: async (id: string) => api.delete<any>(`/categories/${id}`),
 }
 
 export const publisherAPI = {
-  getAll: async () => {
-    const res = await axios.get(`${API_URL}/publishers/`)
-    return (res as any).data
-  },
+  getAll: async () => api.get<any[]>("/publishers/"),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create: async (data: any) => {
-    const res = await axios.post(`${API_URL}/publishers/`, data)
-    return (res as any).data
-  },
+  create: async (data: any) => api.post<any>("/publishers/", data),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update: async (id: string, data: any) => {
-    const res = await axios.put(`${API_URL}/publishers/${id}`, data)
-    return (res as any).data
-  },
-  delete: async (id: string) => {
-    const res = await axios.delete(`${API_URL}/publishers/${id}`)
-    return (res as any).data
-  },
+  update: async (id: string, data: any) => api.put<any>(`/publishers/${id}`, data),
+  delete: async (id: string) => api.delete<any>(`/publishers/${id}`),
 }
 
 export const bookAPI = {
-  getAll: async () => {
-    const res = await axios.get(`${API_URL}/books/`)
-    return (res as any).data
-  },
+  getAll: async () => api.get<any[]>("/books/"),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create: async (data: any) => {
-    const res = await axios.post(`${API_URL}/books/`, data)
-    return (res as any).data
-  },
+  create: async (data: any) => api.post<any>("/books/", data),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update: async (id: string, data: any) => {
-    const res = await axios.put(`${API_URL}/books/${id}`, data)
-    return (res as any).data
-  },
-  delete: async (id: string) => {
-    const res = await axios.delete(`${API_URL}/books/${id}`)
-    return (res as any).data
-  },
+  update: async (id: string, data: any) => api.put<any>(`/books/${id}`, data),
+  delete: async (id: string) => api.delete<any>(`/books/${id}`),
 }

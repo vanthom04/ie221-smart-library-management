@@ -24,9 +24,8 @@ dev = [
 package = false
 
 [tool.ruff]
-line-length = 120
+line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-ignore = ["B008", "E501"]

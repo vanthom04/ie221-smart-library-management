@@ -14,18 +14,21 @@ const CategoryAdmin = () => {
 
   const fetchCategories = async () => {
     try {
-      const data = await categoryAPI.getAll()
-      setCategories(data)
+      const res: any = await categoryAPI.getAll()
+      // Đề phòng trường hợp Axios trả về object chứa .data thay vì mảng trực tiếp
+      const data = res?.data || res
+
+      // Đảm bảo dữ liệu set vào state luôn luôn là mảng
+      setCategories(Array.isArray(data) ? data : [])
     } catch (_error) {
       console.error("Lỗi khi tải thể loại")
+      setCategories([]) // Set mảng rỗng nếu lỗi để không sập UI
     }
   }
 
   useEffect(() => {
-    categoryAPI
-      .getAll()
-      .then(setCategories)
-      .catch(() => console.error("Lỗi tải thể loại"))
+    // Gọi hàm fetchCategories thay vì dùng .then(setCategories) trực tiếp
+    fetchCategories()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {

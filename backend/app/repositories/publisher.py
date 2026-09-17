@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,12 +20,12 @@ async def get_publishers(db: AsyncSession):
     return result.scalars().all()
 
 
-async def get_publisher_by_id(db: AsyncSession, publisher_id: int):
+async def get_publisher_by_id(db: AsyncSession, publisher_id: UUID):
     result = await db.execute(select(Publisher).filter(Publisher.id == publisher_id))
     return result.scalar_one_or_none()
 
 
-async def update_publisher(db: AsyncSession, publisher_id: int, publisher_update: PublisherCreate):
+async def update_publisher(db: AsyncSession, publisher_id: UUID, publisher_update: PublisherCreate):
     db_publisher = await get_publisher_by_id(db, publisher_id)
     if not db_publisher:
         return None
@@ -34,7 +36,7 @@ async def update_publisher(db: AsyncSession, publisher_id: int, publisher_update
     return db_publisher
 
 
-async def delete_publisher(db: AsyncSession, publisher_id: int):
+async def delete_publisher(db: AsyncSession, publisher_id: UUID):
     db_publisher = await get_publisher_by_id(db, publisher_id)
     if not db_publisher:
         return False

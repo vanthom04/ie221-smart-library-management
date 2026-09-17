@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,13 +21,13 @@ async def get_categories(db: AsyncSession):
     return result.scalars().all()
 
 
-async def get_category_by_id(db: AsyncSession, category_id: int):
+async def get_category_by_id(db: AsyncSession, category_id: UUID):
     """Hàm phụ trợ để tìm thể loại theo ID"""
     result = await db.execute(select(Category).filter(Category.id == category_id))
     return result.scalar_one_or_none()
 
 
-async def update_category(db: AsyncSession, category_id: int, category_update: CategoryCreate):
+async def update_category(db: AsyncSession, category_id: UUID, category_update: CategoryCreate):
     """Xử lý cập nhật thể loại"""
     db_category = await get_category_by_id(db, category_id)
     if not db_category:
@@ -40,7 +42,7 @@ async def update_category(db: AsyncSession, category_id: int, category_update: C
     return db_category
 
 
-async def delete_category(db: AsyncSession, category_id: int):
+async def delete_category(db: AsyncSession, category_id: UUID):
     """Xử lý xóa thể loại"""
     db_category = await get_category_by_id(db, category_id)
     if not db_category:

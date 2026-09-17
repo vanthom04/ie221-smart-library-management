@@ -23,30 +23,33 @@ const BookAdmin = () => {
 
   const fetchData = async () => {
     try {
-      const [bookData, catData, authData, pubData] = await Promise.all([
+      const [resBook, resCat, resAuth, resPub]: any = await Promise.all([
         bookAPI.getAll(),
         categoryAPI.getAll(),
         authorAPI.getAll(),
         publisherAPI.getAll()
       ])
-      setBooks(bookData)
-      setCategories(catData)
-      setAuthors(authData)
-      setPublishers(pubData)
+
+      const bookData = resBook?.data || resBook
+      const catData = resCat?.data || resCat
+      const authData = resAuth?.data || resAuth
+      const pubData = resPub?.data || resPub
+
+      setBooks(Array.isArray(bookData) ? bookData : [])
+      setCategories(Array.isArray(catData) ? catData : [])
+      setAuthors(Array.isArray(authData) ? authData : [])
+      setPublishers(Array.isArray(pubData) ? pubData : [])
     } catch (_error) {
       console.error("Lỗi khi fetch data")
+      setBooks([])
+      setCategories([])
+      setAuthors([])
+      setPublishers([])
     }
   }
 
   useEffect(() => {
-    Promise.all([bookAPI.getAll(), categoryAPI.getAll(), authorAPI.getAll(), publisherAPI.getAll()])
-      .then(([bookData, catData, authData, pubData]) => {
-        setBooks(bookData)
-        setCategories(catData)
-        setAuthors(authData)
-        setPublishers(pubData)
-      })
-      .catch(() => console.error("Lỗi khi fetch data"))
+    fetchData()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {

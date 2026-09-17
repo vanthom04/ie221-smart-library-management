@@ -10,18 +10,17 @@ const AuthorAdmin = () => {
 
   const fetchAuthors = async () => {
     try {
-      const data = await authorAPI.getAll()
-      setAuthors(data)
+      const res: any = await authorAPI.getAll()
+      const data = res?.data || res
+      setAuthors(Array.isArray(data) ? data : [])
     } catch (_error) {
       console.error("Lỗi khi tải tác giả")
+      setAuthors([])
     }
   }
 
   useEffect(() => {
-    authorAPI
-      .getAll()
-      .then(setAuthors)
-      .catch(() => console.error("Lỗi tải tác giả"))
+    fetchAuthors()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {

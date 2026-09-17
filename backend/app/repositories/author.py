@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,12 +20,12 @@ async def get_authors(db: AsyncSession):
     return result.scalars().all()
 
 
-async def get_author_by_id(db: AsyncSession, author_id: int):  # Đã đổi thành int
+async def get_author_by_id(db: AsyncSession, author_id: UUID):
     result = await db.execute(select(Author).filter(Author.id == author_id))
     return result.scalar_one_or_none()
 
 
-async def update_author(db: AsyncSession, author_id: int, author_update: AuthorCreate):  # Đã đổi thành int
+async def update_author(db: AsyncSession, author_id: UUID, author_update: AuthorCreate):
     db_author = await get_author_by_id(db, author_id)
     if not db_author:
         return None
@@ -36,7 +38,7 @@ async def update_author(db: AsyncSession, author_id: int, author_update: AuthorC
     return db_author
 
 
-async def delete_author(db: AsyncSession, author_id: int):  # Đã đổi thành int
+async def delete_author(db: AsyncSession, author_id: UUID):
     db_author = await get_author_by_id(db, author_id)
     if not db_author:
         return False

@@ -15,18 +15,17 @@ const PublisherAdmin = () => {
 
   const fetchPublishers = async () => {
     try {
-      const data = await publisherAPI.getAll()
-      setPublishers(data)
+      const res: any = await publisherAPI.getAll()
+      const data = res?.data || res
+      setPublishers(Array.isArray(data) ? data : [])
     } catch (_error) {
       console.error("Lỗi khi tải NXB")
+      setPublishers([])
     }
   }
 
   useEffect(() => {
-    publisherAPI
-      .getAll()
-      .then(setPublishers)
-      .catch(() => console.error("Lỗi tải NXB"))
+    fetchPublishers()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {

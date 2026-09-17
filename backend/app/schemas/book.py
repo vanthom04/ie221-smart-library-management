@@ -8,8 +8,9 @@ class BookBase(BaseModel):
     isbn: str
     description: str | None = None
     category_id: UUID | None = None
-    author_id: UUID | None = None
     publisher_id: UUID | None = None
+    quantity: int = 1
+    available_quantity: int = 1
 
 
 class BookCreate(BookBase):
