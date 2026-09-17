@@ -7,7 +7,7 @@ import {
   type ChartConfig
 } from "@/components/ui/chart"
 
-import type { BorrowTrendPoint } from "../types"
+import type { BorrowTrendPoint } from "../../admin-dashboard/types"
 
 const chartConfig = {
   count: {

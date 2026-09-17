@@ -1,14 +1,5 @@
 import type { ActivityTypeTone, StatTone } from "./types"
 
-export const CATEGORY_COLORS = {
-  lifeSkills: "#3b82f6",
-  economics: "#2dd4bf",
-  literature: "#fbbf24",
-  science: "#a78bfa",
-  history: "#f472b6"
-} as const
-
-export type CategoryKey = keyof typeof CATEGORY_COLORS
 
 export const ACTIVITY_TONE_STYLES: Record<ActivityTypeTone, string> = {
   green: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { CategoryDonutChart } from "./category-donut-chart"
 import { CategoryLegendItem } from "./category-legend-item"
-import type { CategoryStat } from "../types"
+import type { CategoryStat } from "../../admin-dashboard/types"
 
 interface CategoryStatsCardProps {
   data: CategoryStat[]

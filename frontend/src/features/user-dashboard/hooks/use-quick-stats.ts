@@ -6,8 +6,8 @@ export function useQuickStats() {
   return useQuery({
     queryKey: ["dashboard-quick-stats"],
     queryFn: async () => {
-      const data = await api.get<DashboardQuickStat[]>("/dashboard/quick-stats");
-      return data;
+      const response = await api.get<DashboardQuickStat[]>("/dashboard/user/quick-stats");
+      return response;
     },
   });
 }

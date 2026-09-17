@@ -2,9 +2,6 @@ import type {
   ActivityItem,
   BookSuggestion,
   BorrowedBook,
-  BorrowSummaryStat,
-  BorrowTrendPoint,
-  CategoryStat,
   DashboardQuickStat,
   DueSoonBook
 } from "./types"
@@ -48,20 +45,6 @@ export const MOCK_QUICK_STATS: DashboardQuickStat[] = [
   }
 ]
 
-export const MOCK_BORROW_TREND: BorrowTrendPoint[] = [
-  { month: "01/2024", count: 2 },
-  { month: "02/2024", count: 4 },
-  { month: "03/2024", count: 6.5 },
-  { month: "04/2024", count: 4.8 },
-  { month: "05/2024", count: 9 },
-  { month: "06/2024", count: 5.8 }
-]
-
-export const MOCK_BORROW_SUMMARY_STATS: BorrowSummaryStat[] = [
-  { label: "Tổng số lượt mượn", value: "33", unit: "lượt" },
-  { label: "Sách đã trả", value: "30", unit: "cuốn" },
-  { label: "Tỉ lệ đúng hạn", value: "90.9%", trend: { value: "5%", direction: "up" } }
-]
 
 export const MOCK_BORROWED_BOOKS: BorrowedBook[] = [
   {
@@ -90,13 +73,6 @@ export const MOCK_BORROWED_BOOKS: BorrowedBook[] = [
   }
 ]
 
-export const MOCK_CATEGORY_STATS: CategoryStat[] = [
-  { categoryKey: "lifeSkills", label: "Kỹ năng sống", count: 12, percentage: 36 },
-  { categoryKey: "economics", label: "Kinh tế - Quản trị", count: 8, percentage: 24 },
-  { categoryKey: "literature", label: "Văn học", count: 6, percentage: 18 },
-  { categoryKey: "science", label: "Khoa học - Công nghệ", count: 5, percentage: 15 },
-  { categoryKey: "history", label: "Lịch sử - Tiểu sử", count: 2, percentage: 7 }
-]
 
 export const MOCK_RECENT_ACTIVITIES: ActivityItem[] = [
   {
