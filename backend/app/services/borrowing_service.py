@@ -39,18 +39,24 @@ class BorrowingService:
 
     async def approve_reservation(self, reservation_id: uuid.UUID, admin: User) -> Reservation:
         now = datetime.now(UTC)
+
+        await self.expire_reservations()
+
         async with self._repository.transaction():
-            await self._release_expired_reservations(now)
             reservation = await self._get_reservation(reservation_id, for_update=True)
             self._require_reservation_status(reservation, ReservationStatus.PENDING)
+
             books = await self._repository.lock_books([item.book_id for item in reservation.items])
             self._ensure_available(books, reservation.items)
+
             for item in reservation.items:
                 books[item.book_id].available_quantity -= item.quantity
+
             reservation.status = ReservationStatus.APPROVED
             reservation.reviewed_at = now
             reservation.reviewed_by = admin.id
             reservation.expires_at = now + timedelta(days=settings.RESERVATION_HOLD_DAYS)
+
             return await self._repository.refresh_reservation(reservation)
 
     async def reject_reservation(
@@ -86,6 +92,9 @@ class BorrowingService:
 
     async def create_direct_borrow(self, payload: BorrowCreate) -> BorrowRecord:
         now = datetime.now(UTC)
+
+        await self.expire_reservations()
+
         async with self._repository.transaction():
             await self._release_expired_reservations(now)
             borrower = await self._repository.get_user(payload.user_id)
@@ -108,12 +117,13 @@ class BorrowingService:
 
     async def borrow_from_reservation(self, reservation_id: uuid.UUID) -> BorrowRecord:
         now = datetime.now(UTC)
+
+        await self.expire_reservations()
+
         async with self._repository.transaction():
-            await self._release_expired_reservations(now)
             reservation = await self._get_reservation(reservation_id, for_update=True)
             self._require_reservation_status(reservation, ReservationStatus.APPROVED)
-            if reservation.expires_at is not None and reservation.expires_at <= now:
-                raise InvalidOperationError("Phiếu đặt trước đã hết hạn!")
+
             borrow = await self._repository.create_borrow_record(
                 user_id=reservation.user_id,
                 reservation_id=reservation.id,
@@ -121,19 +131,17 @@ class BorrowingService:
                 due_date=now + timedelta(days=settings.BORROW_DAYS),
                 items=[(item.book_id, item.quantity) for item in reservation.items],
             )
+
             reservation.status = ReservationStatus.FULFILLED
             reservation.fulfilled_at = now
+
             return await self._repository.refresh_borrow_record(borrow)
 
     async def list_my_borrow_records(self, user: User) -> list[BorrowRecord]:
-        records = await self._repository.list_borrow_records_for_user(user.id)
-        self._show_overdue_status(records)
-        return records
+        return await self._repository.list_borrow_records_for_user(user.id)
 
     async def list_borrow_records(self) -> list[BorrowRecord]:
-        records = await self._repository.list_borrow_records()
-        self._show_overdue_status(records)
-        return records
+        return await self._repository.list_borrow_records()
 
     async def return_borrow(self, borrow_id: uuid.UUID) -> BorrowRecord:
         now = datetime.now(UTC)
@@ -229,12 +237,3 @@ class BorrowingService:
             await self._restore_reserved_inventory(reservation)
             reservation.status = ReservationStatus.EXPIRED
         return len(reservations)
-
-    @staticmethod
-    def _show_overdue_status(records: list[BorrowRecord]) -> None:
-        now = datetime.now(UTC)
-        for record in records:
-            if record.status == BorrowStatus.BORROWING and record.due_date < now:
-                # Response reflects current business state. The next write persists
-                # the final state without making a GET endpoint mutate the database.
-                record.status = BorrowStatus.OVERDUE

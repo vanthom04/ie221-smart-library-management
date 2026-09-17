@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -116,6 +116,11 @@ class BorrowRecordRead(BaseModel):
 
     @classmethod
     def from_entity(cls, borrow: BorrowRecord) -> "BorrowRecordRead":
+        status = borrow.status
+
+        if status == BorrowStatus.BORROWING and borrow.due_date < datetime.now(UTC):
+            status = BorrowStatus.OVERDUE
+
         return cls(
             id=borrow.id,
             user_id=borrow.user_id,
@@ -125,7 +130,7 @@ class BorrowRecordRead(BaseModel):
             return_date=borrow.return_date,
             renewal_count=borrow.renewal_count,
             renewed_at=borrow.renewed_at,
-            status=borrow.status,
+            status=status,
             created_at=borrow.created_at,
             items=[
                 BorrowItemRead(

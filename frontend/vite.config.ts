@@ -9,5 +9,8 @@ export default defineConfig({
   plugins: [tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
   resolve: {
     alias: [{ find: "@", replacement: "/src" }]
+  },
+  build: {
+    sourcemap: true
   }
 })

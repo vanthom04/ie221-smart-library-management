@@ -46,3 +46,10 @@ export interface BorrowRecord {
   created_at: string
   items: BorrowItem[]
 }
+
+export interface CreateReservationPayload {
+  items: Array<{
+    book_id: string
+    quantity: number
+  }>
+}
