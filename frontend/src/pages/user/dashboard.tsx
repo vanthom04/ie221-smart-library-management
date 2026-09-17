@@ -6,7 +6,6 @@ import { RecentActivitiesCard } from "@/features/user-dashboard/components/recen
 import { DashboardReminderCard } from "@/features/user-dashboard/components/dashboard-reminder-card"
 import { DashboardWelcomeBanner } from "@/features/user-dashboard/components/dashboard-welcome-banner"
 import {
-  MOCK_DUE_SOON_BOOKS,
   MOCK_SUGGESTED_BOOKS
 } from "@/features/user-dashboard/mock-data"
 
