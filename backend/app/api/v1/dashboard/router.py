@@ -65,6 +65,15 @@ async def approve_borrow_request(
     await dashboard_service.approve_borrow_request(record_id)
     return {"message": "Phê duyệt yêu cầu thành công"}
 
+@router.post("/admin/requests/{record_id}/reject")
+async def reject_borrow_request(
+    record_id: uuid.UUID,
+    dashboard_service: DashboardSvc
+) -> dict:
+    """Từ chối yêu cầu mượn sách của độc giả."""
+    await dashboard_service.reject_borrow_request(record_id)
+    return {"message": "Từ chối yêu cầu thành công"}
+
 @router.get("/admin/recent-borrows", response_model=list[AdminRecentBorrowResponse])
 async def read_admin_recent_borrows(
     dashboard_service: DashboardSvc

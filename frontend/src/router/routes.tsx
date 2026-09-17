@@ -4,7 +4,6 @@ import { FallbackLoader } from "@/components/fallback-loader"
 import { RootErrorBoundary } from "@/components/root-error-boundary"
 
 import { loadSession, requireAuth, requireGuest } from "./middleware"
-import { AdminDashboardPage } from "@/pages/admin/dashboard"
 
 export const router = createBrowserRouter([
   {
@@ -72,7 +71,9 @@ export const router = createBrowserRouter([
       },
       {
         path: "/admin/dashboard",
-        element: <AdminDashboardPage />
+        middleware: [requireAuth],
+        HydrateFallback: FallbackLoader,
+        lazy: () => import("@/pages/admin/dashboard").then((m) => ({ Component: m.AdminDashboardPage }))
       },
     ]
   }

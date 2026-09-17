@@ -121,6 +121,7 @@ class DashboardService:
         ]
 
     async def get_user_borrowed_books(self, user_id: uuid.UUID) -> list[BorrowedBookResponse]:
+        '''Lấy danh sách các sách đang mượn của user hiện tại (tối đa 5 cuốn).'''
         now = datetime.now()
 
         stmt = (
@@ -167,6 +168,7 @@ class DashboardService:
         return borrowed_books
 
     async def get_user_recent_activities(self, user_id: uuid.UUID) -> list[ActivityItemResponse]:
+        '''Lấy danh sách các hoạt động gần đây của user hiện tại (tối đa 5 mục).'''
         activities: list[ActivityItemResponse] = []
 
         # 1. Lấy lượt trả sách mới nhất
@@ -223,6 +225,7 @@ class DashboardService:
         return sorted(activities, key=lambda x: (x.date, x.time), reverse=True)[:5]
 
     async def get_user_due_soon_books(self, user_id: uuid.UUID) -> list[DueSoonBookResponse]:
+        '''Lấy danh sách các sách sắp đến hạn của user hiện tại (tối đa 3 cuốn).'''
         now = datetime.now()
 
         stmt = (
@@ -266,6 +269,7 @@ class DashboardService:
         return due_soon_books
 
     async def get_admin_stats(self) -> list[AdminQuickStatResponse]:
+        '''Lấy dữ liệu tổng quan thống kê cho trang quản trị Admin.'''
         now = datetime.now()
 
         # 1. Tổng số lượng sách trong kho
@@ -345,6 +349,7 @@ class DashboardService:
         ]
 
     async def get_admin_pending_requests(self) -> list[AdminPendingRequestResponse]:
+        '''Lấy danh sách các yêu cầu mượn/trả sách đang chờ Admin phê duyệt.'''
         stmt = (
             select(
                 BorrowRecord.id,
@@ -381,6 +386,7 @@ class DashboardService:
         return pending_requests
 
     async def get_admin_recent_borrows(self) -> list[AdminRecentBorrowResponse]:
+        '''Lấy danh sách nhật ký mượn/trả gần đây cho trang Admin.'''
         now = datetime.now()
         
         stmt = (
@@ -427,6 +433,7 @@ class DashboardService:
         return recent_borrows
 
     async def get_admin_category_stats(self) -> list[CategoryStatResponse]:
+        '''Lấy dữ liệu thống kê số lượng mượn sách theo từng danh mục cho trang Admin.'''
         # Tính tổng số lượng sách toàn hệ thống đã được mượn để quy ra phần trăm
         total_stmt = (
             select(func.coalesce(func.sum(BorrowItem.quantity), 0))
@@ -470,6 +477,7 @@ class DashboardService:
         return stats
 
     def _map_category_key(self, name: str) -> str:
+        '''Chuyển đổi tên danh mục sang key chuẩn để sử dụng trong frontend.'''
         mapping = {
             "Kỹ năng sống": "lifeSkills",
             "Kinh tế - Quản trị": "economics",
@@ -480,6 +488,7 @@ class DashboardService:
         return mapping.get(name, name.lower().replace(" ", "-"))
     
     async def get_admin_borrow_summary(self) -> List[BorrowSummaryStatResponse]:
+        '''Lấy dữ liệu tổng quan mượn sách toàn hệ thống cho Admin.'''
         # 1. Tổng số lượt mượn toàn hệ thống
         total_borrows_stmt = select(func.count(BorrowRecord.id))
         total_borrows = (await self.db.execute(total_borrows_stmt)).scalar() or 0
@@ -528,6 +537,7 @@ class DashboardService:
         ]
 
     async def get_admin_borrow_overview(self, period: str) -> BorrowOverviewResponse:
+        '''Lấy dữ liệu tổng quan mượn sách toàn hệ thống cho Admin theo khoảng thời gian.'''
         months_map = {"3m": 3, "6m": 6, "12m": 12}
         months_count = months_map.get(period, 3)
         
@@ -557,6 +567,7 @@ class DashboardService:
         )
 
     async def approve_borrow_request(self, record_id: uuid.UUID) -> None:
+        '''Phê duyệt yêu cầu mượn sách của độc giả.'''
         # 1. Tìm phiếu mượn sách theo ID
         result = await self.db.execute(
             select(BorrowRecord).where(BorrowRecord.id == record_id)
@@ -582,7 +593,8 @@ class DashboardService:
         
         await self.db.commit()
 
-async def reject_borrow_request(self, record_id: uuid.UUID) -> None:
+    async def reject_borrow_request(self, record_id: uuid.UUID) -> None:
+        ''' Từ chối yêu cầu mượn sách của độc giả.'''
         result = await self.db.execute(
             select(BorrowRecord).where(BorrowRecord.id == record_id)
         )

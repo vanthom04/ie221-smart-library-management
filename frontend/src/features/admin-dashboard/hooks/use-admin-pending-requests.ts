@@ -5,7 +5,7 @@ import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { isApiError } from "@/lib/api-error"
 
 export function useAdminPendingRequests() {
-  return useQuery({
+    return useQuery({
     queryKey: ["admin-pending-requests"],
     queryFn: async () => {
       return await api.get<AdminPendingRequest[]>("/dashboard/admin/pending-requests")
