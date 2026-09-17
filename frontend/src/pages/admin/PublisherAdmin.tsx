@@ -15,6 +15,7 @@ const PublisherAdmin = () => {
 
   const fetchPublishers = async () => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res: any = await publisherAPI.getAll()
       const data = res?.data || res
       setPublishers(Array.isArray(data) ? data : [])
@@ -25,7 +26,25 @@ const PublisherAdmin = () => {
   }
 
   useEffect(() => {
-    fetchPublishers()
+    let isMounted = true
+    const loadData = async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res: any = await publisherAPI.getAll()
+        const data = res?.data || res
+        if (isMounted) {
+          setPublishers(Array.isArray(data) ? data : [])
+        }
+      } catch (_error) {
+        if (isMounted) {
+          setPublishers([])
+        }
+      }
+    }
+    loadData()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +58,7 @@ const PublisherAdmin = () => {
       }
       setName("")
       setAddress("")
-      fetchPublishers()
+      await fetchPublishers()
     } catch (_error) {
       alert("Có lỗi xảy ra, vui lòng xem Console!")
     }
@@ -55,7 +74,7 @@ const PublisherAdmin = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa NXB này không?")) {
       try {
         await publisherAPI.delete(id)
-        fetchPublishers()
+        await fetchPublishers()
       } catch (_error) {
         alert("Lỗi khi xóa!")
       }

@@ -12,7 +12,7 @@ ALLOWED_IMAGE_TYPES = {
 
 
 @router.post("/image")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...)):  # noqa: B008
     result = await save_upload(file=file, allowed_content_types=ALLOWED_IMAGE_TYPES)
     return {
         "url": result["secure_url"],

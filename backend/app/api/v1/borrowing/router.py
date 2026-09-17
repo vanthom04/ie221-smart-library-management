@@ -26,7 +26,9 @@ async def create_reservation(
 
 
 @router.get("/reservations/me", response_model=list[ReservationRead])
-async def list_my_reservations(current_user: CurrentUser, service: BorrowingSvc) -> list[ReservationRead]:
+async def list_my_reservations(
+    current_user: CurrentUser, service: BorrowingSvc
+) -> list[ReservationRead]:
     reservations = await service.list_my_reservations(current_user)
     return [ReservationRead.from_entity(item) for item in reservations]
 
@@ -42,7 +44,9 @@ async def list_reservations(
 
 
 @router.patch("/reservations/{reservation_id}/approve", response_model=ReservationRead)
-async def approve_reservation(reservation_id: uuid.UUID, admin: RequireAdmin, service: BorrowingSvc) -> ReservationRead:
+async def approve_reservation(
+    reservation_id: uuid.UUID, admin: RequireAdmin, service: BorrowingSvc
+) -> ReservationRead:
     reservation = await service.approve_reservation(reservation_id, admin)
     return ReservationRead.from_entity(reservation)
 
@@ -72,8 +76,12 @@ async def expire_reservations(_: RequireAdmin, service: BorrowingSvc) -> Transac
     return TransactionResult(detail=f"Đã giải phóng {count} phiếu đặt trước hết hạn.")
 
 
-@router.post("/borrow-records", response_model=BorrowRecordRead, status_code=status.HTTP_201_CREATED)
-async def create_direct_borrow(payload: BorrowCreate, _: RequireAdmin, service: BorrowingSvc) -> BorrowRecordRead:
+@router.post(
+    "/borrow-records", response_model=BorrowRecordRead, status_code=status.HTTP_201_CREATED
+)
+async def create_direct_borrow(
+    payload: BorrowCreate, _: RequireAdmin, service: BorrowingSvc
+) -> BorrowRecordRead:
     borrow = await service.create_direct_borrow(payload)
     return BorrowRecordRead.from_entity(borrow)
 
@@ -91,7 +99,9 @@ async def borrow_from_reservation(
 
 
 @router.get("/borrow-records/me", response_model=list[BorrowRecordRead])
-async def list_my_borrow_records(current_user: CurrentUser, service: BorrowingSvc) -> list[BorrowRecordRead]:
+async def list_my_borrow_records(
+    current_user: CurrentUser, service: BorrowingSvc
+) -> list[BorrowRecordRead]:
     records = await service.list_my_borrow_records(current_user)
     return [BorrowRecordRead.from_entity(item) for item in records]
 
@@ -103,12 +113,16 @@ async def list_borrow_records(_: RequireAdmin, service: BorrowingSvc) -> list[Bo
 
 
 @router.patch("/borrow-records/{borrow_id}/return", response_model=BorrowRecordRead)
-async def return_borrow(borrow_id: uuid.UUID, _: RequireAdmin, service: BorrowingSvc) -> BorrowRecordRead:
+async def return_borrow(
+    borrow_id: uuid.UUID, _: RequireAdmin, service: BorrowingSvc
+) -> BorrowRecordRead:
     borrow = await service.return_borrow(borrow_id)
     return BorrowRecordRead.from_entity(borrow)
 
 
 @router.patch("/borrow-records/{borrow_id}/renew", response_model=BorrowRecordRead)
-async def renew_borrow(borrow_id: uuid.UUID, current_user: CurrentUser, service: BorrowingSvc) -> BorrowRecordRead:
+async def renew_borrow(
+    borrow_id: uuid.UUID, current_user: CurrentUser, service: BorrowingSvc
+) -> BorrowRecordRead:
     borrow = await service.renew_borrow(borrow_id, current_user)
     return BorrowRecordRead.from_entity(borrow)

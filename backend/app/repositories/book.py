@@ -48,7 +48,10 @@ async def delete_book(db: AsyncSession, book_id: UUID):
 
 
 async def search_books(
-    db: AsyncSession, title: str | None = None, category_id: UUID | None = None, author_id: UUID | None = None
+    db: AsyncSession,
+    title: str | None = None,
+    category_id: UUID | None = None,
+    author_id: UUID | None = None,
 ):
     query = select(Book)
 

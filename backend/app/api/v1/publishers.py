@@ -21,7 +21,9 @@ async def read_publishers(db: DbSession):
 
 @router.put("/{publisher_id}", response_model=schemas.PublisherOut)
 async def update_publisher(publisher_id: UUID, publisher: schemas.PublisherCreate, db: DbSession):
-    updated_publisher = await crud.update_publisher(db=db, publisher_id=publisher_id, publisher_update=publisher)
+    updated_publisher = await crud.update_publisher(
+        db=db, publisher_id=publisher_id, publisher_update=publisher
+    )
     if not updated_publisher:
         raise HTTPException(status_code=404, detail="Không tìm thấy NXB để sửa!")
     return updated_publisher

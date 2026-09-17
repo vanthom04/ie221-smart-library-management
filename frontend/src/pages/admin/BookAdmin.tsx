@@ -23,6 +23,7 @@ const BookAdmin = () => {
 
   const fetchData = async () => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const [resBook, resCat, resAuth, resPub]: any = await Promise.all([
         bookAPI.getAll(),
         categoryAPI.getAll(),
@@ -49,7 +50,35 @@ const BookAdmin = () => {
   }
 
   useEffect(() => {
-    fetchData()
+    let isMounted = true
+    const loadData = async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const [resBook, resCat, resAuth, resPub]: any = await Promise.all([
+          bookAPI.getAll(),
+          categoryAPI.getAll(),
+          authorAPI.getAll(),
+          publisherAPI.getAll()
+        ])
+        if (isMounted) {
+          setBooks(Array.isArray(resBook?.data || resBook) ? resBook?.data || resBook : [])
+          setCategories(Array.isArray(resCat?.data || resCat) ? resCat?.data || resCat : [])
+          setAuthors(Array.isArray(resAuth?.data || resAuth) ? resAuth?.data || resAuth : [])
+          setPublishers(Array.isArray(resPub?.data || resPub) ? resPub?.data || resPub : [])
+        }
+      } catch (_error) {
+        if (isMounted) {
+          setBooks([])
+          setCategories([])
+          setAuthors([])
+          setPublishers([])
+        }
+      }
+    }
+    loadData()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +98,7 @@ const BookAdmin = () => {
       if (editingId) await bookAPI.update(editingId, payload)
       else await bookAPI.create(payload)
       resetForm()
-      fetchData()
+      await fetchData()
     } catch (_error) {
       alert("Có lỗi xảy ra khi lưu sách!")
     }
@@ -89,7 +118,7 @@ const BookAdmin = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm("Xóa cuốn sách này?")) {
       await bookAPI.delete(id)
-      fetchData()
+      await fetchData()
     }
   }
 

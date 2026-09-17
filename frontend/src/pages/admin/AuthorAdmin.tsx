@@ -10,6 +10,7 @@ const AuthorAdmin = () => {
 
   const fetchAuthors = async () => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res: any = await authorAPI.getAll()
       const data = res?.data || res
       setAuthors(Array.isArray(data) ? data : [])
@@ -20,7 +21,26 @@ const AuthorAdmin = () => {
   }
 
   useEffect(() => {
-    fetchAuthors()
+    let isMounted = true
+    const loadData = async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res: any = await authorAPI.getAll()
+        const data = res?.data || res
+        if (isMounted) {
+          setAuthors(Array.isArray(data) ? data : [])
+        }
+      } catch (_error) {
+        if (isMounted) {
+          console.error("Lỗi khi tải tác giả")
+          setAuthors([])
+        }
+      }
+    }
+    loadData()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +54,7 @@ const AuthorAdmin = () => {
       setName("")
       setBio("")
       setEditingId(null)
-      fetchAuthors()
+      await fetchAuthors()
     } catch (_error) {
       alert("Có lỗi xảy ra khi lưu tác giả!")
     }
@@ -50,7 +70,7 @@ const AuthorAdmin = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa tác giả này?")) {
       await authorAPI.delete(id)
-      fetchAuthors()
+      await fetchAuthors()
     }
   }
 

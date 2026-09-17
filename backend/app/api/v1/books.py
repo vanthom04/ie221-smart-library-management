@@ -24,8 +24,8 @@ async def read_books(db: DbSession):
 async def search_books(
     db: DbSession,
     title: str | None = Query(None, description="Tìm theo tên sách (gõ 1 vài chữ)"),
-    category_id: UUID | None = Query(None, description="Lọc theo ID thể loại"),
-    author_id: UUID | None = Query(None, description="Lọc theo ID tác giả"),
+    category_id: UUID | None = Query(None, description="Lọc theo ID thể loại"),  # noqa: B008
+    author_id: UUID | None = Query(None, description="Lọc theo ID tác giả"),  # noqa: B008
 ):
     return await crud.search_books(db=db, title=title, category_id=category_id, author_id=author_id)
 

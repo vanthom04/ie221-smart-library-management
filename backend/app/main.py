@@ -41,7 +41,9 @@ async def validation_error_handler(_: Request, exc: RequestValidationError) -> J
         detail = f"Có {len(field_errors)} trường dữ liệu không hợp lệ!"
 
     body = ErrorResponse(detail=detail, errors=field_errors)
-    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content=body.model_dump())
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content=body.model_dump()
+    )
 
 
 # Đã loại bỏ if settings.BACKEND_CORS_ORIGINS và set cứng danh sách allow_origins

@@ -13,7 +13,9 @@ class UserService:
     như khóa (lock) và mở khóa (unlock) người dùng.
     """
 
-    def __init__(self, user_repository: UserRepository, refresh_token_repository: RefreshTokenRepository) -> None:
+    def __init__(
+        self, user_repository: UserRepository, refresh_token_repository: RefreshTokenRepository
+    ) -> None:
         """Khởi tạo UserService với các repository cần thiết.
 
         Args:

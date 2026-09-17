@@ -21,7 +21,9 @@ async def read_categories(db: DbSession):
 
 @router.put("/{category_id}", response_model=schemas.CategoryOut)
 async def update_category(category_id: UUID, category: schemas.CategoryCreate, db: DbSession):
-    updated_category = await crud.update_category(db=db, category_id=category_id, category_update=category)
+    updated_category = await crud.update_category(
+        db=db, category_id=category_id, category_update=category
+    )
     if not updated_category:
         raise HTTPException(status_code=404, detail="Không tìm thấy thể loại để sửa!")
     return updated_category

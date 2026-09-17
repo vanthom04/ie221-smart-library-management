@@ -59,7 +59,9 @@ class BorrowingService:
 
             return await self._repository.refresh_reservation(reservation)
 
-    async def reject_reservation(self, reservation_id: uuid.UUID, admin: User, reason: str) -> Reservation:
+    async def reject_reservation(
+        self, reservation_id: uuid.UUID, admin: User, reason: str
+    ) -> Reservation:
         async with self._repository.transaction():
             reservation = await self._get_reservation(reservation_id, for_update=True)
             self._require_reservation_status(reservation, ReservationStatus.PENDING)
@@ -180,19 +182,25 @@ class BorrowingService:
             borrow.renewed_at = now
             return await self._repository.refresh_borrow_record(borrow)
 
-    async def _get_reservation(self, reservation_id: uuid.UUID, *, for_update: bool = False) -> Reservation:
+    async def _get_reservation(
+        self, reservation_id: uuid.UUID, *, for_update: bool = False
+    ) -> Reservation:
         reservation = await self._repository.get_reservation(reservation_id, for_update=for_update)
         if reservation is None:
             raise ResourceNotFoundError("Không tìm thấy phiếu đặt trước!")
         return reservation
 
-    async def _get_borrow_record(self, borrow_id: uuid.UUID, *, for_update: bool = False) -> BorrowRecord:
+    async def _get_borrow_record(
+        self, borrow_id: uuid.UUID, *, for_update: bool = False
+    ) -> BorrowRecord:
         borrow = await self._repository.get_borrow_record(borrow_id, for_update=for_update)
         if borrow is None:
             raise ResourceNotFoundError("Không tìm thấy phiếu mượn!")
         return borrow
 
-    async def _lock_and_validate_books(self, items: list[BookQuantityInput]) -> dict[uuid.UUID, Book]:
+    async def _lock_and_validate_books(
+        self, items: list[BookQuantityInput]
+    ) -> dict[uuid.UUID, Book]:
         books = await self._repository.lock_books([item.book_id for item in items])
         missing = [item.book_id for item in items if item.book_id not in books]
         if missing:
@@ -201,7 +209,9 @@ class BorrowingService:
 
     @staticmethod
     def _ensure_available(books: dict[uuid.UUID, Book], items) -> None:
-        unavailable = [item for item in items if books[item.book_id].available_quantity < item.quantity]
+        unavailable = [
+            item for item in items if books[item.book_id].available_quantity < item.quantity
+        ]
         if unavailable:
             titles = ", ".join(books[item.book_id].title for item in unavailable)
             raise InsufficientBookAvailabilityError(f"Không đủ sách sẵn có: {titles}!")
@@ -209,7 +219,9 @@ class BorrowingService:
     @staticmethod
     def _require_reservation_status(reservation: Reservation, expected: ReservationStatus) -> None:
         if reservation.status != expected:
-            raise InvalidOperationError(f"Phiếu đặt trước phải ở trạng thái '{expected.value}' để thực hiện thao tác!")
+            raise InvalidOperationError(
+                f"Phiếu đặt trước phải ở trạng thái '{expected.value}' để thực hiện thao tác!"
+            )
 
     async def _restore_reserved_inventory(self, reservation: Reservation) -> None:
         books = await self._repository.lock_books([item.book_id for item in reservation.items])

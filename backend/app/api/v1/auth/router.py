@@ -63,7 +63,9 @@ async def register(payload: CreateUser, auth_service: AuthSvc) -> UserRead:
     API này sẽ kiểm tra email trùng lặp và tiến hành băm (hash) mật khẩu trước khi lưu vào cơ sở dữ liệu.
     Dữ liệu trả về sẽ không bao gồm mật khẩu để đảm bảo an toàn.
     """  # noqa: E501
-    user = await auth_service.register(full_name=payload.full_name, email=payload.email, password=payload.password)
+    user = await auth_service.register(
+        full_name=payload.full_name, email=payload.email, password=payload.password
+    )
     return UserRead.model_validate(user)
 
 

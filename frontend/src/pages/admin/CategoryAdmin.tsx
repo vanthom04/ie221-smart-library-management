@@ -14,21 +14,36 @@ const CategoryAdmin = () => {
 
   const fetchCategories = async () => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res: any = await categoryAPI.getAll()
-      // Đề phòng trường hợp Axios trả về object chứa .data thay vì mảng trực tiếp
       const data = res?.data || res
-
-      // Đảm bảo dữ liệu set vào state luôn luôn là mảng
       setCategories(Array.isArray(data) ? data : [])
     } catch (_error) {
       console.error("Lỗi khi tải thể loại")
-      setCategories([]) // Set mảng rỗng nếu lỗi để không sập UI
+      setCategories([])
     }
   }
 
   useEffect(() => {
-    // Gọi hàm fetchCategories thay vì dùng .then(setCategories) trực tiếp
-    fetchCategories()
+    let isMounted = true
+    const loadData = async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res: any = await categoryAPI.getAll()
+        const data = res?.data || res
+        if (isMounted) {
+          setCategories(Array.isArray(data) ? data : [])
+        }
+      } catch (_error) {
+        if (isMounted) {
+          setCategories([])
+        }
+      }
+    }
+    loadData()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,13 +55,13 @@ const CategoryAdmin = () => {
     }
     setForm({ name: "", description: "" })
     setEditingId(null)
-    fetchCategories()
+    await fetchCategories()
   }
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa thể loại này?")) {
       await categoryAPI.delete(id)
-      fetchCategories()
+      await fetchCategories()
     }
   }
 
