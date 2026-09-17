@@ -1,17 +1,10 @@
-from __future__ import annotations
-
 import uuid
-from typing import TYPE_CHECKING
 
 from sqlalchemy import UUID, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import UUIDPkMixin
-
-if TYPE_CHECKING:
-    from app.models.book import Book
-    from app.models.reservation import Reservation
 
 
 class ReservationItem(UUIDPkMixin, Base):
@@ -31,5 +24,5 @@ class ReservationItem(UUIDPkMixin, Base):
     )
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    reservation: Mapped[Reservation] = relationship(back_populates="items")
-    book: Mapped[Book] = relationship(lazy="joined")
+    reservation: Mapped["Reservation"] = relationship(back_populates="items")  # noqa: F821
+    book: Mapped["Book"] = relationship(lazy="joined")  # noqa: F821
