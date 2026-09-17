@@ -1,11 +1,13 @@
+from typing import Literal
+
 from pydantic import BaseModel
-from typing import List, Optional, Union, Literal
+
 
 class DashboardQuickStatResponse(BaseModel):
     id: str
     title: str
-    value: Union[int, str]
-    unit: Optional[str] = None
+    value: int | str
+    unit: str | None = None
     icon: str
     tone: str
     href: str
@@ -95,8 +97,8 @@ class BorrowTrend(BaseModel):
 class BorrowSummaryStatResponse(BaseModel):
     label: str
     value: str
-    unit: Optional[str] = None
-    trend: Optional[BorrowTrend] = None
+    unit: str | None = None
+    trend: BorrowTrend | None = None
 
     class Config:
         from_attributes = True
@@ -106,5 +108,5 @@ class BorrowTrendPoint(BaseModel):
     count: float
 
 class BorrowOverviewResponse(BaseModel):
-    stats: List[BorrowSummaryStatResponse]
-    trend: List[BorrowTrendPoint]
+    stats: list[BorrowSummaryStatResponse]
+    trend: list[BorrowTrendPoint]

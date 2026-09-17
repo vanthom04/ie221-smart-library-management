@@ -1,9 +1,20 @@
 import uuid
 
 from fastapi import APIRouter, Query
+
 from app.api.deps import CurrentUser
 from app.api.v1.dashboard.deps import DashboardSvc
-from app.schemas.dashboard import AdminQuickStatResponse, DashboardQuickStatResponse, BorrowedBookResponse, ActivityItemResponse, DueSoonBookResponse,AdminRecentBorrowResponse, CategoryStatResponse, BorrowSummaryStatResponse, BorrowTrend, BorrowOverviewResponse, BorrowTrendPoint
+from app.schemas.dashboard import (
+    ActivityItemResponse,
+    AdminPendingRequestResponse,
+    AdminQuickStatResponse,
+    AdminRecentBorrowResponse,
+    BorrowedBookResponse,
+    BorrowOverviewResponse,
+    CategoryStatResponse,
+    DashboardQuickStatResponse,
+    DueSoonBookResponse,
+)
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -45,9 +56,8 @@ async def read_admin_stats(
 ) -> list[AdminQuickStatResponse]:
     """Lấy dữ liệu tổng quan thống kê cho trang quản trị Admin."""
     return await dashboard_service.get_admin_stats()
-from fastapi import APIRouter
-from app.api.v1.dashboard.deps import DashboardSvc
-from app.schemas.dashboard import AdminPendingRequestResponse
+
+
 
 @router.get("/admin/pending-requests", response_model=list[AdminPendingRequestResponse])
 async def read_admin_pending_requests(

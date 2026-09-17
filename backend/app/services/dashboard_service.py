@@ -1,21 +1,33 @@
-from datetime import datetime
-from typing import List
 import uuid
+from datetime import datetime
+
 from fastapi import HTTPException, status
-from sqlalchemy import select, func, and_
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.borrow_item import BorrowItem
-from app.models.user import User
+from app.models.author import Author
 from app.models.book import Book
 from app.models.book_author import BookAuthor
-from app.models.author import Author
+from app.models.borrow_item import BorrowItem
 from app.models.borrow_record import BorrowRecord, BorrowStatus
+from app.models.category import Category
 from app.models.fine import Fine, PaymentStatus
 from app.models.reservation import Reservation, ReservationStatus
-from app.schemas.dashboard import ActivityItemResponse, AdminPendingRequestResponse, AdminQuickStatResponse, DashboardQuickStatResponse, BorrowedBookResponse, DueSoonBookResponse, AdminRecentBorrowResponse, CategoryStatResponse, BorrowSummaryStatResponse, BorrowTrend, BorrowOverviewResponse, BorrowTrendPoint
-
-from app.models.category import Category
+from app.models.user import User
+from app.schemas.dashboard import (
+    ActivityItemResponse,
+    AdminPendingRequestResponse,
+    AdminQuickStatResponse,
+    AdminRecentBorrowResponse,
+    BorrowedBookResponse,
+    BorrowOverviewResponse,
+    BorrowSummaryStatResponse,
+    BorrowTrend,
+    BorrowTrendPoint,
+    CategoryStatResponse,
+    DashboardQuickStatResponse,
+    DueSoonBookResponse,
+)
 
 
 class DashboardService:
@@ -35,7 +47,7 @@ class DashboardService:
                 and_(
                     BorrowRecord.user_id == user_id,
                     BorrowRecord.status.in_([BorrowStatus.BORROWING, BorrowStatus.OVERDUE]),
-                    BorrowItem.returned == False
+                    ~BorrowItem.returned
                 )
             )
         )
@@ -51,7 +63,7 @@ class DashboardService:
                     BorrowRecord.user_id == user_id,
                     BorrowRecord.status == BorrowStatus.BORROWING,
                     BorrowRecord.due_date < now,
-                    BorrowItem.returned == False
+                    ~BorrowItem.returned
                 )
             )
         )
@@ -141,7 +153,7 @@ class DashboardService:
                 and_(
                     BorrowRecord.user_id == user_id,
                     BorrowRecord.status == BorrowStatus.BORROWING,
-                    BorrowItem.returned == False
+                    ~BorrowItem.returned
                 )
             )
             .group_by(Book.id, BorrowRecord.due_date)
@@ -243,7 +255,7 @@ class DashboardService:
                     BorrowRecord.user_id == user_id,
                     BorrowRecord.status == BorrowStatus.BORROWING,
                     BorrowRecord.due_date >= now,
-                    BorrowItem.returned == False
+                    ~BorrowItem.returned
                 )
             )
             .order_by(BorrowRecord.due_date.asc())
@@ -288,7 +300,7 @@ class DashboardService:
             .where(
                 and_(
                     BorrowRecord.status.in_([BorrowStatus.BORROWING, BorrowStatus.OVERDUE]),
-                    BorrowItem.returned == False
+                    ~BorrowItem.returned
                 )
             )
         )
@@ -303,7 +315,7 @@ class DashboardService:
                 and_(
                     BorrowRecord.status == BorrowStatus.BORROWING,
                     BorrowRecord.due_date < now,
-                    BorrowItem.returned == False
+                    ~BorrowItem.returned
                 )
             )
         )
@@ -487,7 +499,7 @@ class DashboardService:
         }
         return mapping.get(name, name.lower().replace(" ", "-"))
     
-    async def get_admin_borrow_summary(self) -> List[BorrowSummaryStatResponse]:
+    async def get_admin_borrow_summary(self) -> list[BorrowSummaryStatResponse]:
         '''Lấy dữ liệu tổng quan mượn sách toàn hệ thống cho Admin.'''
         # 1. Tổng số lượt mượn toàn hệ thống
         total_borrows_stmt = select(func.count(BorrowRecord.id))
@@ -498,12 +510,13 @@ class DashboardService:
             select(func.coalesce(func.sum(BorrowItem.quantity), 0))
             .select_from(BorrowItem)
             .join(BorrowRecord, BorrowItem.borrow_id == BorrowRecord.id)
-            .where(BorrowItem.returned == True)
+            .where(BorrowItem.returned)
         )
         returned_books = (await self.db.execute(returned_books_stmt)).scalar() or 0
 
         # 3. Tính tỷ lệ trả sách đúng hạn trên toàn hệ thống
-        total_returned_stmt = select(func.count(BorrowRecord.id)).where(BorrowRecord.status == BorrowStatus.RETURNED)
+        total_returned_stmt = (select(func.count(BorrowRecord.id))
+                               .where(BorrowRecord.status == BorrowStatus.RETURNED))
         total_returned = (await self.db.execute(total_returned_stmt)).scalar() or 0
 
         on_time_stmt = (
@@ -542,7 +555,7 @@ class DashboardService:
         months_count = months_map.get(period, 3)
         
         now = datetime.now()
-        trend_data: List[BorrowTrendPoint] = []
+        trend_data: list[BorrowTrendPoint] = []
         
         for i in range(months_count - 1, -1, -1):
             total_months = now.year * 12 + (now.month - 1) - i
@@ -615,5 +628,5 @@ class DashboardService:
             )
 
         # 3. Cập nhật trạng thái thành từ chối
-        record.status = BorrowStatus.RETURNED # Giả sử trạng thái từ chối là RETURNED (Đề xuất thêm trạng thái REJECTED)
+        record.status = BorrowStatus.RETURNED # Giả sử trạng thái từ chối là RETURNED
         await self.db.commit()
