@@ -1,136 +1,88 @@
 // frontend/src/services/adminService.ts
+import axios from "axios"
 
 const API_URL = "http://localhost:8000/api/v1"
 
-export const categoryAPI = {
-  getAll: async () => {
-    const response = await fetch(`${API_URL}/categories/`)
-    if (!response.ok) throw new Error("Lỗi khi tải danh sách")
-    return response.json()
-  },
-  create: async (data: { name: string; description: string }) => {
-    const response = await fetch(`${API_URL}/categories/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi tạo mới")
-    return response.json()
-  },
-  update: async (id: number, data: { name: string; description: string }) => {
-    const response = await fetch(`${API_URL}/categories/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi cập nhật")
-    return response.json()
-  },
-  delete: async (id: number) => {
-    const response = await fetch(`${API_URL}/categories/${id}`, {
-      method: "DELETE"
-    })
-    if (!response.ok) throw new Error("Lỗi khi xóa")
-    return response.text()
-  }
-}
-
 export const authorAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_URL}/authors/`)
-    if (!response.ok) throw new Error("Lỗi khi tải danh sách tác giả")
-    return response.json()
+    const res = await axios.get(`${API_URL}/authors/`)
+    return (res as any).data
   },
-  create: async (data: { name: string; bio: string }) => {
-    const response = await fetch(`${API_URL}/authors/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi thêm tác giả")
-    return response.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  create: async (data: any) => {
+    const res = await axios.post(`${API_URL}/authors/`, data)
+    return (res as any).data
   },
-  update: async (id: number, data: { name: string; bio: string }) => {
-    const response = await fetch(`${API_URL}/authors/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi cập nhật tác giả")
-    return response.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  update: async (id: string, data: any) => {
+    const res = await axios.put(`${API_URL}/authors/${id}`, data)
+    return (res as any).data
   },
-  delete: async (id: number) => {
-    const response = await fetch(`${API_URL}/authors/${id}`, {
-      method: "DELETE"
-    })
-    if (!response.ok) throw new Error("Lỗi khi xóa tác giả")
-    return true
-  }
+  delete: async (id: string) => {
+    const res = await axios.delete(`${API_URL}/authors/${id}`)
+    return (res as any).data
+  },
+}
+
+export const categoryAPI = {
+  getAll: async () => {
+    const res = await axios.get(`${API_URL}/categories/`)
+    return (res as any).data
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  create: async (data: any) => {
+    const res = await axios.post(`${API_URL}/categories/`, data)
+    return (res as any).data
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  update: async (id: string, data: any) => {
+    const res = await axios.put(`${API_URL}/categories/${id}`, data)
+    return (res as any).data
+  },
+  delete: async (id: string) => {
+    const res = await axios.delete(`${API_URL}/categories/${id}`)
+    return (res as any).data
+  },
 }
 
 export const publisherAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_URL}/publishers/`)
-    if (!response.ok) throw new Error("Lỗi khi tải danh sách NXB")
-    return response.json()
+    const res = await axios.get(`${API_URL}/publishers/`)
+    return (res as any).data
   },
-  create: async (data: { name: string; address: string }) => {
-    const response = await fetch(`${API_URL}/publishers/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi thêm NXB")
-    return response.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  create: async (data: any) => {
+    const res = await axios.post(`${API_URL}/publishers/`, data)
+    return (res as any).data
   },
-  update: async (id: number, data: { name: string; address: string }) => {
-    const response = await fetch(`${API_URL}/publishers/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi cập nhật NXB")
-    return response.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  update: async (id: string, data: any) => {
+    const res = await axios.put(`${API_URL}/publishers/${id}`, data)
+    return (res as any).data
   },
-  delete: async (id: number) => {
-    const response = await fetch(`${API_URL}/publishers/${id}`, {
-      method: "DELETE"
-    })
-    if (!response.ok) throw new Error("Lỗi khi xóa NXB")
-    return true
-  }
+  delete: async (id: string) => {
+    const res = await axios.delete(`${API_URL}/publishers/${id}`)
+    return (res as any).data
+  },
 }
 
-// ĐÂY LÀ MẢNH GHÉP BOSS SÁCH BỊ THIẾU NÈ:
 export const bookAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_URL}/books/`)
-    if (!response.ok) throw new Error("Lỗi khi tải danh sách Sách")
-    return response.json()
+    const res = await axios.get(`${API_URL}/books/`)
+    return (res as any).data
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   create: async (data: any) => {
-    const response = await fetch(`${API_URL}/books/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi thêm Sách")
-    return response.json()
+    const res = await axios.post(`${API_URL}/books/`, data)
+    return (res as any).data
   },
-  update: async (id: number, data: any) => {
-    const response = await fetch(`${API_URL}/books/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error("Lỗi khi cập nhật Sách")
-    return response.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  update: async (id: string, data: any) => {
+    const res = await axios.put(`${API_URL}/books/${id}`, data)
+    return (res as any).data
   },
-  delete: async (id: number) => {
-    const response = await fetch(`${API_URL}/books/${id}`, {
-      method: "DELETE"
-    })
-    if (!response.ok) throw new Error("Lỗi khi xóa Sách")
-    return true
-  }
+  delete: async (id: string) => {
+    const res = await axios.delete(`${API_URL}/books/${id}`)
+    return (res as any).data
+  },
 }
