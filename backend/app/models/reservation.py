@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import UUID, DateTime, Enum, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import CreatedAtMixin, UUIDPkMixin
+
+if TYPE_CHECKING:
+    from app.models.reservation_item import ReservationItem
 
 
 class ReservationStatus(StrEnum):
@@ -46,6 +52,6 @@ class Reservation(UUIDPkMixin, CreatedAtMixin, Base):
     rejection_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
     fulfilled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    items: Mapped[list["ReservationItem"]] = relationship(  # noqa: F821
+    items: Mapped[list[ReservationItem]] = relationship(
         back_populates="reservation", cascade="all, delete-orphan", lazy="selectin"
     )

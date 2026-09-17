@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import UUID, DateTime, Enum, ForeignKey, Index, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import CreatedAtMixin, UUIDPkMixin
+
+if TYPE_CHECKING:
+    from app.models.borrow_item import BorrowItem
 
 
 class BorrowStatus(StrEnum):
@@ -43,6 +49,6 @@ class BorrowRecord(UUIDPkMixin, CreatedAtMixin, Base):
         default=BorrowStatus.BORROWING,
     )
 
-    items: Mapped[list["BorrowItem"]] = relationship(  # noqa: F821
+    items: Mapped[list[BorrowItem]] = relationship(
         back_populates="borrow_record", cascade="all, delete-orphan", lazy="selectin"
     )

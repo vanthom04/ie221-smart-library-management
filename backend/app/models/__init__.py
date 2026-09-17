@@ -2,6 +2,7 @@ from app.models.ai_search_log import AiSearchLog
 from app.models.author import Author
 from app.models.book import Book
 from app.models.book_author import BookAuthor
+from app.models.book_embedding import BookEmbedding
 from app.models.borrow_item import BorrowItem
 from app.models.borrow_record import BorrowRecord
 from app.models.category import Category
@@ -20,6 +21,7 @@ __all__ = [
     "Author",
     "Book",
     "BookAuthor",
+    "BookEmbedding",
     "BorrowRecord",
     "BorrowItem",
     "Reservation",
