@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,13 +7,16 @@ from app.schemas import publisher as schemas
 
 router = APIRouter()
 
+
 @router.post("/", response_model=schemas.PublisherOut, status_code=status.HTTP_201_CREATED)
 async def create_publisher(publisher: schemas.PublisherCreate, db: AsyncSession = Depends(get_db)):
     return await crud.create_publisher(db=db, publisher=publisher)
 
+
 @router.get("/", response_model=list[schemas.PublisherOut])
 async def read_publishers(db: AsyncSession = Depends(get_db)):
     return await crud.get_publishers(db=db)
+
 
 @router.put("/{publisher_id}", response_model=schemas.PublisherOut)
 async def update_publisher(publisher_id: int, publisher: schemas.PublisherCreate, db: AsyncSession = Depends(get_db)):
@@ -22,6 +24,7 @@ async def update_publisher(publisher_id: int, publisher: schemas.PublisherCreate
     if not updated_publisher:
         raise HTTPException(status_code=404, detail="Không tìm thấy NXB để sửa!")
     return updated_publisher
+
 
 @router.delete("/{publisher_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_publisher(publisher_id: int, db: AsyncSession = Depends(get_db)):

@@ -12,13 +12,16 @@ async def create_publisher(db: AsyncSession, publisher: PublisherCreate):
     await db.refresh(db_publisher)
     return db_publisher
 
+
 async def get_publishers(db: AsyncSession):
     result = await db.execute(select(Publisher))
     return result.scalars().all()
 
+
 async def get_publisher_by_id(db: AsyncSession, publisher_id: int):
     result = await db.execute(select(Publisher).filter(Publisher.id == publisher_id))
     return result.scalar_one_or_none()
+
 
 async def update_publisher(db: AsyncSession, publisher_id: int, publisher_update: PublisherCreate):
     db_publisher = await get_publisher_by_id(db, publisher_id)
@@ -29,6 +32,7 @@ async def update_publisher(db: AsyncSession, publisher_id: int, publisher_update
     await db.commit()
     await db.refresh(db_publisher)
     return db_publisher
+
 
 async def delete_publisher(db: AsyncSession, publisher_id: int):
     db_publisher = await get_publisher_by_id(db, publisher_id)

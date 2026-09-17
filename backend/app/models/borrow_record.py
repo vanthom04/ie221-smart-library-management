@@ -23,9 +23,7 @@ class BorrowRecord(UUIDPkMixin, CreatedAtMixin, Base):
     )
     # fmt: on
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
-    )
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     reservation_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("reservations.id", ondelete="SET NULL"),

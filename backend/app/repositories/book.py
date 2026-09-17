@@ -14,13 +14,16 @@ async def create_book(db: AsyncSession, book: BookCreate):
     await db.refresh(db_book)
     return db_book
 
+
 async def get_books(db: AsyncSession):
     result = await db.execute(select(Book))
     return result.scalars().all()
 
+
 async def get_book_by_id(db: AsyncSession, book_id: UUID):
     result = await db.execute(select(Book).filter(Book.id == book_id))
     return result.scalar_one_or_none()
+
 
 async def update_book(db: AsyncSession, book_id: UUID, book_update: BookCreate):
     db_book = await get_book_by_id(db, book_id)
@@ -34,6 +37,7 @@ async def update_book(db: AsyncSession, book_id: UUID, book_update: BookCreate):
     await db.refresh(db_book)
     return db_book
 
+
 async def delete_book(db: AsyncSession, book_id: UUID):
     db_book = await get_book_by_id(db, book_id)
     if not db_book:
@@ -42,11 +46,9 @@ async def delete_book(db: AsyncSession, book_id: UUID):
     await db.commit()
     return True
 
+
 async def search_books(
-        db: AsyncSession,
-        title: str | None = None,
-        category_id: UUID | None = None,
-        author_id: UUID | None = None
+    db: AsyncSession, title: str | None = None, category_id: UUID | None = None, author_id: UUID | None = None
 ):
     query = select(Book)
 

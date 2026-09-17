@@ -10,8 +10,10 @@ class BookBase(BaseModel):
     author_id: UUID | None = None
     publisher_id: UUID | None = None
 
+
 class BookCreate(BookBase):
     pass
+
 
 class BookOut(BookBase):
     id: UUID

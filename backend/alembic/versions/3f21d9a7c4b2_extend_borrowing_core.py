@@ -46,12 +46,8 @@ def upgrade() -> None:
         "reservation_items",
         ["reservation_id", "book_id"],
     )
-    op.create_unique_constraint(
-        "uq_borrow_items_borrow_book", "borrow_items", ["borrow_id", "book_id"]
-    )
-    op.create_check_constraint(
-        "reservation_item_quantity_positive", "reservation_items", "quantity > 0"
-    )
+    op.create_unique_constraint("uq_borrow_items_borrow_book", "borrow_items", ["borrow_id", "book_id"])
+    op.create_check_constraint("reservation_item_quantity_positive", "reservation_items", "quantity > 0")
     op.create_check_constraint("borrow_item_quantity_positive", "borrow_items", "quantity > 0")
     op.create_check_constraint(
         "book_quantities_valid",
@@ -62,9 +58,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_constraint("ck_books_book_quantities_valid", "books", type_="check")
-    op.drop_constraint(
-        "ck_borrow_items_borrow_item_quantity_positive", "borrow_items", type_="check"
-    )
+    op.drop_constraint("ck_borrow_items_borrow_item_quantity_positive", "borrow_items", type_="check")
     op.drop_constraint(
         "ck_reservation_items_reservation_item_quantity_positive",
         "reservation_items",
@@ -74,9 +68,7 @@ def downgrade() -> None:
     op.drop_constraint("uq_reservation_items_reservation_book", "reservation_items", type_="unique")
     op.drop_column("borrow_records", "renewed_at")
     op.drop_column("borrow_records", "renewal_count")
-    op.drop_constraint(
-        op.f("fk_reservations_reviewed_by_users"), "reservations", type_="foreignkey"
-    )
+    op.drop_constraint(op.f("fk_reservations_reviewed_by_users"), "reservations", type_="foreignkey")
     op.drop_column("reservations", "fulfilled_at")
     op.drop_column("reservations", "rejection_reason")
     op.drop_column("reservations", "reviewed_by")

@@ -22,9 +22,7 @@ class AuthService:
     đăng xuất và thay đổi mật khẩu.
     """
 
-    def __init__(
-        self, user_repository: UserRepository, refresh_token_repository: RefreshTokenRepository
-    ) -> None:
+    def __init__(self, user_repository: UserRepository, refresh_token_repository: RefreshTokenRepository) -> None:
         """Khởi tạo AuthService với các repository cần thiết.
 
         Args:
@@ -54,9 +52,7 @@ class AuthService:
         if await self._users.get_by_email(email) is not None:
             raise EmailAlreadyExistsError("Email đã được sử dụng!")
 
-        return await self._users.create(
-            full_name=full_name, email=email, hashed_password=hash_password(password)
-        )
+        return await self._users.create(full_name=full_name, email=email, hashed_password=hash_password(password))
 
     async def authenticate(self, *, email: str, password: str) -> User:
         """Xác thực thông tin đăng nhập của người dùng.
@@ -156,9 +152,7 @@ class AuthService:
         if token_row is not None:
             await self._refresh_tokens.revoke(token_row)
 
-    async def change_password(
-        self, user: User, *, current_password: str, new_password: str
-    ) -> None:
+    async def change_password(self, user: User, *, current_password: str, new_password: str) -> None:
         """Thay đổi mật khẩu của người dùng và đăng xuất khỏi mọi thiết bị khác.
 
         Xác minh mật khẩu hiện tại, cập nhật mật khẩu mới và tự động thu hồi

@@ -26,9 +26,7 @@ class Reservation(UUIDPkMixin, CreatedAtMixin, Base):
     )
     # fmt: on
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
-    )
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     status: Mapped[ReservationStatus] = mapped_column(
         Enum(
             ReservationStatus,

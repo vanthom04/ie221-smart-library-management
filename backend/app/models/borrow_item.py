@@ -17,9 +17,7 @@ class BorrowItem(UUIDPkMixin, Base):
         nullable=False,
         index=True,
     )
-    book_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("books.id"), nullable=False, index=True
-    )
+    book_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("books.id"), nullable=False, index=True)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     returned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 

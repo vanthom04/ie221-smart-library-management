@@ -43,20 +43,14 @@ class BorrowingRepository:
         result = await self._session.execute(statement)
         return {book.id: book for book in result.scalars().all()}
 
-    async def create_reservation(
-        self, user_id: uuid.UUID, items: Sequence[tuple[uuid.UUID, int]]
-    ) -> Reservation:
+    async def create_reservation(self, user_id: uuid.UUID, items: Sequence[tuple[uuid.UUID, int]]) -> Reservation:
         reservation = Reservation(user_id=user_id, status=ReservationStatus.PENDING)
-        reservation.items = [
-            ReservationItem(book_id=book_id, quantity=quantity) for book_id, quantity in items
-        ]
+        reservation.items = [ReservationItem(book_id=book_id, quantity=quantity) for book_id, quantity in items]
         self._session.add(reservation)
         await self._session.flush()
         return reservation
 
-    async def get_reservation(
-        self, reservation_id: uuid.UUID, *, for_update: bool = False
-    ) -> Reservation | None:
+    async def get_reservation(self, reservation_id: uuid.UUID, *, for_update: bool = False) -> Reservation | None:
         statement = (
             select(Reservation)
             .where(Reservation.id == reservation_id)
@@ -78,9 +72,7 @@ class BorrowingRepository:
         return list(result.scalars().all())
 
     async def list_reservations(self, status: ReservationStatus | None = None) -> list[Reservation]:
-        statement = select(Reservation).options(
-            selectinload(Reservation.items).selectinload(ReservationItem.book)
-        )
+        statement = select(Reservation).options(selectinload(Reservation.items).selectinload(ReservationItem.book))
         if status is not None:
             statement = statement.where(Reservation.status == status)
         result = await self._session.execute(statement.order_by(Reservation.created_at.desc()))
@@ -116,16 +108,12 @@ class BorrowingRepository:
             borrow_date=borrow_date,
             due_date=due_date,
         )
-        borrow.items = [
-            BorrowItem(book_id=book_id, quantity=quantity) for book_id, quantity in items
-        ]
+        borrow.items = [BorrowItem(book_id=book_id, quantity=quantity) for book_id, quantity in items]
         self._session.add(borrow)
         await self._session.flush()
         return borrow
 
-    async def get_borrow_record(
-        self, borrow_id: uuid.UUID, *, for_update: bool = False
-    ) -> BorrowRecord | None:
+    async def get_borrow_record(self, borrow_id: uuid.UUID, *, for_update: bool = False) -> BorrowRecord | None:
         statement = (
             select(BorrowRecord)
             .where(BorrowRecord.id == borrow_id)

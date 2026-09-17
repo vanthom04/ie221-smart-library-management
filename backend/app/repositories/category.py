@@ -12,10 +12,12 @@ async def create_category(db: AsyncSession, category: CategoryCreate):
     await db.refresh(db_category)
     return db_category
 
+
 async def get_categories(db: AsyncSession):
     # Trong môi trường bất đồng bộ, ta dùng db.execute(select(...)) thay vì db.query(...)
     result = await db.execute(select(Category))
     return result.scalars().all()
+
 
 async def get_category_by_id(db: AsyncSession, category_id: int):
     """Hàm phụ trợ để tìm thể loại theo ID"""

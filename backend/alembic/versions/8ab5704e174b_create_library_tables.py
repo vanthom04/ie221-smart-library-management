@@ -111,9 +111,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["category_id"], ["categories.id"], name=op.f("fk_books_category_id_categories")
-        ),
+        sa.ForeignKeyConstraint(["category_id"], ["categories.id"], name=op.f("fk_books_category_id_categories")),
         sa.ForeignKeyConstraint(
             ["publisher_id"],
             ["publishers.id"],
@@ -149,14 +147,10 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["user_id"], ["users.id"], name=op.f("fk_reservations_user_id_users")
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_reservations_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_reservations")),
     )
-    op.create_index(
-        "ix_reservations_user_id_status", "reservations", ["user_id", "status"], unique=False
-    )
+    op.create_index("ix_reservations_user_id_status", "reservations", ["user_id", "status"], unique=False)
     op.create_table(
         "book_authors",
         sa.Column("book_id", sa.UUID(), nullable=False),
@@ -201,29 +195,19 @@ def upgrade() -> None:
             name=op.f("fk_borrow_records_reservation_id_reservations"),
             ondelete="SET NULL",
         ),
-        sa.ForeignKeyConstraint(
-            ["user_id"], ["users.id"], name=op.f("fk_borrow_records_user_id_users")
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_borrow_records_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_borrow_records")),
     )
-    op.create_index(
-        op.f("ix_borrow_records_due_date"), "borrow_records", ["due_date"], unique=False
-    )
-    op.create_index(
-        op.f("ix_borrow_records_reservation_id"), "borrow_records", ["reservation_id"], unique=False
-    )
-    op.create_index(
-        "ix_borrow_records_user_id_status", "borrow_records", ["user_id", "status"], unique=False
-    )
+    op.create_index(op.f("ix_borrow_records_due_date"), "borrow_records", ["due_date"], unique=False)
+    op.create_index(op.f("ix_borrow_records_reservation_id"), "borrow_records", ["reservation_id"], unique=False)
+    op.create_index("ix_borrow_records_user_id_status", "borrow_records", ["user_id", "status"], unique=False)
     op.create_table(
         "reservation_items",
         sa.Column("reservation_id", sa.UUID(), nullable=False),
         sa.Column("book_id", sa.UUID(), nullable=False),
         sa.Column("quantity", sa.Integer(), nullable=False),
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["book_id"], ["books.id"], name=op.f("fk_reservation_items_book_id_books")
-        ),
+        sa.ForeignKeyConstraint(["book_id"], ["books.id"], name=op.f("fk_reservation_items_book_id_books")),
         sa.ForeignKeyConstraint(
             ["reservation_id"],
             ["reservations.id"],
@@ -232,9 +216,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_reservation_items")),
     )
-    op.create_index(
-        op.f("ix_reservation_items_book_id"), "reservation_items", ["book_id"], unique=False
-    )
+    op.create_index(op.f("ix_reservation_items_book_id"), "reservation_items", ["book_id"], unique=False)
     op.create_index(
         op.f("ix_reservation_items_reservation_id"),
         "reservation_items",
@@ -248,9 +230,7 @@ def upgrade() -> None:
         sa.Column("quantity", sa.Integer(), nullable=False),
         sa.Column("returned", sa.Boolean(), nullable=False),
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["book_id"], ["books.id"], name=op.f("fk_borrow_items_book_id_books")
-        ),
+        sa.ForeignKeyConstraint(["book_id"], ["books.id"], name=op.f("fk_borrow_items_book_id_books")),
         sa.ForeignKeyConstraint(
             ["borrow_id"],
             ["borrow_records.id"],
@@ -266,9 +246,7 @@ def upgrade() -> None:
         sa.Column("borrow_record_id", sa.UUID(), nullable=False),
         sa.Column("overdue_days", sa.Integer(), nullable=False),
         sa.Column("amount", sa.Numeric(precision=10, scale=2), nullable=False),
-        sa.Column(
-            "payment_status", sa.Enum("unpaid", "paid", name="payment_status"), nullable=False
-        ),
+        sa.Column("payment_status", sa.Enum("unpaid", "paid", name="payment_status"), nullable=False),
         sa.Column("paid_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column(

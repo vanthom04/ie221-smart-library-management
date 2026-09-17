@@ -67,9 +67,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_refresh_tokens")),
     )
-    op.create_index(
-        op.f("ix_refresh_tokens_hashed_token"), "refresh_tokens", ["hashed_token"], unique=True
-    )
+    op.create_index(op.f("ix_refresh_tokens_hashed_token"), "refresh_tokens", ["hashed_token"], unique=True)
     op.create_index(op.f("ix_refresh_tokens_user_id"), "refresh_tokens", ["user_id"], unique=False)
     # ### end Alembic commands ###
 

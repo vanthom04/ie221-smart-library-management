@@ -10,6 +10,7 @@ ALLOWED_IMAGE_TYPES = {
     "image/webp": ".webp",
 }
 
+
 @router.post("/image")
 async def upload_file(file: UploadFile = File(...)):
     result = await save_upload(file=file, allowed_content_types=ALLOWED_IMAGE_TYPES)

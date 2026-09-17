@@ -23,9 +23,7 @@ class RefreshTokenRepository:
         """
         self._session = session
 
-    async def create(
-        self, *, user_id: uuid.UUID, hashed_token: str, expires_at: datetime
-    ) -> RefreshToken:
+    async def create(self, *, user_id: uuid.UUID, hashed_token: str, expires_at: datetime) -> RefreshToken:
         """Tạo mới một bản ghi refresh token vào cơ sở dữ liệu.
 
         Args:
@@ -114,9 +112,7 @@ class RefreshTokenRepository:
         Returns:
             None
         """
-        await self._session.execute(
-            update(RefreshToken).where(RefreshToken.user_id == user_id).values(revoked=True)
-        )
+        await self._session.execute(update(RefreshToken).where(RefreshToken.user_id == user_id).values(revoked=True))
         await self._session.commit()
 
     async def delete_stale(self) -> int:
@@ -132,9 +128,7 @@ class RefreshTokenRepository:
             int: Số lượng bản ghi đã được xóa khỏi cơ sở dữ liệu.
         """
         result = await self._session.execute(
-            delete(RefreshToken).where(
-                or_(RefreshToken.revoked.is_(True), RefreshToken.expires_at < datetime.now(UTC))
-            )
+            delete(RefreshToken).where(or_(RefreshToken.revoked.is_(True), RefreshToken.expires_at < datetime.now(UTC)))
         )
         await self._session.commit()
         return result.rowcount  # type: ignore
