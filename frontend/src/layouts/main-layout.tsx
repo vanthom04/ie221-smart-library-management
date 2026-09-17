@@ -8,7 +8,7 @@ export const MainLayout = () => {
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-1">
-        <AppSidebar collapsible="icon" />
+        <AppSidebar collapsible="icon" className="select-none" />
         <div className="flex min-w-0 flex-1 flex-col">
           <AppHeader />
           <SidebarInset className="h-full overflow-y-auto px-6 py-4">

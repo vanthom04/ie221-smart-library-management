@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-import { cancelReservation, getMyBorrowRecords, getMyReservations, renewBorrowRecord } from "./api"
+import {
+  cancelReservation,
+  createReservation,
+  getMyBorrowRecords,
+  getMyReservations,
+  renewBorrowRecord
+} from "./api"
 
 export const borrowingKeys = {
   reservations: ["borrowing", "reservations", "me"] as const,
@@ -29,6 +35,19 @@ export const useRenewBorrowRecord = () => {
     mutationFn: renewBorrowRecord,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: borrowingKeys.records })
+    }
+  })
+}
+
+export const useCreateReservation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: createReservation,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: borrowingKeys.reservations
+      })
     }
   })
 }

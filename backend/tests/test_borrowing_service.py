@@ -81,8 +81,14 @@ class FakeBorrowingRepository:
     async def transaction(self):
         yield
 
-    async def list_expired_approved(self, _now):
-        return []
+    async def list_expired_approved(self, now):
+        return [
+            reservation
+            for reservation in self.reservations.values()
+            if reservation.status == ReservationStatus.APPROVED
+            and reservation.expires_at is not None
+            and reservation.expires_at <= now
+        ]
 
     async def lock_books(self, book_ids):
         return {book_id: self.books[book_id] for book_id in book_ids if book_id in self.books}
@@ -208,4 +214,21 @@ class BorrowingServiceTests(IsolatedAsyncioTestCase):
         result = await BorrowingService(repository).cancel_reservation(reservation.id, user)
 
         self.assertEqual(result.status, ReservationStatus.CANCELLED)
+        self.assertEqual(book.available_quantity, 1)
+
+    async def test_expired_reservation_restores_inventory(self):
+        user = make_user()
+
+        book = make_book(available=0)
+        book.quantity = 1
+
+        reservation = make_reservation(user, book, ReservationStatus.APPROVED)
+        reservation.expires_at = datetime.now(UTC) - timedelta(minutes=1)
+
+        repository = FakeBorrowingRepository(books=[book], reservations=[reservation])
+        service = BorrowingService(repository)
+        count = await service.expire_reservations()
+
+        self.assertEqual(count, 1)
+        self.assertEqual(reservation.status, ReservationStatus.EXPIRED)
         self.assertEqual(book.available_quantity, 1)

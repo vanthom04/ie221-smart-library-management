@@ -88,7 +88,9 @@ export const BorrowHistoryPage = () => {
       <div className="space-y-4">
         {data.map((record) => {
           const statusInfo = STATUS[record.status]
-          const canRenew = record.status === "borrowing" && record.renewal_count < 1
+          // Bỏ comment sau khi có dữ liệu thật
+          // const canRenew = record.status === "borrowing" && record.renewal_count < 1
+          const canRenew = record.status === "borrowing"
           return (
             <Card key={record.id} className="shadow-sm">
               <CardHeader className="border-b">
