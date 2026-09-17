@@ -1,10 +1,10 @@
-from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import author as schemas
-from app.repositories import author as crud
 from app.api.deps import get_db
+from app.repositories import author as crud
+from app.schemas import author as schemas
 
 router = APIRouter()
 
@@ -12,7 +12,7 @@ router = APIRouter()
 async def create_author(author: schemas.AuthorCreate, db: AsyncSession = Depends(get_db)):
     return await crud.create_author(db=db, author=author)
 
-@router.get("/", response_model=List[schemas.AuthorOut])
+@router.get("/", response_model=list[schemas.AuthorOut])
 async def read_authors(db: AsyncSession = Depends(get_db)):
     return await crud.get_authors(db=db)
 

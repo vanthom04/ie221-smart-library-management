@@ -1,7 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.publisher import Publisher
 from app.schemas.publisher import PublisherCreate
+
 
 async def create_publisher(db: AsyncSession, publisher: PublisherCreate):
     db_publisher = Publisher(name=publisher.name, address=publisher.address)

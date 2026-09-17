@@ -1,9 +1,10 @@
+
 from pydantic import BaseModel
-from typing import Optional
+
 
 class AuthorBase(BaseModel):
     name: str
-    bio: Optional[str] = None
+    bio: str | None = None
 
 class AuthorCreate(AuthorBase):
     pass

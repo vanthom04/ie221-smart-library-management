@@ -1,10 +1,10 @@
-from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import category as schemas
-from app.repositories import category as crud
 from app.api.deps import get_db
+from app.repositories import category as crud
+from app.schemas import category as schemas
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ async def create_category(category: schemas.CategoryCreate, db: AsyncSession = D
     """API thêm mới danh mục"""
     return await crud.create_category(db=db, category=category)
 
-@router.get("/", response_model=List[schemas.CategoryOut])
+@router.get("/", response_model=list[schemas.CategoryOut])
 async def read_categories(db: AsyncSession = Depends(get_db)):
     """API lấy danh sách danh mục"""
     return await crud.get_categories(db=db)

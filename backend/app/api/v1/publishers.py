@@ -1,10 +1,10 @@
-from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import publisher as schemas
-from app.repositories import publisher as crud
 from app.api.deps import get_db
+from app.repositories import publisher as crud
+from app.schemas import publisher as schemas
 
 router = APIRouter()
 
@@ -12,7 +12,7 @@ router = APIRouter()
 async def create_publisher(publisher: schemas.PublisherCreate, db: AsyncSession = Depends(get_db)):
     return await crud.create_publisher(db=db, publisher=publisher)
 
-@router.get("/", response_model=List[schemas.PublisherOut])
+@router.get("/", response_model=list[schemas.PublisherOut])
 async def read_publishers(db: AsyncSession = Depends(get_db)):
     return await crud.get_publishers(db=db)
 

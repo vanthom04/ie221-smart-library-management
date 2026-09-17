@@ -1,6 +1,7 @@
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine
+
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
 
 # Trỏ trực tiếp vào Neon Database từ file .env của nhóm
 db_url = "postgresql+asyncpg://neondb_owner:npg_dNR7YMs5GyXr@ep-tiny-frog-azp4ueom-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?ssl=require"
