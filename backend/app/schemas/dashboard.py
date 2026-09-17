@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Union, Literal
+from typing import List, Optional, Union, Literal
 
 class DashboardQuickStatResponse(BaseModel):
     id: str
@@ -44,3 +44,67 @@ class DueSoonBookResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AdminQuickStatResponse(BaseModel):
+    id: str
+    title: str
+    value: str | int
+    unit: str | None = None
+    change: str | None = None
+    icon: str
+    tone: str
+
+    class Config:
+        from_attributes = True
+
+class AdminPendingRequestResponse(BaseModel):
+    id: str
+    userName: str
+    bookTitle: str
+    requestDate: str
+    type: Literal["borrow", "return", "renew"]
+    status: Literal["pending", "approved", "rejected"]
+
+    class Config:
+        from_attributes = True
+
+class AdminRecentBorrowResponse(BaseModel):
+    id: str
+    userName: str
+    bookTitle: str
+    borrowDate: str
+    dueDate: str
+    status: Literal["borrowing", "returned", "overdue"]
+
+    class Config:
+        from_attributes = True
+
+class CategoryStatResponse(BaseModel):
+    categoryKey: str
+    label: str
+    count: int
+    percentage: int
+
+    class Config:
+        from_attributes = True
+
+class BorrowTrend(BaseModel):
+    value: str
+    direction: Literal["up", "down"]
+
+class BorrowSummaryStatResponse(BaseModel):
+    label: str
+    value: str
+    unit: Optional[str] = None
+    trend: Optional[BorrowTrend] = None
+
+    class Config:
+        from_attributes = True
+
+class BorrowTrendPoint(BaseModel):
+    month: str
+    count: float
+
+class BorrowOverviewResponse(BaseModel):
+    stats: List[BorrowSummaryStatResponse]
+    trend: List[BorrowTrendPoint]

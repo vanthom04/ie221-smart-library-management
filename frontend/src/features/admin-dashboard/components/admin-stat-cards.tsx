@@ -1,27 +1,11 @@
-import { BookOpenIcon, UsersIcon, ClockIcon, AlertTriangleIcon } from "lucide-react"
 import type { AdminQuickStat } from "../types"
-
-const ICON_MAP = {
-  books: BookOpenIcon,
-  users: UsersIcon,
-  borrowed: ClockIcon,
-  overdue: AlertTriangleIcon,
-  revenue: BookOpenIcon
-}
-
-const TONE_MAP = {
-  blue: "bg-blue-50 text-blue-600 border-blue-200",
-  green: "bg-emerald-50 text-emerald-600 border-emerald-200",
-  purple: "bg-purple-50 text-purple-600 border-purple-200",
-  yellow: "bg-amber-50 text-amber-600 border-amber-200",
-  red: "bg-rose-50 text-rose-600 border-rose-200"
-}
+import { ICON_MAP, TONE_MAP } from "../constants"
 
 export const AdminStatCards = ({ stats }: { stats: AdminQuickStat[] }) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => {
-        const Icon = ICON_MAP[stat.icon] || BookOpenIcon
+        const Icon = ICON_MAP[stat.icon] || ICON_MAP["books"]
         const toneStyle = TONE_MAP[stat.tone]
 
         return (

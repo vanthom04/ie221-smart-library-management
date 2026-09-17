@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+import uuid
+
+from fastapi import APIRouter, Query
 from app.api.deps import CurrentUser
 from app.api.v1.dashboard.deps import DashboardSvc
-from app.schemas.dashboard import DashboardQuickStatResponse, BorrowedBookResponse, ActivityItemResponse, DueSoonBookResponse
+from app.schemas.dashboard import AdminQuickStatResponse, DashboardQuickStatResponse, BorrowedBookResponse, ActivityItemResponse, DueSoonBookResponse,AdminRecentBorrowResponse, CategoryStatResponse, BorrowSummaryStatResponse, BorrowTrend, BorrowOverviewResponse, BorrowTrendPoint
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -36,3 +38,51 @@ async def read_user_due_soon_books(
 ) -> list[DueSoonBookResponse]:
     """Lấy danh sách sách sắp đến hạn của độc giả hiện tại."""
     return await dashboard_service.get_user_due_soon_books(current_user.id)
+
+@router.get("/admin/stats", response_model=list[AdminQuickStatResponse])
+async def read_admin_stats(
+    dashboard_service: DashboardSvc
+) -> list[AdminQuickStatResponse]:
+    """Lấy dữ liệu tổng quan thống kê cho trang quản trị Admin."""
+    return await dashboard_service.get_admin_stats()
+from fastapi import APIRouter
+from app.api.v1.dashboard.deps import DashboardSvc
+from app.schemas.dashboard import AdminPendingRequestResponse
+
+@router.get("/admin/pending-requests", response_model=list[AdminPendingRequestResponse])
+async def read_admin_pending_requests(
+    dashboard_service: DashboardSvc
+) -> list[AdminPendingRequestResponse]:
+    """Lấy danh sách các yêu cầu mượn/trả sách đang chờ Admin phê duyệt."""
+    return await dashboard_service.get_admin_pending_requests()
+
+# @router.post("/requests/{record_id}/approve")
+# async def approve_borrow_request(
+#     record_id: uuid.UUID,
+#     dashboard_service: DashboardSvc
+# ) -> dict:
+#     """Phê duyệt yêu cầu mượn sách của độc giả."""
+#     await dashboard_service.approve_borrow_request(record_id)
+#     return {"message": "Phê duyệt yêu cầu thành công"}
+
+@router.get("/admin/recent-borrows", response_model=list[AdminRecentBorrowResponse])
+async def read_admin_recent_borrows(
+    dashboard_service: DashboardSvc
+) -> list[AdminRecentBorrowResponse]:
+    """Lấy danh sách nhật ký mượn/trả gần đây cho trang Admin."""
+    return await dashboard_service.get_admin_recent_borrows()
+
+@router.get("/admin/category-stats", response_model=list[CategoryStatResponse])
+async def read_admin_category_stats(
+    dashboard_service: DashboardSvc
+) -> list[CategoryStatResponse]:
+    """Lấy thống kê thể loại sách yêu thích dựa trên lịch sử mượn của người dùng hiện tại."""
+    return await dashboard_service.get_admin_category_stats()
+
+@router.get("/admin/borrow-overview", response_model=BorrowOverviewResponse)
+async def read_admin_borrow_overview(
+    dashboard_service: DashboardSvc,
+    period: str = Query("3m", pattern="^(3m|6m|12m)$")
+) -> BorrowOverviewResponse:
+    """Lấy thống kê tổng quan mượn sách toàn hệ thống cho Admin theo khoảng thời gian."""
+    return await dashboard_service.get_admin_borrow_overview(period)

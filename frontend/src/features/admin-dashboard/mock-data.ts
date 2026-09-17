@@ -51,7 +51,6 @@ export const MOCK_PENDING_REQUESTS: AdminPendingRequest[] = [
   {
     id: "REQ-01",
     userName: "Nguyễn Văn A",
-    userCode: "SV202401",
     bookTitle: "Clean Code: A Handbook of Agile Software Craftsmanship",
     requestDate: "17/09/2026",
     type: "borrow",
@@ -60,7 +59,6 @@ export const MOCK_PENDING_REQUESTS: AdminPendingRequest[] = [
   {
     id: "REQ-02",
     userName: "Trần Thị B",
-    userCode: "SV202409",
     bookTitle: "Designing Data-Intensive Applications",
     requestDate: "17/09/2026",
     type: "renew",
@@ -69,7 +67,6 @@ export const MOCK_PENDING_REQUESTS: AdminPendingRequest[] = [
   {
     id: "REQ-03",
     userName: "Lê Hoàng C",
-    userCode: "SV202355",
     bookTitle: "System Design Interview – An Insider's Guide",
     requestDate: "16/09/2026",
     type: "return",

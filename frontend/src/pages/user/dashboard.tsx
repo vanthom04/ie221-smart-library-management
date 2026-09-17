@@ -23,15 +23,6 @@ export const DashboardPage = () => {
   const { data: recentActivities } = useRecentActivities();
   const { data: dueSoonBooks } = useDueSoonBooks();
 
-
-  // if (isLoading) {
-  //   return <div className="p-6 text-center text-muted-foreground">Đang tải dữ liệu bảng điều khiển...</div>;
-  // }
-
-  // if (isError) {
-  //   return <div className="p-6 text-center text-red-500">Không thể kết nối đến máy chủ. Vui lòng thử lại sau!</div>;
-  // }
-
   const handleRenewBook = (_bookId: string) => {
     // Sẽ kết nối với API gia hạn sách mượn
   }
