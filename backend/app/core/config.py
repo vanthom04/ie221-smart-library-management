@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
 
+    # Borrowing core
+    RESERVATION_HOLD_DAYS: int = 3
+    BORROW_DAYS: int = 14
+    RENEWAL_DAYS: int = 7
+    MAX_RENEWALS: int = 1
+
     # Upload
     MAX_UPLOAD_SIZE_MB: int = 5
 

@@ -2,8 +2,8 @@ import uuid
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import UUID, DateTime, Enum, ForeignKey, Index
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import UUID, DateTime, Enum, ForeignKey, Index, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import CreatedAtMixin, UUIDPkMixin
@@ -35,8 +35,14 @@ class BorrowRecord(UUIDPkMixin, CreatedAtMixin, Base):
     borrow_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     due_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
     return_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    renewal_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    renewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     status: Mapped[BorrowStatus] = mapped_column(
         Enum(BorrowStatus, name="borrow_status", values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=BorrowStatus.BORROWING,
+    )
+
+    items: Mapped[list["BorrowItem"]] = relationship(  # noqa: F821
+        back_populates="borrow_record", cascade="all, delete-orphan", lazy="selectin"
     )

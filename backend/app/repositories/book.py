@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from uuid import UUID
 from app.models.book import Book
 from app.schemas.book import BookCreate
-
 
 async def create_book(db: AsyncSession, book: BookCreate):
     db_book = Book(**book.model_dump())
@@ -11,18 +11,15 @@ async def create_book(db: AsyncSession, book: BookCreate):
     await db.refresh(db_book)
     return db_book
 
-
 async def get_books(db: AsyncSession):
     result = await db.execute(select(Book))
     return result.scalars().all()
 
-
-async def get_book_by_id(db: AsyncSession, book_id: int):
+async def get_book_by_id(db: AsyncSession, book_id: UUID):
     result = await db.execute(select(Book).filter(Book.id == book_id))
     return result.scalar_one_or_none()
 
-
-async def update_book(db: AsyncSession, book_id: int, book_update: BookCreate):
+async def update_book(db: AsyncSession, book_id: UUID, book_update: BookCreate):
     db_book = await get_book_by_id(db, book_id)
     if not db_book:
         return None
@@ -34,8 +31,7 @@ async def update_book(db: AsyncSession, book_id: int, book_update: BookCreate):
     await db.refresh(db_book)
     return db_book
 
-
-async def delete_book(db: AsyncSession, book_id: int):
+async def delete_book(db: AsyncSession, book_id: UUID):
     db_book = await get_book_by_id(db, book_id)
     if not db_book:
         return False
@@ -43,24 +39,20 @@ async def delete_book(db: AsyncSession, book_id: int):
     await db.commit()
     return True
 
-
 async def search_books(
         db: AsyncSession,
         title: str | None = None,
-        category_id: int | None = None,
-        author_id: int | None = None
+        category_id: UUID | None = None,
+        author_id: UUID | None = None
 ):
     query = select(Book)
 
-    # Nếu có nhập tên sách, tìm kiếm tương đối (chứa từ khóa, không phân biệt hoa thường)
     if title:
         query = query.filter(Book.title.ilike(f"%{title}%"))
 
-    # Nếu có chọn thể loại, lọc chính xác theo ID
     if category_id:
         query = query.filter(Book.category_id == category_id)
 
-    # Nếu có chọn tác giả, lọc chính xác theo ID
     if author_id:
         query = query.filter(Book.author_id == author_id)
 

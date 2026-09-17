@@ -1,18 +1,18 @@
 from pydantic import BaseModel
-from typing import Optional
+from uuid import UUID
 
 class BookBase(BaseModel):
     title: str
-    description: Optional[str] = None
-    category_id: Optional[int] = None
-    author_id: Optional[int] = None
-    publisher_id: Optional[int] = None
+    description: str | None = None
+    category_id: UUID | None = None
+    author_id: UUID | None = None
+    publisher_id: UUID | None = None
 
 class BookCreate(BookBase):
     pass
 
 class BookOut(BookBase):
-    id: int
+    id: UUID
 
     class Config:
         from_attributes = True

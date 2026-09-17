@@ -1,7 +1,10 @@
-from sqlalchemy import ForeignKey, Index, Integer
+import uuid
+
+from sqlalchemy import UUID, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+
 
 class BookAuthor(Base):
     __tablename__ = "book_authors"
@@ -11,10 +14,9 @@ class BookAuthor(Base):
     )
     # fmt: on
 
-    # Đổi toàn bộ Khóa ngoại sang Integer
-    book_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("books.id", ondelete="CASCADE"), primary_key=True
+    book_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("books.id", ondelete="CASCADE"), primary_key=True
     )
-    author_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("authors.id", ondelete="CASCADE"), primary_key=True
+    author_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("authors.id", ondelete="CASCADE"), primary_key=True
     )

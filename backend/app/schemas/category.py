@@ -1,18 +1,14 @@
 from pydantic import BaseModel
-from typing import Optional
-
+from uuid import UUID
 
 class CategoryBase(BaseModel):
     name: str
-    description: Optional[str] = None
-
+    description: str | None = None
 
 class CategoryCreate(CategoryBase):
     pass
 
-
 class CategoryOut(CategoryBase):
-    id: int
-
+    id: UUID
     class Config:
         from_attributes = True

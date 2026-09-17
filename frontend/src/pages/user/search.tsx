@@ -2,14 +2,16 @@ import { useState } from "react"
 import { useNavigate } from "react-router"
 import { m, AnimatePresence, type Variants } from "motion/react"
 
+import { isApiError } from "@/lib/api-error"
+import { useCreateReservation } from "@/features/borrowing/hooks"
 import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { SearchToolbar } from "@/features/search/components/search-toolbar"
 import { BookCardGrid } from "@/features/search/components/book-card-grid"
 import { BookCardList } from "@/features/search/components/book-card-list"
 import { useSearchFilters } from "@/features/search/hooks/use-search-filters"
+import { SearchPagination } from "@/features/search/components/search-pagination"
 import { SearchBarSection } from "@/features/search/components/search-bar-section"
 import { SearchEmptyState } from "@/features/search/components/search-empty-state"
-import { SearchPagination } from "@/features/search/components/search-pagination"
 import { SearchFilterDrawer } from "@/features/search/components/search-filter-drawer"
 import { SearchFilterSidebar } from "@/features/search/components/search-filter-sidebar"
 import type { BookItem } from "@/features/search/types"
@@ -89,6 +91,7 @@ export const SearchPage = () => {
     removeFilterTag,
     toggleBookmark
   } = useSearchFilters()
+  const createReservationMutation = useCreateReservation()
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
@@ -110,18 +113,31 @@ export const SearchPage = () => {
     }
   }
 
-  const handleActionClick = (book: BookItem, action: "borrow" | "reserve") => {
-    if (action === "borrow") {
-      addToast({
-        type: "success",
-        title: "Mượn sách thành công",
-        message: `Yêu cầu mượn cuốn sách "${book.title}" đã được ghi nhận. Vui lòng đến quầy nhận sách.`
+  const handleActionClick = async (book: BookItem, action: "borrow" | "reserve") => {
+    if (action !== "reserve") {
+      return
+    }
+
+    try {
+      await createReservationMutation.mutateAsync({
+        items: [
+          {
+            book_id: book.id,
+            quantity: 1
+          }
+        ]
       })
-    } else {
+
       addToast({
         type: "success",
         title: "Đặt trước thành công",
-        message: `Bạn đã đặt trước cuốn sách "${book.title}" thành công. Thư viện sẽ gửi thông báo khi có sách.`
+        message: `Đã tạo phiếu đặt trước "${book.title}".`
+      })
+    } catch (error) {
+      addToast({
+        type: "error",
+        title: "Không thể đặt trước",
+        message: isApiError(error) ? error.message : "Vui lòng thử lại sau."
       })
     }
   }

@@ -1,15 +1,14 @@
 from pydantic import BaseModel
-from typing import Optional
+from uuid import UUID
 
 class PublisherBase(BaseModel):
     name: str
-    address: Optional[str] = None
+    address: str | None = None
 
 class PublisherCreate(PublisherBase):
     pass
 
 class PublisherOut(PublisherBase):
-    id: int
-
+    id: UUID
     class Config:
         from_attributes = True

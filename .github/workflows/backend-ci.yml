@@ -10,6 +10,14 @@ on:
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+
+    env:
+      SECRET_KEY: ci-test-secret-key
+      DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test
+      CLOUDINARY_CLOUD_NAME: test
+      CLOUDINARY_API_KEY: test
+      CLOUDINARY_API_SECRET: test
+
     defaults:
       run:
         working-directory: backend
@@ -34,3 +42,6 @@ jobs:
 
       - name: Format check (ruff format)
         run: uv run ruff format --check .
+
+      - name: Run tests
+        run: uv run python -m unittest discover -s tests -v
