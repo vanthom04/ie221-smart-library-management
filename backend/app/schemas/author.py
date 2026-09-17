@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel
 
 
@@ -11,7 +12,7 @@ class AuthorCreate(AuthorBase):
 
 
 class AuthorOut(AuthorBase):
-    id: int
+    id: UUID  # Sửa từ int thành UUID để khớp với database
 
     class Config:
         from_attributes = True

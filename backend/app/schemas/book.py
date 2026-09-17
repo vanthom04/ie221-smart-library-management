@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class BookBase(BaseModel):
     title: str
+    isbn: str
     description: str | None = None
     category_id: UUID | None = None
     author_id: UUID | None = None

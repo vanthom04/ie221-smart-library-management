@@ -31,6 +31,10 @@ class Book(UUIDPkMixin, TimestampMixin, Base):
         nullable=True,
         index=True,
     )
+    author_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("authors.id"), nullable=False, index=True
+    )
+
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     available_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     published_year: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
