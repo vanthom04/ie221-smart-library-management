@@ -56,14 +56,14 @@ async def read_admin_pending_requests(
     """Lấy danh sách các yêu cầu mượn/trả sách đang chờ Admin phê duyệt."""
     return await dashboard_service.get_admin_pending_requests()
 
-# @router.post("/requests/{record_id}/approve")
-# async def approve_borrow_request(
-#     record_id: uuid.UUID,
-#     dashboard_service: DashboardSvc
-# ) -> dict:
-#     """Phê duyệt yêu cầu mượn sách của độc giả."""
-#     await dashboard_service.approve_borrow_request(record_id)
-#     return {"message": "Phê duyệt yêu cầu thành công"}
+@router.post("/admin/requests/{record_id}/approve")
+async def approve_borrow_request(
+    record_id: uuid.UUID,
+    dashboard_service: DashboardSvc
+) -> dict:
+    """Phê duyệt yêu cầu mượn sách của độc giả."""
+    await dashboard_service.approve_borrow_request(record_id)
+    return {"message": "Phê duyệt yêu cầu thành công"}
 
 @router.get("/admin/recent-borrows", response_model=list[AdminRecentBorrowResponse])
 async def read_admin_recent_borrows(

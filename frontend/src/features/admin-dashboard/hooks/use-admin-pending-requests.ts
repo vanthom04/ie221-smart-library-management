@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/axios"
 import type { AdminPendingRequest } from "../types"
+import { useAnimatedToast } from "@/components/ui/animated-toast"
+import { isApiError } from "@/lib/api-error"
 
 export function useAdminPendingRequests() {
   return useQuery({
@@ -13,20 +15,48 @@ export function useAdminPendingRequests() {
 
 export function useApproveRequest() {
   const queryClient = useQueryClient()
+  const { addToast } = useAnimatedToast()
+
 
   return useMutation({
     mutationFn: async (requestId: string) => {
       return await api.post(`/dashboard/admin/requests/${requestId}/approve`)
     },
     onSuccess: () => {
-      // toast.success("Phê duyệt yêu cầu mượn sách thành công!")
+      const message = "Phê duyệt yêu cầu mượn sách thành công!"
+      addToast({ type: "success", message })
+
       // Làm mới dữ liệu danh sách chờ và thống kê tổng quan
       queryClient.invalidateQueries({ queryKey: ["admin-pending-requests"] })
       queryClient.invalidateQueries({ queryKey: ["admin-quick-stats"] })
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.detail || "Không thể phê duyệt yêu cầu này."
-      // toast.error(message)
+      const message = isApiError(error) ? error.message : "Không thể phê duyệt yêu cầu này."
+      addToast({ type: "error", message })
+    },
+  })
+}
+
+export function useRejectRequest() {
+  const queryClient = useQueryClient()
+  const { addToast } = useAnimatedToast()
+
+
+  return useMutation({
+    mutationFn: async (requestId: string) => {
+      return await api.post(`/dashboard/admin/requests/${requestId}/reject`)
+    },
+    onSuccess: () => {
+      const message = "Từ chối yêu cầu mượn sách thành công!"
+      addToast({ type: "success", message })
+      
+      // Làm mới dữ liệu danh sách chờ và thống kê tổng quan
+      queryClient.invalidateQueries({ queryKey: ["admin-pending-requests"] })
+      queryClient.invalidateQueries({ queryKey: ["admin-quick-stats"] })
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.detail || "Không thể từ chối yêu cầu này."
+      addToast({ type: "error", message })
     },
   })
 }

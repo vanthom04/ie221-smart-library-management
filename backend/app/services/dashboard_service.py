@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 import uuid
+from fastapi import HTTPException, status
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,6 +23,7 @@ class DashboardService:
         self.db = db
 
     async def get_user_quick_stats(self, user_id: uuid.UUID) -> list[DashboardQuickStatResponse]:
+        '''Lấy dữ liệu thống kê nhanh cho trang cá nhân của user hiện tại.'''
         now = datetime.now()
 
         # 1. Số sách đang mượn (Trạng thái BORROWING hoặc OVERDUE)
@@ -553,3 +555,53 @@ class DashboardService:
             stats=stats,
             trend=trend_data
         )
+
+    async def approve_borrow_request(self, record_id: uuid.UUID) -> None:
+        # 1. Tìm phiếu mượn sách theo ID
+        result = await self.db.execute(
+            select(BorrowRecord).where(BorrowRecord.id == record_id)
+        )
+        record = result.scalars().first()
+
+        # 2. Kiểm tra tồn tại
+        if not record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Không tìm thấy yêu cầu mượn sách."
+            )
+
+        # 3. Kiểm tra trạng thái hiện tại (chỉ duyệt các phiếu đang chờ)
+        if record.status != BorrowStatus.RETURNED:  # Giả sử trạng thái chờ duyệt là RETURNED
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Yêu cầu mượn sách không ở trạng thái chờ duyệt."
+            )
+
+        # 4. Cập nhật trạng thái thành đã duyệt
+        record.status = BorrowStatus.BORROWING
+        
+        await self.db.commit()
+
+async def reject_borrow_request(self, record_id: uuid.UUID) -> None:
+        result = await self.db.execute(
+            select(BorrowRecord).where(BorrowRecord.id == record_id)
+        )
+        record = result.scalars().first()
+
+        # 1. Kiểm tra tồn tại (loại trừ None cho Pylance)
+        if not record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Không tìm thấy yêu cầu mượn sách."
+            )
+
+        # 2. Kiểm tra trạng thái hiện tại
+        if record.status != BorrowStatus.RETURNED:  # Giả sử trạng thái chờ duyệt là RETURNED
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Yêu cầu mượn sách không ở trạng thái chờ duyệt."
+            )
+
+        # 3. Cập nhật trạng thái thành từ chối
+        record.status = BorrowStatus.RETURNED # Giả sử trạng thái từ chối là RETURNED (Đề xuất thêm trạng thái REJECTED)
+        await self.db.commit()

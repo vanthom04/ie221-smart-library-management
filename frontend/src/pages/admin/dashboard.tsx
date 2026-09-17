@@ -6,7 +6,7 @@ import { AdminStatCards } from "@/features/admin-dashboard/components/admin-stat
 import { PendingRequestsCard } from "@/features/admin-dashboard/components/pending-requests-card"
 
 import { useAdminStats } from "@/features/admin-dashboard/hooks/use-admin-stats"
-import { useAdminPendingRequests, useApproveRequest } from "@/features/admin-dashboard/hooks/use-admin-pending-requests"
+import { useAdminPendingRequests, useApproveRequest, useRejectRequest } from "@/features/admin-dashboard/hooks/use-admin-pending-requests"
 import { useRecentBorrows } from "@/features/admin-dashboard/hooks/use-recent-borrows"
 import { RecentBorrowsTable } from "@/features/admin-dashboard/components/recent-borrows-table"
 import { useCategoryStats } from "@/features/admin-dashboard/hooks/use-category-stats"
@@ -16,8 +16,6 @@ import { useBorrowOverview } from "@/features/admin-dashboard/hooks/use-borrow-o
 export const AdminDashboardPage = () => {
   const [period, setPeriod] = useState<string>("3m")
   
-  // Gọi API lấy dữ liệu dựa theo period đang chọn
-  // const [period, setPeriod] = useState("6m");
   const { data: borrowData} = useBorrowOverview(period)
 
 
@@ -26,15 +24,14 @@ export const AdminDashboardPage = () => {
   const { data: borrows } = useRecentBorrows()
   const { data: categoryStats } = useCategoryStats()
   const approveMutation = useApproveRequest()
-
+  const rejectMutation = useRejectRequest()
+  
   const handleApprove = (id: string) => {
-    // approveMutation.mutate(id)
-    console.log("Approved request with ID:", id);
+    approveMutation.mutate(id)
   }
 
   const handleReject = (id: string) => {
-    // approveMutation.mutate(id)
-    console.log("Rejected request with ID:", id);
+    rejectMutation.mutate(id)
   }
 
 
