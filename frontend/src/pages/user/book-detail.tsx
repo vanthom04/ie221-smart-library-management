@@ -28,12 +28,16 @@ export const BookDetailPage = () => {
   }, [id])
 
   if (loading) {
-    return <div className="text-center py-20 text-muted-foreground text-lg">Đang tải dữ liệu sách...</div>
+    return (
+      <div className="py-20 text-center text-lg text-muted-foreground">
+        Đang tải dữ liệu sách...
+      </div>
+    )
   }
 
   if (!book) {
     return (
-      <div className="flex flex-col gap-6 items-center py-20">
+      <div className="flex flex-col items-center gap-6 py-20">
         <h2 className="text-2xl font-bold text-destructive">Không tìm thấy sách!</h2>
         <Button onClick={() => navigate("/search")}>Quay lại tìm kiếm</Button>
       </div>
@@ -41,7 +45,7 @@ export const BookDetailPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-10">
       <div className="flex items-center gap-2">
         <Button
           size="sm"
@@ -50,36 +54,46 @@ export const BookDetailPage = () => {
           onClick={() => navigate("/search")}
           className="-ml-2 text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeftIcon className="w-4 h-4 mr-1" /> Quay lại tìm kiếm
+          <ArrowLeftIcon className="mr-1 h-4 w-4" /> Quay lại tìm kiếm
         </Button>
       </div>
 
-      <div className="bg-card border rounded-2xl p-8 shadow-sm flex flex-col md:flex-row gap-10">
-        <div className="w-full md:w-1/3 h-80 bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-border">
+      <div className="flex flex-col gap-10 rounded-2xl border bg-card p-8 shadow-sm md:flex-row">
+        <div className="flex h-80 w-full items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted md:w-1/3">
           <span className="text-7xl">📖</span>
         </div>
 
-        <div className="w-full md:w-2/3 flex flex-col justify-between">
+        <div className="flex w-full flex-col justify-between md:w-2/3">
           <div>
-            <h1 className="text-3xl font-bold sm:text-4xl text-foreground mb-4">{book.title}</h1>
+            <h1 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">{book.title}</h1>
 
-            <p className="text-muted-foreground text-base leading-relaxed mb-6">
+            <p className="mb-6 text-base leading-relaxed text-muted-foreground">
               {book.description || "Cuốn sách này hiện chưa có mô tả chi tiết."}
             </p>
 
-            <div className="bg-muted/50 p-5 rounded-xl space-y-2 mb-8 text-sm text-foreground/80">
-              <p><span className="font-semibold w-28 inline-block">Mã sách (ID):</span> <span className="font-mono text-primary font-bold">#{book.id}</span></p>
-              <p><span className="font-semibold w-28 inline-block">Mã Thể loại:</span> {book.category_id}</p>
-              <p><span className="font-semibold w-28 inline-block">Mã Tác giả:</span> {book.author_id}</p>
-              <p><span className="font-semibold w-28 inline-block">Mã Nhà xuất bản:</span> {book.publisher_id}</p>
+            <div className="mb-8 space-y-2 rounded-xl bg-muted/50 p-5 text-sm text-foreground/80">
+              <p>
+                <span className="inline-block w-28 font-semibold">Mã sách (ID):</span>{" "}
+                <span className="font-mono font-bold text-primary">#{book.id}</span>
+              </p>
+              <p>
+                <span className="inline-block w-28 font-semibold">Mã Thể loại:</span>{" "}
+                {book.category_id}
+              </p>
+              <p>
+                <span className="inline-block w-28 font-semibold">Mã Tác giả:</span>{" "}
+                {book.author_id}
+              </p>
+              <p>
+                <span className="inline-block w-28 font-semibold">Mã Nhà xuất bản:</span>{" "}
+                {book.publisher_id}
+              </p>
             </div>
           </div>
 
           <div className="flex gap-4">
-            <Button className="flex-1 py-6 text-base font-semibold">
-              Đăng ký mượn sách
-            </Button>
-            <Button variant="outline" className="py-6 px-6 font-semibold">
+            <Button className="flex-1 py-6 text-base font-semibold">Đăng ký mượn sách</Button>
+            <Button variant="outline" className="px-6 py-6 font-semibold">
               ❤️ Yêu thích
             </Button>
           </div>
