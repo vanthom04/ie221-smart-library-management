@@ -1,5 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
+
+import { useAnimatedToast } from "@/components/ui/animated-toast"
+import { useCurrentUser } from "../hooks/use-current-user"
 import {
   Edit3Icon,
   MailIcon,
@@ -184,27 +187,44 @@ interface ProfileFormValues {
 
 export const ProfileTab = () => {
   const [isEdited, setIsEdited] = useState(false)
+  const { data: currentUser } = useCurrentUser()
+  const { addToast } = useAnimatedToast()
 
   const form = useForm<ProfileFormValues>({
     defaultValues: {
-      full_name: "Chu Văn Thơm",
+      full_name: currentUser?.full_name ?? "",
       gender: "male",
-      email: "vanthom04.dev@gmail.com",
-      phone: "0345772899",
-      date_of_birth: new Date("2004-01-01"),
+      email: currentUser?.email ?? "",
+      phone: currentUser?.phone ?? "",
+      date_of_birth: new Date("2000-01-01"),
       address: "Tp. Hồ Chí Minh, Việt Nam",
-      favorite_categories: "Công nghệ",
-      job: "IT"
+      favorite_categories: "fiction_literature",
+      job: "student"
     }
   })
 
-  const onSubmit = (values: ProfileFormValues) => {
-    const payload = {
-      ...values,
-      date_of_birth: values.date_of_birth.toISOString()
+  useEffect(() => {
+    if (currentUser) {
+      form.reset({
+        full_name: currentUser.full_name,
+        gender: "male",
+        email: currentUser.email,
+        phone: currentUser.phone ?? "",
+        date_of_birth: new Date("2000-01-01"),
+        address: "Tp. Hồ Chí Minh, Việt Nam",
+        favorite_categories: "fiction_literature",
+        job: "student"
+      })
     }
+  }, [currentUser, form])
 
-    console.info(payload)
+  const onSubmit = () => {
+    addToast({
+      type: "info",
+      title: "Thông báo",
+      message: "Thông tin cá nhân đã được ghi nhận."
+    })
+    setIsEdited(false)
   }
 
   return (

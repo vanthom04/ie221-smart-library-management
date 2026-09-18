@@ -36,6 +36,12 @@ const AdminLayout = () => {
           <NavLink to="/admin/publishers" className={getNavLinkClass}>
             🏢 Nhà xuất bản
           </NavLink>
+
+          <div className="mt-4 border-t border-gray-700 pt-4">
+            <NavLink to="/" className={getNavLinkClass}>
+              🏠 Về trang độc giả
+            </NavLink>
+          </div>
         </nav>
       </div>
 

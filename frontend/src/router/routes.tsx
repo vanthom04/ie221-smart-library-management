@@ -72,13 +72,6 @@ export const router = createBrowserRouter([
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () => import("@/pages/user/profile").then((m) => ({ Component: m.ProfilePage }))
-      },
-      {
-        path: "/admin/dashboard",
-        middleware: [requireAdmin],
-        HydrateFallback: FallbackLoader,
-        lazy: () =>
-          import("@/pages/admin/dashboard").then((m) => ({ Component: m.AdminDashboardPage }))
       }
     ]
   },
@@ -89,6 +82,11 @@ export const router = createBrowserRouter([
     ErrorBoundary: RootErrorBoundary,
     lazy: () => import("@/pages/admin/AdminLayout").then((m) => ({ Component: m.default })),
     children: [
+      {
+        path: "dashboard",
+        lazy: () =>
+          import("@/pages/admin/dashboard").then((m) => ({ Component: m.AdminDashboardPage }))
+      },
       {
         index: true,
         lazy: () => import("@/pages/admin/CategoryAdmin").then((m) => ({ Component: m.default }))
