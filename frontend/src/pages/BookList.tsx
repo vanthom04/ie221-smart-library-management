@@ -1,46 +1,61 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router"
 
+import { api } from "@/lib/axios"
+
+interface CatalogBook {
+  id: string
+  title: string
+  description: string | null
+}
+
+interface Category {
+  id: string
+  name: string
+}
+
 const BookList = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [books, setBooks] = useState<any[]>([])
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [categories, setCategories] = useState<any[]>([])
+  const [books, setBooks] = useState<CatalogBook[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [error, setError] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const [searchTitle, setSearchTitle] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/v1/categories/")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) => console.error("Lỗi tải thể loại:", err))
+    api
+      .get<Category[]>("/categories/")
+      .then(setCategories)
+      .catch(() => setCategories([]))
   }, [])
 
   const handleSearch = () => {
-    const url = new URL("http://localhost:8000/api/v1/books/search")
-    if (searchTitle) url.searchParams.append("title", searchTitle)
-    if (selectedCategory) url.searchParams.append("category_id", selectedCategory)
-
-    fetch(url.toString())
-      .then((res) => res.json())
-      .then((data) => setBooks(data))
-      .catch((err) => console.error("Lỗi tải sách:", err))
+    const params = new URLSearchParams()
+    if (searchTitle.trim()) params.set("title", searchTitle.trim())
+    if (selectedCategory) params.set("category_id", selectedCategory)
+    setError(false)
+    setIsLoading(true)
+    api
+      .get<CatalogBook[]>(`/books/search${params.size ? `?${params}` : ""}`)
+      .then(setBooks)
+      .catch(() => setError(true))
+      .finally(() => setIsLoading(false))
   }
 
   useEffect(() => {
-    const url = new URL("http://localhost:8000/api/v1/books/search")
-    fetch(url.toString())
-      .then((res) => res.json())
-      .then((data) => setBooks(data))
-      .catch((err) => console.error("Lỗi tải sách:", err))
+    api
+      .get<CatalogBook[]>("/books/search")
+      .then(setBooks)
+      .catch(() => setError(true))
+      .finally(() => setIsLoading(false))
   }, [])
 
   return (
     <div className="container mx-auto max-w-6xl p-6">
       <div className="mb-8 rounded-xl bg-blue-50 p-8 text-center shadow-sm">
         <h1 className="mb-4 text-4xl font-bold text-blue-900">Khám Phá Thư Viện</h1>
-        <p className="mb-6 text-gray-600">Hàng ngàn cuốn sách hấp dẫn đang chờ bạn khám phá</p>
+        <p className="mb-6 text-gray-600">Khám phá những cuốn sách hiện có trong thư viện</p>
 
         <div className="mx-auto flex max-w-3xl flex-col justify-center gap-3 md:flex-row">
           <input
@@ -71,8 +86,10 @@ const BookList = () => {
         </div>
       </div>
 
+      {error && <p className="mb-4 text-sm text-destructive">Không thể tải danh mục sách.</p>}
+      {isLoading && <p className="mb-4 text-sm text-muted-foreground">Đang tải danh mục sách...</p>}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {books.length > 0 ? (
+        {!isLoading && books.length > 0 ? (
           books.map((book) => (
             <div
               key={book.id}
@@ -100,11 +117,11 @@ const BookList = () => {
               </div>
             </div>
           ))
-        ) : (
+        ) : !isLoading && !error ? (
           <div className="col-span-full py-12 text-center text-gray-500">
             Không tìm thấy cuốn sách nào phù hợp với từ khóa của bạn. 😢
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   )

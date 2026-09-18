@@ -84,6 +84,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/admin",
+    middleware: [requireAdmin],
     HydrateFallback: FallbackLoader,
     ErrorBoundary: RootErrorBoundary,
     lazy: () => import("@/pages/admin/AdminLayout").then((m) => ({ Component: m.default })),

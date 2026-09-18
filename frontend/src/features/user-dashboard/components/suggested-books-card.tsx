@@ -11,25 +11,40 @@ import type { BookSuggestion } from "../types"
 
 interface SuggestedBooksCardProps {
   books: BookSuggestion[]
+  basedOnBooks?: number
+  isLoading?: boolean
+  isError?: boolean
 }
 
-export const SuggestedBooksCard = ({ books }: SuggestedBooksCardProps) => {
+export const SuggestedBooksCard = ({
+  books,
+  basedOnBooks,
+  isLoading,
+  isError
+}: SuggestedBooksCardProps) => {
   return (
-    <Card className="shadow-xs">
-      <CardHeader className="pb-3">
+    <Card className="gap-0 shadow-xs">
+      <CardHeader className="pb-4">
         <div className="flex items-center gap-1.5">
           <CardTitle className="text-base font-bold">Gợi ý dành cho bạn</CardTitle>
           <SparklesIcon className="size-4 text-blue-500" />
         </div>
-        <p className="text-xs text-muted-foreground">Dựa trên sở thích và thể loại hay đọc</p>
+        <p className="text-xs text-muted-foreground">
+          {basedOnBooks === 0 ? "Sách phổ biến trong thư viện" : "Dựa trên sách bạn đã mượn"}
+        </p>
       </CardHeader>
 
       <CardContent className="space-y-4">
         <div className="space-y-3">
+          {isLoading && <p className="text-sm text-muted-foreground">Đang tải gợi ý...</p>}
+          {isError && <p className="text-sm text-muted-foreground">Không thể tải gợi ý sách.</p>}
+          {!isLoading && !isError && books.length === 0 && (
+            <p className="text-sm text-muted-foreground">Chưa có sách phù hợp để gợi ý.</p>
+          )}
           {books.map((book) => (
             <div
               key={book.id}
-              className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted/50"
+              className="group flex items-center gap-3 rounded-lg transition-colors hover:bg-muted/50"
             >
               <BookCoverThumb
                 src={book.coverUrl}
@@ -49,7 +64,7 @@ export const SuggestedBooksCard = ({ books }: SuggestedBooksCardProps) => {
                 )}
               </div>
               <Link
-                to="/search"
+                to={`/books/${book.id}`}
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
                   "h-7 shrink-0 rounded-lg px-2.5 text-xs text-muted-foreground hover:text-foreground"
@@ -65,7 +80,7 @@ export const SuggestedBooksCard = ({ books }: SuggestedBooksCardProps) => {
           to="/search"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "w-full justify-between text-xs text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/40"
+            "justify-start p-0 text-xs text-blue-600 hover:bg-transparent hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/40"
           )}
         >
           <span>Khám phá thêm sách</span>

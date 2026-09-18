@@ -1,9 +1,9 @@
 import { useSearchParams } from "react-router"
 import { useState } from "react"
 
-import { MOCK_BOOKS } from "../mock-data"
 import { MIN_YEAR, MAX_YEAR } from "../constants"
 import type {
+  BookItem,
   AvailabilityStatus,
   SortMode,
   ViewMode,
@@ -11,7 +11,7 @@ import type {
   SearchFilterState
 } from "../types"
 
-export const useSearchFilters = () => {
+export const useSearchFilters = (books: BookItem[]) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
 
@@ -286,80 +286,62 @@ export const useSearchFilters = () => {
 
   // Filter and sort execution
   const filteredBooks = (() => {
-    return MOCK_BOOKS.filter((book) => {
-      // Text search query
-      if (query.trim()) {
-        const q = query.toLowerCase().trim()
-        const matchTitle = book.title.toLowerCase().includes(q)
-        const matchAuthor = book.author.toLowerCase().includes(q)
-        const matchDesc = book.description.toLowerCase().includes(q)
-        const matchIsbn = book.isbn.toLowerCase().includes(q)
-        const matchCategory = book.category.toLowerCase().includes(q)
-        if (!matchTitle && !matchAuthor && !matchDesc && !matchIsbn && !matchCategory) {
+    return books
+      .filter((book) => {
+        // Statuses
+        if (statuses.length > 0) {
+          const matchStatus = statuses.some((status) => {
+            if (status === "available") return book.availableCount > 0
+            if (status === "reservable") return book.availableCount === 0
+            if (status === "ebook") return Boolean(book.isEbookAvailable)
+            return false
+          })
+          if (!matchStatus) return false
+        }
+
+        // Categories
+        if (categories.length > 0 && !categories.includes(book.category)) {
           return false
         }
-      }
 
-      // Statuses
-      if (statuses.length > 0) {
-        const matchStatus = statuses.some((status) => {
-          if (status === "available") return book.availableCount > 0
-          if (status === "reservable") return book.availableCount === 0
-          if (status === "ebook") return Boolean(book.isEbookAvailable)
+        // Authors
+        if (authors.length > 0 && !authors.includes(book.author)) {
           return false
-        })
-        if (!matchStatus) return false
-      }
+        }
 
-      // Categories
-      if (categories.length > 0 && !categories.includes(book.category)) {
-        return false
-      }
+        // Publishers
+        if (publishers.length > 0 && !publishers.includes(book.publisher)) {
+          return false
+        }
 
-      // Authors
-      if (authors.length > 0 && !authors.includes(book.author)) {
-        return false
-      }
+        // Languages
+        if (languages.length > 0 && !languages.includes(book.language)) {
+          return false
+        }
 
-      // Publishers
-      if (publishers.length > 0 && !publishers.includes(book.publisher)) {
-        return false
-      }
+        // Year range
+        if (book.publishYear && (book.publishYear < yearMin || book.publishYear > yearMax)) {
+          return false
+        }
 
-      // Languages
-      if (languages.length > 0 && !languages.includes(book.language)) {
-        return false
-      }
-
-      // Year range
-      if (book.publishYear < yearMin || book.publishYear > yearMax) {
-        return false
-      }
-
-      return true
-    }).sort((a, b) => {
-      if (sortBy === "newest") {
-        return b.publishYear - a.publishYear
-      }
-      if (sortBy === "most_borrowed") {
-        return (b.borrowCount || 0) - (a.borrowCount || 0)
-      }
-      if (sortBy === "title_asc") {
-        return a.title.localeCompare(b.title, "vi")
-      }
-      if (sortBy === "year_desc") {
-        return b.publishYear - a.publishYear
-      }
-      // "relevance" (default)
-      if (query.trim()) {
-        const q = query.toLowerCase()
-        const aTitleMatch = a.title.toLowerCase().includes(q)
-        const bTitleMatch = b.title.toLowerCase().includes(q)
-        if (aTitleMatch && !bTitleMatch) return -1
-        if (!aTitleMatch && bTitleMatch) return 1
-      }
-      return (b.borrowCount || 0) - (a.borrowCount || 0)
-    })
+        return true
+      })
+      .sort((a, b) => {
+        if (sortBy === "newest") {
+          return b.publishYear - a.publishYear
+        }
+        if (sortBy === "most_borrowed") {
+          return (b.borrowCount || 0) - (a.borrowCount || 0)
+        }
+        if (sortBy === "title_asc") {
+          return a.title.localeCompare(b.title, "vi")
+        }
+        if (sortBy === "year_desc") {
+          return b.publishYear - a.publishYear
+        }
+        // Preserve API order: semantic search is already ranked by relevance.
+        return 0
+      })
   })()
 
   // Pagination calculation

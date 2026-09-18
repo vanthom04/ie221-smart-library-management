@@ -83,7 +83,7 @@ export const SearchBarSection = ({
                 id="search-input"
                 name={field.name}
                 autoComplete="off"
-                placeholder="Nhập tên sách, tác giả, thể loại, ISBN..."
+                placeholder="Mô tả cuốn sách bạn muốn tìm..."
                 className="h-13 border-0 bg-transparent pr-28 pl-12 text-sm shadow-none sm:text-[15px]"
                 aria-invalid={fieldState.invalid}
               />
@@ -165,8 +165,7 @@ export const SearchBarSection = ({
 
         <div className="hidden items-center gap-2 sm:flex">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <SlidersHorizontalIcon className="size-3.5" /> Tìm kiếm thông minh với bộ lọc đa tiêu
-            chí
+            <SlidersHorizontalIcon className="size-3.5" /> Tìm sách theo nội dung và ý nghĩa câu hỏi
           </span>
         </div>
       </div>

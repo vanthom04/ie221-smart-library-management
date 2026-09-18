@@ -34,7 +34,7 @@ const getActivityIcon = (tone: ActivityTypeTone) => {
 
 export const RecentActivitiesCard = ({ activities }: RecentActivitiesCardProps) => {
   return (
-    <Card className="flex flex-col justify-between shadow-xs">
+    <Card className="flex flex-col justify-between gap-2 shadow-xs">
       <DashboardCardHeader title="Hoạt động gần đây" description="Nhật ký mượn trả và tương tác" />
 
       <CardContent className="flex flex-1 flex-col gap-4">

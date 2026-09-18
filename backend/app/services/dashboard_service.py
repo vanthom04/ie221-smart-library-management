@@ -389,7 +389,9 @@ class DashboardService:
             # Xác định trạng thái hiển thị
             if row.status == BorrowStatus.RETURNED:
                 status = "returned"
-            elif row.due_date < now and row.status == BorrowStatus.BORROWING:
+            elif row.status == BorrowStatus.OVERDUE or (
+                row.status == BorrowStatus.BORROWING and row.due_date < now
+            ):
                 status = "overdue"
             else:
                 status = "borrowing"

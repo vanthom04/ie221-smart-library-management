@@ -40,7 +40,7 @@ const getDueBadgeStyle = (daysLeft: number) => {
 
 export const BorrowedBooksCard = ({ books, onRenew }: BorrowedBooksCardProps) => {
   return (
-    <Card className="flex flex-col justify-between shadow-xs">
+    <Card className="flex flex-col justify-between gap-2 shadow-xs">
       <DashboardCardHeader
         title="Danh sách đang mượn"
         description="Theo dõi và gia hạn sách kịp thời"

@@ -145,9 +145,11 @@ export const BookCardGrid = ({
               </button>
             </h4>
 
-            <p className="mt-1 truncate text-xs text-muted-foreground">
-              {book.author} • {book.publishYear}
-            </p>
+            {(book.author || book.publishYear > 0) && (
+              <p className="mt-1 truncate text-xs text-muted-foreground">
+                {[book.author, book.publishYear || ""].filter(Boolean).join(" • ")}
+              </p>
+            )}
           </div>
 
           {/* Footer Actions */}

@@ -87,8 +87,14 @@ export const BookCardList = ({
               </h4>
 
               <p className="mt-1 text-xs text-muted-foreground">
-                Tác giả: <span className="font-semibold text-foreground">{book.author}</span> • NXB:{" "}
-                {book.publisher} • Năm: {book.publishYear} • ISBN: {book.isbn}
+                {[
+                  book.author && `Tác giả: ${book.author}`,
+                  book.publisher && `NXB: ${book.publisher}`,
+                  book.publishYear > 0 && `Năm: ${book.publishYear}`,
+                  book.isbn && `ISBN: ${book.isbn}`
+                ]
+                  .filter(Boolean)
+                  .join(" • ")}
               </p>
             </div>
 

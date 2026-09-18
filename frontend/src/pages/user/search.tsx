@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useNavigate } from "react-router"
+import { useRef, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router"
 import { m, AnimatePresence, type Variants } from "motion/react"
 
 import { isApiError } from "@/lib/api-error"
@@ -9,6 +9,7 @@ import { SearchToolbar } from "@/features/search/components/search-toolbar"
 import { BookCardGrid } from "@/features/search/components/book-card-grid"
 import { BookCardList } from "@/features/search/components/book-card-list"
 import { useSearchFilters } from "@/features/search/hooks/use-search-filters"
+import { useSearchBooks } from "@/features/search/hooks/use-search-books"
 import { SearchPagination } from "@/features/search/components/search-pagination"
 import { SearchBarSection } from "@/features/search/components/search-bar-section"
 import { SearchEmptyState } from "@/features/search/components/search-empty-state"
@@ -69,6 +70,10 @@ const bookCardVariants: Variants = {
 
 export const SearchPage = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const query = searchParams.get("q") ?? ""
+  const { books, categoryOptions, authorOptions, publisherOptions, isPending, isError } =
+    useSearchBooks(query)
   const { addToast } = useAnimatedToast()
   const {
     state,
@@ -90,8 +95,9 @@ export const SearchPage = () => {
     resetFilters,
     removeFilterTag,
     toggleBookmark
-  } = useSearchFilters()
+  } = useSearchFilters(books)
   const createReservationMutation = useCreateReservation()
+  const reservationInFlight = useRef(false)
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
@@ -115,8 +121,12 @@ export const SearchPage = () => {
 
   const handleActionClick = async (book: BookItem, action: "borrow" | "reserve") => {
     if (action !== "reserve") {
+      navigate(`/books/${book.id}`)
       return
     }
+
+    if (reservationInFlight.current) return
+    reservationInFlight.current = true
 
     try {
       await createReservationMutation.mutateAsync({
@@ -139,6 +149,8 @@ export const SearchPage = () => {
         title: "Không thể đặt trước",
         message: isApiError(error) ? error.message : "Vui lòng thử lại sau."
       })
+    } finally {
+      reservationInFlight.current = false
     }
   }
 
@@ -169,6 +181,11 @@ export const SearchPage = () => {
           <SearchFilterSidebar
             state={state}
             activeTags={activeTags}
+            categoryOptions={categoryOptions}
+            authorOptions={authorOptions}
+            publisherOptions={publisherOptions}
+            languageOptions={[]}
+            hasPublicationYears={false}
             onToggleStatus={toggleStatus}
             onToggleCategory={toggleCategory}
             onToggleAuthor={toggleAuthor}
@@ -195,9 +212,14 @@ export const SearchPage = () => {
             onResetFilters={resetFilters}
           />
 
+          {isPending && <p className="text-sm text-muted-foreground">Đang tải sách...</p>}
+          {isError && (
+            <p className="text-sm text-destructive">Không thể tải sách. Vui lòng thử lại.</p>
+          )}
+
           {/* Results List / Grid or Empty State with Smooth GPU AnimatePresence */}
           <AnimatePresence mode="popLayout">
-            {totalItems === 0 ? (
+            {!isPending && !isError && totalItems === 0 ? (
               <m.div
                 key="empty-state"
                 initial={{ opacity: 0, scale: 0.97, y: 8 }}
@@ -212,7 +234,7 @@ export const SearchPage = () => {
                   onSelectKeyword={setQuery}
                 />
               </m.div>
-            ) : state.viewMode === "grid" ? (
+            ) : !isPending && !isError && state.viewMode === "grid" ? (
               <m.div
                 key={`grid-page-${state.page}`}
                 variants={resultContainerVariants}
@@ -237,7 +259,7 @@ export const SearchPage = () => {
                   </m.div>
                 ))}
               </m.div>
-            ) : (
+            ) : !isPending && !isError ? (
               <m.div
                 key={`list-page-${state.page}`}
                 variants={resultContainerVariants}
@@ -262,7 +284,7 @@ export const SearchPage = () => {
                   </m.div>
                 ))}
               </m.div>
-            )}
+            ) : null}
           </AnimatePresence>
 
           {/* Pagination */}
@@ -283,6 +305,9 @@ export const SearchPage = () => {
         onOpenChange={setIsMobileDrawerOpen}
         state={state}
         activeTags={activeTags}
+        categoryOptions={categoryOptions}
+        authorOptions={authorOptions}
+        publisherOptions={publisherOptions}
         totalItems={totalItems}
         onToggleStatus={toggleStatus}
         onToggleCategory={toggleCategory}

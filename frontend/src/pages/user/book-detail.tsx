@@ -3,29 +3,55 @@ import { useParams, useNavigate } from "react-router"
 import { ArrowLeftIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useAnimatedToast } from "@/components/ui/animated-toast"
+import { useCreateReservation } from "@/features/borrowing/hooks"
+import { api } from "@/lib/axios"
+import { isApiError } from "@/lib/api-error"
+
+interface CatalogBook {
+  id: string
+  title: string
+  description: string | null
+  category_id: string
+  author_id: string | null
+  publisher_id: string | null
+}
 
 export const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { addToast } = useAnimatedToast()
+  const createReservation = useCreateReservation()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [book, setBook] = useState<any>(null)
+  const [book, setBook] = useState<CatalogBook | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/v1/books/")
-      .then((res) => res.json())
+    api
+      .get<CatalogBook[]>("/books/search")
       .then((data) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const foundBook = data.find((b: any) => b.id === Number(id))
-        setBook(foundBook)
+        setBook(data.find((item) => item.id === id) ?? null)
         setLoading(false)
       })
-      .catch((err) => {
-        console.error("Lỗi tải chi tiết sách:", err)
+      .catch(() => {
+        setLoadError(true)
         setLoading(false)
       })
   }, [id])
+
+  const reserveBook = async () => {
+    if (!book) return
+    try {
+      await createReservation.mutateAsync({ items: [{ book_id: book.id, quantity: 1 }] })
+      addToast({ type: "success", message: `Đã tạo phiếu đặt trước "${book.title}".` })
+    } catch (error) {
+      addToast({
+        type: "error",
+        message: isApiError(error) ? error.message : "Không thể đặt trước sách. Vui lòng thử lại."
+      })
+    }
+  }
 
   if (loading) {
     return (
@@ -38,7 +64,9 @@ export const BookDetailPage = () => {
   if (!book) {
     return (
       <div className="flex flex-col items-center gap-6 py-20">
-        <h2 className="text-2xl font-bold text-destructive">Không tìm thấy sách!</h2>
+        <h2 className="text-2xl font-bold text-destructive">
+          {loadError ? "Không thể tải chi tiết sách. Vui lòng thử lại." : "Không tìm thấy sách!"}
+        </h2>
         <Button onClick={() => navigate("/search")}>Quay lại tìm kiếm</Button>
       </div>
     )
@@ -91,12 +119,13 @@ export const BookDetailPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-4">
-            <Button className="flex-1 py-6 text-base font-semibold">Đăng ký mượn sách</Button>
-            <Button variant="outline" className="px-6 py-6 font-semibold">
-              ❤️ Yêu thích
-            </Button>
-          </div>
+          <Button
+            onClick={reserveBook}
+            disabled={createReservation.isPending}
+            className="w-full py-6 text-base font-semibold"
+          >
+            Đặt trước sách
+          </Button>
         </div>
       </div>
     </div>

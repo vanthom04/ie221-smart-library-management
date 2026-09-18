@@ -15,8 +15,8 @@ interface DueSoonCardProps {
 
 export const DueSoonCard = ({ books }: DueSoonCardProps) => {
   return (
-    <Card className="border-amber-200/80 bg-amber-50/50 shadow-xs dark:border-amber-900/40 dark:bg-amber-950/20">
-      <CardHeader className="pb-3">
+    <Card className="gap-0 border-amber-200/80 bg-amber-50/50 shadow-xs dark:border-amber-900/40 dark:bg-amber-950/20">
+      <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
           <div className="flex size-7 items-center justify-center rounded-md bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400">
             <ClockIcon className="size-4" />
@@ -37,7 +37,7 @@ export const DueSoonCard = ({ books }: DueSoonCardProps) => {
               return (
                 <div
                   key={book.id}
-                  className="flex items-center gap-3 rounded-lg border border-amber-100 bg-background/80 p-2 shadow-2xs dark:border-amber-900/30"
+                  className="flex items-center gap-3 rounded-lg border border-amber-100 bg-background/80 shadow-2xs dark:border-amber-900/30"
                 >
                   <BookCoverThumb
                     src={book.coverUrl}
@@ -70,7 +70,7 @@ export const DueSoonCard = ({ books }: DueSoonCardProps) => {
           to="/borrow-history"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "w-full justify-between text-xs text-amber-800 hover:bg-amber-100/70 hover:text-amber-900 dark:text-amber-300 dark:hover:bg-amber-950/50"
+            "justify-start p-0 text-xs text-amber-800 hover:bg-transparent hover:text-amber-900 dark:text-amber-300 dark:hover:bg-amber-950/50"
           )}
         >
           <span>Xem tất cả sách đang mượn</span>
