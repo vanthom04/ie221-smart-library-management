@@ -251,7 +251,9 @@ const BookAdmin = () => {
             <th className="border p-2">ID</th>
             <th className="border p-2 text-left">Tên sách</th>
             <th className="border p-2 text-left">ISBN</th>
-            <th className="border p-2">Số lượng</th>
+            <th className="border p-2">Tổng số</th>
+            <th className="border p-2">Còn lại</th>
+            <th className="border p-2">Đang giữ / mượn</th>
             <th className="border p-2">Hành động</th>
           </tr>
         </thead>
@@ -263,6 +265,12 @@ const BookAdmin = () => {
                 <td className="border p-2 font-medium">{b.title}</td>
                 <td className="border p-2 text-gray-600">{b.isbn}</td>
                 <td className="border p-2 text-center">{b.quantity}</td>
+                <td className="border p-2 text-center font-semibold text-green-600">
+                  {b.available_quantity}
+                </td>
+                <td className="border p-2 text-center">
+                  {Math.max(0, b.quantity - b.available_quantity)}
+                </td>
                 <td className="border p-2 text-center">
                   <button
                     onClick={() => handleEdit(b)}
@@ -281,7 +289,7 @@ const BookAdmin = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={5} className="border p-4 text-center text-gray-500">
+              <td colSpan={7} className="border p-4 text-center text-gray-500">
                 Chưa có cuốn sách nào.
               </td>
             </tr>
