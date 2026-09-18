@@ -9,8 +9,5 @@ export const cancelReservation = (reservationId: string) =>
 
 export const getMyBorrowRecords = () => api.get<BorrowRecord[]>("/borrow-records/me")
 
-export const renewBorrowRecord = (borrowId: string) =>
-  api.patch<BorrowRecord>(`/borrow-records/${borrowId}/renew`)
-
 export const createReservation = (payload: CreateReservationPayload) =>
   api.post<Reservation>("/reservations", payload)
