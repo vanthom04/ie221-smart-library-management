@@ -25,8 +25,6 @@ import { isApiError } from "@/lib/api-error"
 const STATUS: Record<ReservationStatus, { label: string; className: string }> = {
   pending: { label: "Chờ duyệt", className: "bg-amber-100 text-amber-800" },
   approved: { label: "Đã duyệt", className: "bg-emerald-100 text-emerald-800" },
-  rejected: { label: "Bị từ chối", className: "bg-red-100 text-red-700" },
-  fulfilled: { label: "Đã nhận sách", className: "bg-blue-100 text-blue-700" },
   cancelled: { label: "Đã hủy", className: "bg-slate-100 text-slate-700" },
   expired: { label: "Hết hạn", className: "bg-zinc-100 text-zinc-700" }
 }
@@ -141,9 +139,6 @@ export const BookReservationPage = () => {
                     <CalendarClockIcon className="size-4" /> Nhận trước{" "}
                     {formatDate(reservation.expires_at)}
                   </div>
-                )}
-                {reservation.rejection_reason && (
-                  <p className="text-sm text-destructive">Lý do: {reservation.rejection_reason}</p>
                 )}
                 {canCancel && (
                   <Button variant="outline" onClick={() => setReservationToCancel(reservation.id)}>
