@@ -33,7 +33,7 @@ export const useSearchBooks = (query: string) => {
     queryKey: ["search-catalog"],
     queryFn: async () => {
       const [books, categories, authors, publishers] = await Promise.all([
-        api.get<CatalogBook[]>("/books/search"),
+        api.get<CatalogBook[]>("/books/"),
         api.get<NamedRecord[]>("/categories/"),
         api.get<NamedRecord[]>("/authors/"),
         api.get<NamedRecord[]>("/publishers/")
