@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { useNavigate } from "react-router"
 import { SearchIcon, SparklesIcon } from "lucide-react"
 
 import { quickSearchSchema, type QuickSearchValues } from "../schemas"
@@ -7,6 +8,7 @@ import { quickSearchSchema, type QuickSearchValues } from "../schemas"
 const suggestedTags = ["Lập trình Python", "Marketing", "Tâm lý học", "Sapiens", "Kinh tế học"]
 
 export const HeroBanner = () => {
+  const navigate = useNavigate()
   const form = useForm<QuickSearchValues>({
     resolver: zodResolver(quickSearchSchema),
     defaultValues: {
@@ -15,7 +17,7 @@ export const HeroBanner = () => {
   })
 
   const onSubmit = (values: QuickSearchValues) => {
-    console.info("Values: ", values)
+    navigate(`/search?q=${encodeURIComponent(values.searchValue)}`)
   }
 
   return (
