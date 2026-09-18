@@ -6,9 +6,9 @@ from app.api.v1.authors import router as authors_router
 from app.api.v1.books import router as books_router
 from app.api.v1.borrowing.router import router as borrowing_router
 from app.api.v1.categories import router as categories_router
-from app.api.v1.publishers import router as publishers_router
 from app.api.v1.dashboard.router import admin_router as admin_dashboard_router
 from app.api.v1.dashboard.router import user_router as user_dashboard_router
+from app.api.v1.publishers import router as publishers_router
 from app.api.v1.uploads.router import router as uploads_router
 from app.api.v1.users.router import router as users_router
 

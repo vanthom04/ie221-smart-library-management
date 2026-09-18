@@ -7,9 +7,7 @@ from app.api.deps import get_db  # Dependency lấy DB session chung của ứng
 from app.services.dashboard_service import DashboardService
 
 
-async def get_dashboard_service(
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> DashboardService:
+async def get_dashboard_service(db: Annotated[AsyncSession, Depends(get_db)]) -> DashboardService:
     """Dependency cung cấp instance của DashboardService kèm theo DB AsyncSession."""
     return DashboardService(db=db)
 

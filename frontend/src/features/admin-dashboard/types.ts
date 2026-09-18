@@ -16,15 +16,6 @@ export interface AdminQuickStat {
   tone: "blue" | "green" | "yellow" | "red" | "purple"
 }
 
-export interface AdminPendingRequest {
-  id: string
-  userName: string
-  bookTitle: string
-  requestDate: string
-  type: "borrow" | "return" | "renew"
-  status: "pending" | "approved" | "rejected"
-}
-
 export interface AdminRecentBorrow {
   id: string
   userName: string

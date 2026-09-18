@@ -1,6 +1,5 @@
 import type {
   AdminQuickStat,
-  AdminPendingRequest,
   AdminRecentBorrow,
   BorrowSummaryStat,
   BorrowTrendPoint,
@@ -43,33 +42,6 @@ export const MOCK_ADMIN_STATS: AdminQuickStat[] = [
     change: "Cần xử lý ngay",
     icon: "overdue",
     tone: "red"
-  }
-]
-
-export const MOCK_PENDING_REQUESTS: AdminPendingRequest[] = [
-  {
-    id: "REQ-01",
-    userName: "Nguyễn Văn A",
-    bookTitle: "Clean Code: A Handbook of Agile Software Craftsmanship",
-    requestDate: "17/09/2026",
-    type: "borrow",
-    status: "pending"
-  },
-  {
-    id: "REQ-02",
-    userName: "Trần Thị B",
-    bookTitle: "Designing Data-Intensive Applications",
-    requestDate: "17/09/2026",
-    type: "renew",
-    status: "pending"
-  },
-  {
-    id: "REQ-03",
-    userName: "Lê Hoàng C",
-    bookTitle: "System Design Interview – An Insider's Guide",
-    requestDate: "16/09/2026",
-    type: "return",
-    status: "pending"
   }
 ]
 

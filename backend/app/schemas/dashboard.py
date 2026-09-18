@@ -15,6 +15,7 @@ class DashboardQuickStatResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class BorrowedBookResponse(BaseModel):
     id: str
     title: str
@@ -25,6 +26,7 @@ class BorrowedBookResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class ActivityItemResponse(BaseModel):
     id: str
@@ -37,6 +39,7 @@ class ActivityItemResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class DueSoonBookResponse(BaseModel):
     id: str
     title: str
@@ -46,6 +49,7 @@ class DueSoonBookResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class AdminQuickStatResponse(BaseModel):
     id: str
@@ -59,16 +63,6 @@ class AdminQuickStatResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class AdminPendingRequestResponse(BaseModel):
-    id: str
-    userName: str
-    bookTitle: str
-    requestDate: str
-    type: Literal["borrow", "return", "renew"]
-    status: Literal["pending", "approved", "rejected"]
-
-    class Config:
-        from_attributes = True
 
 class AdminRecentBorrowResponse(BaseModel):
     id: str
@@ -81,6 +75,7 @@ class AdminRecentBorrowResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class CategoryStatResponse(BaseModel):
     categoryKey: str
     label: str
@@ -90,9 +85,11 @@ class CategoryStatResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class BorrowTrend(BaseModel):
     value: str
     direction: Literal["up", "down"]
+
 
 class BorrowSummaryStatResponse(BaseModel):
     label: str
@@ -103,9 +100,11 @@ class BorrowSummaryStatResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class BorrowTrendPoint(BaseModel):
     month: str
     count: float
+
 
 class BorrowOverviewResponse(BaseModel):
     stats: list[BorrowSummaryStatResponse]
