@@ -43,7 +43,8 @@ export const AppHeader = () => {
       await api.post("/auth/logout")
 
       logout()
-      queryClient.removeQueries({ queryKey: ["current-user"] })
+      queryClient.clear()
+      navigate("/login", { replace: true })
     } catch (error) {
       const message = isApiError(error) ? error.message : "Có lỗi xảy ra vui lòng thử lại sau!"
       addToast({ type: "error", message })
