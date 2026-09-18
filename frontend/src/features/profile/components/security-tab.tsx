@@ -74,12 +74,12 @@ export const SecurityTab = () => {
         new_password: values.new_password
       })
       useAuthStore.getState().logout()
-      queryClient.removeQueries({ queryKey: ["current-user"] })
+      queryClient.clear()
       addToast({
         type: "success",
         message: "Đổi mật khẩu thành công! Vui lòng đăng nhập lại."
       })
-      navigate("/login")
+      navigate("/login", { replace: true })
     } catch (error: unknown) {
       const message =
         error instanceof Error && error.message
