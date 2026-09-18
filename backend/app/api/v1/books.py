@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.api.deps import DbSession
+from app.api.deps import DbSession, RequireAdmin
 from app.repositories import book as crud
 from app.schemas import book as schemas
 
@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.post("/", response_model=schemas.BookOut, status_code=status.HTTP_201_CREATED)
-async def create_book(book: schemas.BookCreate, db: DbSession):
+async def create_book(book: schemas.BookCreate, db: DbSession, _: RequireAdmin):
     return await crud.create_book(db=db, book=book)
 
 
@@ -34,7 +34,7 @@ async def search_books(
 
 
 @router.put("/{book_id}", response_model=schemas.BookOut)
-async def update_book(book_id: UUID, book: schemas.BookCreate, db: DbSession):
+async def update_book(book_id: UUID, book: schemas.BookCreate, db: DbSession, _: RequireAdmin):
     try:
         updated_book = await crud.update_book(db=db, book_id=book_id, book_update=book)
         if not updated_book:
@@ -46,7 +46,7 @@ async def update_book(book_id: UUID, book: schemas.BookCreate, db: DbSession):
 
 
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_book(book_id: UUID, db: DbSession):
+async def delete_book(book_id: UUID, db: DbSession, _: RequireAdmin):
     try:
         success = await crud.delete_book(db=db, book_id=book_id)
         if not success:

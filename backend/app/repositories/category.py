@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.category import Category
@@ -48,6 +49,10 @@ async def delete_category(db: AsyncSession, category_id: UUID):
     if not db_category:
         return False
 
-    await db.delete(db_category)
-    await db.commit()
-    return True
+    try:
+        await db.delete(db_category)
+        await db.commit()
+        return True
+    except IntegrityError as exc:
+        await db.rollback()
+        raise ValueError("Không thể xóa thể loại vì đang có sách thuộc thể loại này") from exc

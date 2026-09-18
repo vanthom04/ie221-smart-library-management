@@ -30,7 +30,24 @@ async def create_book(db: AsyncSession, book: BookCreate):
 
 async def get_books(db: AsyncSession):
     result = await db.execute(select(Book))
-    return result.scalars().all()
+    books = result.scalars().all()
+    if not books:
+        return books
+
+    author_result = await db.execute(
+        select(BookAuthor.book_id, BookAuthor.author_id).where(
+            BookAuthor.book_id.in_(book.id for book in books)
+        )
+    )
+    authors_by_book = {book.id: [] for book in books}
+    for book_id, author_id in author_result.all():
+        authors_by_book[book_id].append(author_id)
+
+    for book in books:
+        book.author_ids = authors_by_book[book.id]
+        book.author_id = book.author_ids[0] if book.author_ids else None
+
+    return books
 
 
 async def get_book_by_id(db: AsyncSession, book_id: UUID):
