@@ -2,7 +2,7 @@ import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-import type { BorrowSummaryStat } from "../types"
+import type { BorrowSummaryStat } from "../../admin-dashboard/types"
 
 export const BorrowStatItem = ({ label, value, unit, trend }: BorrowSummaryStat) => {
   const TrendIcon = trend?.direction === "up" ? TrendingUpIcon : TrendingDownIcon

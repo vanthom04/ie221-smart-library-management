@@ -3,7 +3,7 @@ import { createBrowserRouter } from "react-router"
 import { FallbackLoader } from "@/components/fallback-loader"
 import { RootErrorBoundary } from "@/components/root-error-boundary"
 
-import { loadSession, requireAuth, requireGuest } from "./middleware"
+import { loadSession, requireAuth, requireAdmin, requireGuest } from "./middleware"
 
 export const router = createBrowserRouter([
   {
@@ -72,6 +72,13 @@ export const router = createBrowserRouter([
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () => import("@/pages/user/profile").then((m) => ({ Component: m.ProfilePage }))
+      },
+      {
+        path: "/admin/dashboard",
+        middleware: [requireAdmin],
+        HydrateFallback: FallbackLoader,
+        lazy: () =>
+          import("@/pages/admin/dashboard").then((m) => ({ Component: m.AdminDashboardPage }))
       }
     ]
   },

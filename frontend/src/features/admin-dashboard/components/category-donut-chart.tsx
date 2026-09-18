@@ -7,8 +7,8 @@ import {
   type ChartConfig
 } from "@/components/ui/chart"
 
-import { CATEGORY_COLORS } from "../constants"
-import type { CategoryStat } from "../types"
+import { CATEGORY_COLORS } from "../../admin-dashboard/constants"
+import type { CategoryStat } from "../../admin-dashboard/types"
 
 interface CategoryDonutChartProps {
   data: CategoryStat[]

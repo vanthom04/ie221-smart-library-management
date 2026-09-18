@@ -9,7 +9,7 @@ import {
 
 import { BorrowStatItem } from "./borrow-stat-item"
 import { BorrowTrendChart } from "./borrow-trend-chart"
-import type { BorrowSummaryStat, BorrowTrendPoint } from "../types"
+import type { BorrowSummaryStat, BorrowTrendPoint } from "../../admin-dashboard/types"
 
 const PERIOD_OPTIONS = [
   { value: "3m", label: "3 tháng gần đây" },

@@ -1,4 +1,31 @@
+import { AlertTriangleIcon, BookOpenIcon, ClockIcon, UsersIcon } from "lucide-react"
 import type { ActivityTypeTone, StatTone } from "./types"
+
+export const CATEGORY_COLORS = {
+  lifeSkills: "#3b82f6",
+  economics: "#2dd4bf",
+  literature: "#fbbf24",
+  science: "#a78bfa",
+  history: "#f472b6"
+} as const
+
+export type CategoryKey = keyof typeof CATEGORY_COLORS
+
+export const ICON_MAP = {
+  books: BookOpenIcon,
+  users: UsersIcon,
+  borrowed: ClockIcon,
+  overdue: AlertTriangleIcon,
+  revenue: BookOpenIcon
+} as const
+
+export const TONE_MAP = {
+  blue: "bg-blue-50 text-blue-600 border-blue-200",
+  green: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  purple: "bg-purple-50 text-purple-600 border-purple-200",
+  yellow: "bg-amber-50 text-amber-600 border-amber-200",
+  red: "bg-rose-50 text-rose-600 border-rose-200"
+} as const
 
 export const ACTIVITY_TONE_STYLES: Record<ActivityTypeTone, string> = {
   green: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",

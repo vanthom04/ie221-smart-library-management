@@ -1,5 +1,5 @@
-import { CATEGORY_COLORS } from "../constants"
-import type { CategoryStat } from "../types"
+import { CATEGORY_COLORS } from "../../admin-dashboard/constants"
+import type { CategoryStat } from "../../admin-dashboard/types"
 
 export const CategoryLegendItem = ({ categoryKey, label, count, percentage }: CategoryStat) => {
   return (
