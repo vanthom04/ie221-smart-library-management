@@ -10,7 +10,6 @@ from app.schemas.borrowing import (
     BorrowRecordRead,
     ReservationCreate,
     ReservationRead,
-    ReservationReject,
     TransactionResult,
 )
 
@@ -48,17 +47,6 @@ async def approve_reservation(
     reservation_id: uuid.UUID, admin: RequireAdmin, service: BorrowingSvc
 ) -> ReservationRead:
     reservation = await service.approve_reservation(reservation_id, admin)
-    return ReservationRead.from_entity(reservation)
-
-
-@router.patch("/reservations/{reservation_id}/reject", response_model=ReservationRead)
-async def reject_reservation(
-    reservation_id: uuid.UUID,
-    payload: ReservationReject,
-    admin: RequireAdmin,
-    service: BorrowingSvc,
-) -> ReservationRead:
-    reservation = await service.reject_reservation(reservation_id, admin, payload.reason)
     return ReservationRead.from_entity(reservation)
 
 
@@ -117,12 +105,4 @@ async def return_borrow(
     borrow_id: uuid.UUID, _: RequireAdmin, service: BorrowingSvc
 ) -> BorrowRecordRead:
     borrow = await service.return_borrow(borrow_id)
-    return BorrowRecordRead.from_entity(borrow)
-
-
-@router.patch("/borrow-records/{borrow_id}/renew", response_model=BorrowRecordRead)
-async def renew_borrow(
-    borrow_id: uuid.UUID, current_user: CurrentUser, service: BorrowingSvc
-) -> BorrowRecordRead:
-    borrow = await service.renew_borrow(borrow_id, current_user)
     return BorrowRecordRead.from_entity(borrow)
