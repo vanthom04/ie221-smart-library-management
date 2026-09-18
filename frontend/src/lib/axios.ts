@@ -13,7 +13,7 @@ declare module "axios" {
   }
 }
 
-const AUTH_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh"]
+const AUTH_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh", "/auth/change-password"]
 
 interface RetriableConfig extends InternalAxiosRequestConfig {
   _retry?: boolean

@@ -1,9 +1,14 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm, useWatch } from "react-hook-form"
-import { CheckIcon, EyeIcon, EyeOffIcon, LockIcon, ShieldIcon } from "lucide-react"
+import { CheckIcon, EyeIcon, EyeOffIcon, Loader2Icon, LockIcon, ShieldIcon } from "lucide-react"
+import { useNavigate } from "react-router"
+import { useQueryClient } from "@tanstack/react-query"
 
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/axios"
+import { useAuthStore } from "@/features/auth/stores/use-auth-store"
+import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -39,9 +44,14 @@ const getPasswordStrength = (password: string) => {
 }
 
 export const SecurityTab = () => {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { addToast } = useAnimatedToast()
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const form = useForm<ChangePasswordValues>({
     resolver: zodResolver(changePasswordSchema),
@@ -55,8 +65,40 @@ export const SecurityTab = () => {
   const newPasswordValue = useWatch({ control: form.control, name: "new_password" })
   const strength = getPasswordStrength(newPasswordValue)
 
-  const onSubmit = (values: ChangePasswordValues) => {
-    console.info({ values })
+  const onSubmit = async (values: ChangePasswordValues) => {
+    try {
+      setIsSubmitting(true)
+      setErrorMessage(null)
+      await api.post("/auth/change-password", {
+        current_password: values.current_password,
+        new_password: values.new_password
+      })
+      useAuthStore.getState().logout()
+      queryClient.removeQueries({ queryKey: ["current-user"] })
+      addToast({
+        type: "success",
+        message: "Đổi mật khẩu thành công! Vui lòng đăng nhập lại."
+      })
+      navigate("/login")
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại."
+      setErrorMessage(message)
+      if (
+        message.toLowerCase().includes("mật khẩu hiện tại") ||
+        message.toLowerCase().includes("mật khẩu cũ")
+      ) {
+        form.setError("current_password", { type: "server", message })
+      }
+      addToast({
+        type: "error",
+        message
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -77,6 +119,12 @@ export const SecurityTab = () => {
             Hãy chọn mật khẩu khó đoán, kết hợp chữ hoa, chữ thường, số và ký tự đặc biệt.
           </AlertDescription>
         </Alert>
+        {errorMessage && (
+          <Alert variant="destructive">
+            <AlertTitle>Đổi mật khẩu không thành công</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
         <form id="form-password" onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <Controller
             control={form.control}
@@ -90,7 +138,7 @@ export const SecurityTab = () => {
                     {...field}
                     id={field.name}
                     name={field.name}
-                    disabled={false}
+                    disabled={isSubmitting}
                     placeholder="Nhập mật khẩu hiện tại"
                     className="h-10 px-10"
                     autoComplete="current-password"
@@ -100,7 +148,7 @@ export const SecurityTab = () => {
                   <button
                     type="button"
                     tabIndex={-1}
-                    disabled={false}
+                    disabled={isSubmitting}
                     onClick={() => setShowCurrentPassword((v) => !v)}
                     aria-label={showCurrentPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                     className="absolute top-1/2 right-3 -translate-y-1/2 [&_svg]:size-4.5 [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
@@ -124,7 +172,7 @@ export const SecurityTab = () => {
                     {...field}
                     id={field.name}
                     name={field.name}
-                    disabled={false}
+                    disabled={isSubmitting}
                     placeholder="Nhập mật khẩu mới"
                     className="h-10 px-10"
                     autoComplete="new-password"
@@ -134,7 +182,7 @@ export const SecurityTab = () => {
                   <button
                     type="button"
                     tabIndex={-1}
-                    disabled={false}
+                    disabled={isSubmitting}
                     onClick={() => setShowNewPassword((v) => !v)}
                     aria-label={showNewPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                     className="absolute top-1/2 right-3 -translate-y-1/2 [&_svg]:size-4.5 [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
@@ -179,7 +227,7 @@ export const SecurityTab = () => {
                     {...field}
                     id={field.name}
                     name={field.name}
-                    disabled={false}
+                    disabled={isSubmitting}
                     placeholder="Nhập lại mật khẩu mới"
                     className="h-10 px-10"
                     autoComplete="off"
@@ -189,7 +237,7 @@ export const SecurityTab = () => {
                   <button
                     type="button"
                     tabIndex={-1}
-                    disabled={false}
+                    disabled={isSubmitting}
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                     className="absolute top-1/2 right-3 -translate-y-1/2 [&_svg]:size-4.5 [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
@@ -226,13 +274,33 @@ export const SecurityTab = () => {
           <div className="flex items-center justify-end gap-3">
             <Button
               variant="outline"
-              // onClick={() => setIsEdited(false)}
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => {
+                form.reset()
+                setErrorMessage(null)
+              }}
               className="h-10 px-4 hover:bg-blue-50 hover:text-blue-600"
             >
               Hủy
             </Button>
-            <Button form="form-password" type="submit" disabled={false} className="h-10 px-4">
-              <LockIcon /> Cập nhật mật khẩu
+            <Button
+              form="form-password"
+              type="submit"
+              disabled={isSubmitting}
+              className="h-10 px-4"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2Icon className="size-4 animate-spin" />
+                  <span>Đang cập nhật...</span>
+                </>
+              ) : (
+                <>
+                  <LockIcon className="size-4" />
+                  <span>Cập nhật mật khẩu</span>
+                </>
+              )}
             </Button>
           </div>
         </form>
