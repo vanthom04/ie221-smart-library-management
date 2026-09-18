@@ -53,22 +53,8 @@ class BorrowingService:
                 books[item.book_id].available_quantity -= item.quantity
 
             reservation.status = ReservationStatus.APPROVED
-            reservation.reviewed_at = now
-            reservation.reviewed_by = admin.id
             reservation.expires_at = now + timedelta(days=settings.RESERVATION_HOLD_DAYS)
 
-            return await self._repository.refresh_reservation(reservation)
-
-    async def reject_reservation(
-        self, reservation_id: uuid.UUID, admin: User, reason: str
-    ) -> Reservation:
-        async with self._repository.transaction():
-            reservation = await self._get_reservation(reservation_id, for_update=True)
-            self._require_reservation_status(reservation, ReservationStatus.PENDING)
-            reservation.status = ReservationStatus.REJECTED
-            reservation.reviewed_at = datetime.now(UTC)
-            reservation.reviewed_by = admin.id
-            reservation.rejection_reason = reason
             return await self._repository.refresh_reservation(reservation)
 
     async def cancel_reservation(self, reservation_id: uuid.UUID, actor: User) -> Reservation:
@@ -132,8 +118,9 @@ class BorrowingService:
                 items=[(item.book_id, item.quantity) for item in reservation.items],
             )
 
-            reservation.status = ReservationStatus.FULFILLED
-            reservation.fulfilled_at = now
+            # The existing schema has no fulfilled status/fulfilled_at column.
+            # CANCELLED closes the reservation after it has been converted to a borrow record.
+            reservation.status = ReservationStatus.CANCELLED
 
             return await self._repository.refresh_borrow_record(borrow)
 
@@ -159,27 +146,6 @@ class BorrowingService:
                     item.returned = True
             borrow.return_date = now
             borrow.status = BorrowStatus.RETURNED
-            return await self._repository.refresh_borrow_record(borrow)
-
-    async def renew_borrow(self, borrow_id: uuid.UUID, actor: User) -> BorrowRecord:
-        now = datetime.now(UTC)
-        async with self._repository.transaction():
-            borrow = await self._get_borrow_record(borrow_id, for_update=True)
-            if actor.role != UserRole.ADMIN and borrow.user_id != actor.id:
-                raise InsufficientPermissionError("Bạn không có quyền gia hạn phiếu mượn này!")
-            if borrow.status != BorrowStatus.BORROWING or borrow.due_date < now:
-                raise InvalidOperationError("Không thể gia hạn phiếu đã trả hoặc đã quá hạn!")
-            if borrow.renewal_count >= settings.MAX_RENEWALS:
-                raise InvalidOperationError("Phiếu mượn đã đạt số lần gia hạn tối đa!")
-            if await self._repository.has_waiting_reservation(
-                [item.book_id for item in borrow.items],
-                excluding_user_id=borrow.user_id,
-                now=now,
-            ):
-                raise InvalidOperationError("Không thể gia hạn vì đang có người khác chờ sách!")
-            borrow.due_date += timedelta(days=settings.RENEWAL_DAYS)
-            borrow.renewal_count += 1
-            borrow.renewed_at = now
             return await self._repository.refresh_borrow_record(borrow)
 
     async def _get_reservation(
