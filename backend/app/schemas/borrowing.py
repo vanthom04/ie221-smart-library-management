@@ -63,8 +63,11 @@ class ReservationRead(BaseModel):
             created_at=reservation.created_at,
             items=[
                 ReservationItemRead(
-                    id=item.id, book_id=item.book_id, title=item.book.title,
-                    isbn=item.book.isbn, quantity=item.quantity
+                    id=item.id,
+                    book_id=item.book_id,
+                    title=item.book.title,
+                    isbn=item.book.isbn,
+                    quantity=item.quantity,
                 )
                 for item in reservation.items
             ],
@@ -99,13 +102,22 @@ class BorrowRecordRead(BaseModel):
         if status == BorrowStatus.BORROWING and borrow.due_date < datetime.now(UTC):
             status = BorrowStatus.OVERDUE
         return cls(
-            id=borrow.id, user_id=borrow.user_id, reservation_id=borrow.reservation_id,
-            borrow_date=borrow.borrow_date, due_date=borrow.due_date,
-            return_date=borrow.return_date, status=status, created_at=borrow.created_at,
+            id=borrow.id,
+            user_id=borrow.user_id,
+            reservation_id=borrow.reservation_id,
+            borrow_date=borrow.borrow_date,
+            due_date=borrow.due_date,
+            return_date=borrow.return_date,
+            status=status,
+            created_at=borrow.created_at,
             items=[
                 BorrowItemRead(
-                    id=item.id, book_id=item.book_id, title=item.book.title,
-                    isbn=item.book.isbn, quantity=item.quantity, returned=item.returned
+                    id=item.id,
+                    book_id=item.book_id,
+                    title=item.book.title,
+                    isbn=item.book.isbn,
+                    quantity=item.quantity,
+                    returned=item.returned,
                 )
                 for item in borrow.items
             ],
