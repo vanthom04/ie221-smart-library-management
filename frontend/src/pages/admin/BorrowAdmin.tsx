@@ -5,8 +5,7 @@ import {
   CalendarIcon,
   CheckCircle2Icon,
   FilterIcon,
-  Loader2Icon,
-  RotateCwIcon
+  Loader2Icon
 } from "lucide-react"
 
 import { useAnimatedToast } from "@/components/ui/animated-toast"
@@ -97,15 +96,14 @@ export const BorrowAdminPage = () => {
               <th className="border p-3 text-left">Sách mượn</th>
               <th className="border p-3 text-left">Hạn trả</th>
               <th className="border p-3 text-left">Ngày trả</th>
-              <th className="border p-3 text-center">Gia hạn</th>
-              <th className="border p-3 text-center">Trạng thái</th>
+               <th className="border p-3 text-center">Trạng thái</th>
               <th className="border p-3 text-center">Hành động</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 text-sm">
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-gray-500">
+                <td colSpan={7} className="p-8 text-center text-gray-500">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2Icon className="size-5 animate-spin text-blue-600" />
                     <span>Đang tải danh sách phiếu mượn...</span>
@@ -114,7 +112,7 @@ export const BorrowAdminPage = () => {
               </tr>
             ) : filteredRecords.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-gray-500">
+                <td colSpan={7} className="p-8 text-center text-gray-500">
                   Chưa có phiếu mượn nào phù hợp với bộ lọc.
                 </td>
               </tr>
@@ -170,13 +168,6 @@ export const BorrowAdminPage = () => {
 
                     <td className="border p-3 align-top text-gray-600">
                       {formatDate(record.return_date)}
-                    </td>
-
-                    <td className="border p-3 text-center align-top text-gray-600">
-                      <span className="inline-flex items-center gap-1">
-                        <RotateCwIcon className="size-3 text-gray-400" />
-                        <span>{record.renewal_count}</span>
-                      </span>
                     </td>
 
                     <td className="border p-3 text-center align-top">
