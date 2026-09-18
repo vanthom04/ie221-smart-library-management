@@ -1,14 +1,11 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
 
-import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { useCurrentUser } from "../hooks/use-current-user"
 import {
-  Edit3Icon,
   MailIcon,
   MarsIcon,
   PhoneIcon,
-  SaveIcon,
   User2Icon,
   VenusIcon,
   CodeIcon,
@@ -38,7 +35,6 @@ import {
 } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { AnimatedCalendar } from "@/components/ui/calendar"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
@@ -186,9 +182,7 @@ interface ProfileFormValues {
 }
 
 export const ProfileTab = () => {
-  const [isEdited, setIsEdited] = useState(false)
   const { data: currentUser } = useCurrentUser()
-  const { addToast } = useAnimatedToast()
 
   const form = useForm<ProfileFormValues>({
     defaultValues: {
@@ -218,36 +212,16 @@ export const ProfileTab = () => {
     }
   }, [currentUser, form])
 
-  const onSubmit = () => {
-    addToast({
-      type: "info",
-      title: "Thông báo",
-      message: "Thông tin cá nhân đã được ghi nhận."
-    })
-    setIsEdited(false)
-  }
-
   return (
     <Card className="rounded-lg shadow-sm">
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">Thông tin cá nhân</h3>
-            <p className="text-sm text-muted-foreground">
-              Cập nhật thông tin để thư viện phục vụ bạn tốt hơn.
-            </p>
-          </div>
-          {!isEdited && (
-            <Button
-              variant="outline"
-              onClick={() => setIsEdited(true)}
-              className="h-auto px-4 py-2 hover:bg-blue-50 hover:text-blue-600"
-            >
-              <Edit3Icon /> Chỉnh sửa
-            </Button>
-          )}
+        <div>
+          <h3 className="text-lg font-semibold">Thông tin cá nhân</h3>
+          <p className="text-sm text-muted-foreground">
+            Thông tin chi tiết tài khoản độc giả trong hệ thống.
+          </p>
         </div>
-        <form id="form-profile" onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <div id="form-profile" className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <Controller
               control={form.control}
@@ -262,7 +236,7 @@ export const ProfileTab = () => {
                       id={field.name}
                       name={field.name}
                       disabled={false}
-                      readOnly={!isEdited}
+                      readOnly={true}
                       autoComplete="off"
                       className="h-10 pl-10"
                       aria-invalid={fieldState.invalid}
@@ -283,9 +257,9 @@ export const ProfileTab = () => {
                     <VenusAndMarsIcon className="pointer-events-none absolute top-1/2 left-3 z-10 size-4.5 -translate-y-1/2 text-muted-foreground" />
                     <Select
                       id={field.name}
-                      disabled={false}
+                      disabled={true}
                       items={genderItems}
-                      readOnly={!isEdited}
+                      value={field.value}
                       defaultValue={field.value}
                       onValueChange={(value) => field.onChange(value)}
                     >
@@ -324,7 +298,7 @@ export const ProfileTab = () => {
                       id={field.name}
                       name={field.name}
                       disabled={false}
-                      readOnly={!isEdited}
+                      readOnly={true}
                       autoComplete="off"
                       className="h-10 pl-10"
                       aria-invalid={fieldState.invalid}
@@ -348,7 +322,7 @@ export const ProfileTab = () => {
                       id={field.name}
                       name={field.name}
                       disabled={false}
-                      readOnly={!isEdited}
+                      readOnly={true}
                       autoComplete="off"
                       className="h-10 pl-10"
                       aria-invalid={fieldState.invalid}
@@ -373,7 +347,7 @@ export const ProfileTab = () => {
                     name={field.name}
                     className="w-full"
                     value={field.value}
-                    readOnly={!isEdited}
+                    readOnly={true}
                     disabled={false}
                     formatStr="dd/MM/yyyy"
                     showClearButton={false}
@@ -399,7 +373,7 @@ export const ProfileTab = () => {
                       id={field.name}
                       name={field.name}
                       disabled={false}
-                      readOnly={!isEdited}
+                      readOnly={true}
                       autoComplete="off"
                       className="h-10 pl-10"
                       aria-invalid={fieldState.invalid}
@@ -423,8 +397,8 @@ export const ProfileTab = () => {
                     <Select
                       id={field.name}
                       items={categoryItems}
-                      disabled={false}
-                      readOnly={!isEdited}
+                      disabled={true}
+                      value={field.value}
                       defaultValue={field.value}
                       onValueChange={(value) => field.onChange(value)}
                     >
@@ -458,8 +432,8 @@ export const ProfileTab = () => {
                     <Select
                       id={field.name}
                       items={jobItems}
-                      disabled={false}
-                      readOnly={!isEdited}
+                      disabled={true}
+                      value={field.value}
                       defaultValue={field.value}
                       onValueChange={(value) => field.onChange(value)}
                     >
@@ -483,21 +457,7 @@ export const ProfileTab = () => {
               )}
             />
           </div>
-          {isEdited && (
-            <div className="flex items-center justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setIsEdited(false)}
-                className="h-10 px-4 hover:bg-blue-50 hover:text-blue-600"
-              >
-                Hủy
-              </Button>
-              <Button form="form-profile" type="submit" disabled={false} className="h-10 px-4">
-                <SaveIcon /> Lưu thay đổi
-              </Button>
-            </div>
-          )}
-        </form>
+        </div>
       </CardContent>
     </Card>
   )
