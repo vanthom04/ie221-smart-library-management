@@ -63,16 +63,10 @@ async def search_books(
         query = query.filter(Book.category_id == category_id)
 
     if author_id:
-        query = (
-            query
-            .join(
-                BookAuthor,
-                BookAuthor.book_id == Book.id,
-            )
-            .where(
-                BookAuthor.author_id == author_id
-            )
-        )
+        query = query.join(
+            BookAuthor,
+            BookAuthor.book_id == Book.id,
+        ).where(BookAuthor.author_id == author_id)
 
     result = await db.execute(query)
     return result.scalars().all()
