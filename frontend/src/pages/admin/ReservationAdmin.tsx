@@ -32,11 +32,6 @@ import { isApiError } from "@/lib/api-error"
 const STATUS_CONFIG: Record<ReservationStatus, { label: string; className: string }> = {
   pending: { label: "Chờ duyệt", className: "bg-amber-100 text-amber-800 border-amber-300" },
   approved: { label: "Đã duyệt", className: "bg-blue-100 text-blue-800 border-blue-300" },
-  fulfilled: {
-    label: "Đã mượn sách",
-    className: "bg-emerald-100 text-emerald-800 border-emerald-300"
-  },
-  rejected: { label: "Bị từ chối", className: "bg-red-100 text-red-800 border-red-300" },
   cancelled: { label: "Đã hủy", className: "bg-slate-100 text-slate-700 border-slate-300" },
   expired: { label: "Hết hạn", className: "bg-zinc-100 text-zinc-700 border-zinc-300" }
 }
@@ -153,8 +148,6 @@ export const ReservationAdminPage = () => {
             <option value="all">Tất cả trạng thái</option>
             <option value="pending">Chờ duyệt (Pending)</option>
             <option value="approved">Đã duyệt (Approved)</option>
-            <option value="fulfilled">Đã mượn (Fulfilled)</option>
-            <option value="rejected">Bị từ chối (Rejected)</option>
             <option value="cancelled">Đã hủy (Cancelled)</option>
             <option value="expired">Hết hạn (Expired)</option>
           </select>
@@ -246,11 +239,6 @@ export const ReservationAdminPage = () => {
                       <Badge variant="outline" className={config.className}>
                         {config.label}
                       </Badge>
-                      {reservation.rejection_reason && (
-                        <p className="mt-1 text-xs text-red-600 italic">
-                          Lý do: {reservation.rejection_reason}
-                        </p>
-                      )}
                     </td>
 
                     <td className="border p-3 text-center align-top">
