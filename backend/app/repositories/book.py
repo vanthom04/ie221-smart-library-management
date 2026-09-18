@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.book import Book
+from app.models.book_author import BookAuthor
 from app.schemas.book import BookCreate
 
 
@@ -62,7 +63,16 @@ async def search_books(
         query = query.filter(Book.category_id == category_id)
 
     if author_id:
-        query = query.filter(Book.author_id == author_id)
+        query = (
+            query
+            .join(
+                BookAuthor,
+                BookAuthor.book_id == Book.id,
+            )
+            .where(
+                BookAuthor.author_id == author_id
+            )
+        )
 
     result = await db.execute(query)
     return result.scalars().all()
