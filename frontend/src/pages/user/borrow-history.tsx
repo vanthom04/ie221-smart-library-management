@@ -88,8 +88,6 @@ export const BorrowHistoryPage = () => {
       <div className="space-y-4">
         {data.map((record) => {
           const statusInfo = STATUS[record.status]
-          // Bỏ comment sau khi có dữ liệu thật
-          // const canRenew = record.status === "borrowing" && record.renewal_count < 1
           const canRenew = record.status === "borrowing"
           return (
             <Card key={record.id} className="shadow-sm">
@@ -121,9 +119,6 @@ export const BorrowHistoryPage = () => {
                     <span>
                       Hạn trả: <strong>{formatDate(record.due_date)}</strong>
                     </span>
-                    {record.renewal_count > 0 && (
-                      <Badge variant="outline">Đã gia hạn {record.renewal_count} lần</Badge>
-                    )}
                   </div>
                   {canRenew && (
                     <Button onClick={() => renew(record)} disabled={renewMutation.isPending}>
