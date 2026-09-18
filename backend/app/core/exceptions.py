@@ -57,15 +57,3 @@ class InsufficientBookAvailabilityError(DomainError):
     """Số lượng sách sẵn có không đáp ứng yêu cầu."""
 
     status_code = 409
-
-
-class FileTooLargeError(DomainError):
-    """Dung lượng file quá lớn."""
-
-    status_code = 413
-
-
-class UnsupportedFileTypeError(DomainError):
-    """Định dạng file không hỗ trợ."""
-
-    status_code = 415

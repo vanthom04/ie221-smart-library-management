@@ -11,12 +11,11 @@ API server cho hệ thống **Quản Lý Thư Viện & Mượn Trả Sách Thôn
 | :--- | :--- | :--- |
 | Auth & User | Đăng ký/đăng nhập, JWT, refresh rotation, logout, đổi mật khẩu, hồ sơ cá nhân, khóa/mở khóa, RBAC | Chưa có API danh sách user, sửa hồ sơ, quản lý vai trò |
 | Borrowing | Đặt trước, duyệt/từ chối/hủy/hết hạn, mượn trực tiếp/từ phiếu đặt, trả, gia hạn, lịch sử cá nhân và danh sách admin | Trả toàn bộ phiếu; chưa có scheduler hết hạn |
-| Upload | JPEG, PNG, WebP lên Cloudinary, kiểm tra Content-Type/dung lượng | Endpoint chưa yêu cầu đăng nhập; không hỗ trợ GIF trong whitelist |
 | AI | Embedding đa ngôn ngữ, indexing, semantic search, gợi ý từ lịch sử mượn | Có lỗi nối dependency indexing, chi tiết bên dưới |
 | Catalog | Model/migration sách, tác giả, danh mục, nhà xuất bản | Chưa có API CRUD catalog |
 | Fines & Dashboard | Model/migration tiền phạt | Chưa có nghiệp vụ tính/thu phạt hoặc API dashboard |
 | AI logs | Model/migration `ai_search_logs` | Search chưa ghi nhật ký |
-| Hạ tầng | Async DB, migration, CORS, lỗi chuẩn hóa, Scalar, cleanup token, 8 unit test borrowing/transaction | Chưa có test AI/auth/upload hoặc test tích hợp DB trong `tests/` |
+| Hạ tầng | Async DB, migration, CORS, lỗi chuẩn hóa, Scalar, cleanup token, 8 unit test borrowing/transaction | Chưa có test AI/auth hoặc test tích hợp DB trong `tests/` |
 
 ## 🌟 Chức năng nổi bật
 
@@ -82,8 +81,8 @@ HTTP Request ──► CORS / Middleware ──► API Router (v1)
 ```text
 backend/
 ├── app/
-│   ├── api/v1/         # auth, users, borrowing, uploads, ai
-│   ├── core/           # Settings, security, errors, OpenAPI, Cloudinary
+│   ├── api/v1/         # auth, users, borrowing, ai
+│   ├── core/           # Settings, security, errors, OpenAPI
 │   ├── db/             # AsyncSession, Base, mixins
 │   ├── models/         # 14 bảng ORM, bao gồm book_embeddings
 │   ├── repositories/   # User, refresh token, borrowing, AI search
@@ -150,7 +149,7 @@ source .venv/bin/activate
 # 4. Tạo file cấu hình môi trường từ mẫu
 cp .env.example .env
 
-# 5. Điền DATABASE_URL, SECRET_KEY riêng và các biến CLOUDINARY_* trong .env
+# 5. Điền DATABASE_URL và SECRET_KEY riêng trong .env
 # COOKIE_SECURE=false khi chạy HTTP local; cấu hình CORS cho frontend
 
 # 6. Chạy Migration để tạo cấu trúc bảng trong PostgreSQL
@@ -288,15 +287,10 @@ Các quy tắc thời gian có thể cấu hình bằng `RESERVATION_HOLD_DAYS`,
    - Khi user đổi mật khẩu hoặc bị Admin khóa tài khoản, toàn bộ các bản ghi `refresh_tokens` thuộc user đó sẽ bị chuyển thành `revoked = True`, ngăn cấp token mới từ các refresh token cũ. Đổi mật khẩu không thu hồi ngay access token đã cấp; khóa tài khoản bị chặn ngay bởi dependency kiểm tra trạng thái user.
 
 
-## Upload và cấu hình nghiệp vụ
-
-`POST /api/v1/uploads/image` nhận multipart trường `file`, trả `url` HTTPS và `public_id`; hiện không yêu cầu xác thực. Whitelist thực tế chỉ gồm JPEG, PNG, WebP.
+## Cấu hình nghiệp vụ
 
 | Biến `.env` | Mặc định / yêu cầu |
 | :--- | :--- |
-| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Bắt buộc có trong Settings; điền thông tin hợp lệ để upload |
-| `CLOUDINARY_UPLOAD_FOLDER` | `smart-library-management` |
-| `MAX_UPLOAD_SIZE_MB` | `5` |
 | `RESERVATION_HOLD_DAYS` | `3` ngày |
 | `BORROW_DAYS` | `14` ngày |
 | `RENEWAL_DAYS` | `7` ngày |
