@@ -1,4 +1,3 @@
-from app.models.ai_search_log import AiSearchLog
 from app.models.author import Author
 from app.models.book import Book
 from app.models.book_author import BookAuthor
@@ -27,5 +26,4 @@ __all__ = [
     "Reservation",
     "ReservationItem",
     "Fine",
-    "AiSearchLog",
 ]
