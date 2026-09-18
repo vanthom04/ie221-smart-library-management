@@ -5,23 +5,20 @@ import { DashboardQuickStats } from "@/features/user-dashboard/components/dashbo
 import { RecentActivitiesCard } from "@/features/user-dashboard/components/recent-activities-card"
 import { DashboardReminderCard } from "@/features/user-dashboard/components/dashboard-reminder-card"
 import { DashboardWelcomeBanner } from "@/features/user-dashboard/components/dashboard-welcome-banner"
-import {
-  MOCK_SUGGESTED_BOOKS
-} from "@/features/user-dashboard/mock-data"
+import { MOCK_SUGGESTED_BOOKS } from "@/features/user-dashboard/mock-data"
 
-import { useQuickStats } from "@/features/user-dashboard/hooks/use-quick-stats";
-import { useBorrowedBooks } from "@/features/user-dashboard/hooks/use-borrow-book";
+import { useQuickStats } from "@/features/user-dashboard/hooks/use-quick-stats"
+import { useBorrowedBooks } from "@/features/user-dashboard/hooks/use-borrow-book"
 import { useRecentActivities } from "@/features/user-dashboard/hooks/use-recent-activities"
 import { useCurrentUser } from "@/features/profile/hooks/use-current-user"
 import { useDueSoonBooks } from "@/features/user-dashboard/hooks/use-due-soon-books"
 
 export const DashboardPage = () => {
-  
-  const { data: user} = useCurrentUser()
-  const { data: stats } = useQuickStats();
-  const { data: borrowedBooks } = useBorrowedBooks();
-  const { data: recentActivities } = useRecentActivities();
-  const { data: dueSoonBooks } = useDueSoonBooks();
+  const { data: user } = useCurrentUser()
+  const { data: stats } = useQuickStats()
+  const { data: borrowedBooks } = useBorrowedBooks()
+  const { data: recentActivities } = useRecentActivities()
+  const { data: dueSoonBooks } = useDueSoonBooks()
 
   const handleRenewBook = (_bookId: string) => {
     // Sẽ kết nối với API gia hạn sách mượn

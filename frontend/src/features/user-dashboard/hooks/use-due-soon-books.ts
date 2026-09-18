@@ -7,6 +7,6 @@ export function useDueSoonBooks() {
     queryKey: ["user-due-soon-books"],
     queryFn: async () => {
       return await api.get<DueSoonBook[]>("/dashboard/user/due-soon-books")
-    },
+    }
   })
 }

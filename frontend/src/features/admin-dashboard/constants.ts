@@ -16,7 +16,7 @@ export const ICON_MAP = {
   users: UsersIcon,
   borrowed: ClockIcon,
   overdue: AlertTriangleIcon,
-  revenue: BookOpenIcon,
+  revenue: BookOpenIcon
 } as const
 
 export const TONE_MAP = {
@@ -24,9 +24,8 @@ export const TONE_MAP = {
   green: "bg-emerald-50 text-emerald-600 border-emerald-200",
   purple: "bg-purple-50 text-purple-600 border-purple-200",
   yellow: "bg-amber-50 text-amber-600 border-amber-200",
-  red: "bg-rose-50 text-rose-600 border-rose-200",
+  red: "bg-rose-50 text-rose-600 border-rose-200"
 } as const
-
 
 export const ACTIVITY_TONE_STYLES: Record<ActivityTypeTone, string> = {
   green: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",

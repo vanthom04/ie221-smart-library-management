@@ -21,7 +21,9 @@ export const AdminStatCards = ({ stats }: { stats: AdminQuickStat[] }) => {
                   {stat.unit && <span className="text-xs text-muted-foreground">{stat.unit}</span>}
                 </div>
               </div>
-              <div className={`flex size-10 items-center justify-center rounded-lg border ${toneStyle}`}>
+              <div
+                className={`flex size-10 items-center justify-center rounded-lg border ${toneStyle}`}
+              >
                 <Icon className="size-5" />
               </div>
             </div>

@@ -11,7 +11,7 @@ interface PendingRequestsCardProps {
 export const PendingRequestsCard = ({
   requests,
   onApprove,
-  onReject,
+  onReject
 }: PendingRequestsCardProps) => {
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
@@ -35,13 +35,13 @@ export const PendingRequestsCard = ({
           {requests.map((req) => (
             <div
               key={req.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 p-3.5 hover:bg-accent/40 transition-colors"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 p-3.5 transition-colors hover:bg-accent/40"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold">{req.userName}</span>
                 </div>
-                <p className="text-xs font-medium text-foreground line-clamp-1">{req.bookTitle}</p>
+                <p className="line-clamp-1 text-xs font-medium text-foreground">{req.bookTitle}</p>
                 <p className="text-[11px] text-muted-foreground">Ngày tạo: {req.requestDate}</p>
               </div>
 
@@ -67,6 +67,6 @@ export const PendingRequestsCard = ({
           ))}
         </div>
       )}
-  </div>
+    </div>
   )
 }

@@ -14,13 +14,15 @@ export const RecentBorrowsTable = ({ borrows }: RecentBorrowsTableProps) => {
       {borrows.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-8 text-center">
           <ClockIcon className="size-8 text-muted-foreground/50" />
-          <p className="mt-2 text-sm font-medium text-foreground">Không có nhật ký mượn/trả gần đây</p>
+          <p className="mt-2 text-sm font-medium text-foreground">
+            Không có nhật ký mượn/trả gần đây
+          </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Hiện tại không có hoạt động mượn/trả sách nào.
           </p>
         </div>
-      ):(
-          <div className="overflow-x-auto">
+      ) : (
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="border-b border-border bg-muted/50 text-muted-foreground">
               <tr>
@@ -34,7 +36,7 @@ export const RecentBorrowsTable = ({ borrows }: RecentBorrowsTableProps) => {
               {borrows.map((item) => (
                 <tr key={item.id} className="hover:bg-accent/30">
                   <td className="p-2.5 font-medium">{item.userName}</td>
-                  <td className="p-2.5 line-clamp-1 max-w-[180px]">{item.bookTitle}</td>
+                  <td className="line-clamp-1 max-w-[180px] p-2.5">{item.bookTitle}</td>
                   <td className="p-2.5">{item.dueDate}</td>
                   <td className="p-2.5 text-right">
                     {item.status === "borrowing" && (
@@ -43,7 +45,7 @@ export const RecentBorrowsTable = ({ borrows }: RecentBorrowsTableProps) => {
                       </span>
                     )}
                     {item.status === "overdue" && (
-                      <span className="inline-block rounded-md bg-rose-100 px-2 py-0.5 text-[11px] text-rose-700 font-semibold">
+                      <span className="inline-block rounded-md bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700">
                         Quá hạn
                       </span>
                     )}

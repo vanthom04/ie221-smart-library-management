@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.auth.router import router as auth_router
-from app.api.v1.dashboard.router import router as dashboard_router
+from app.api.v1.dashboard.router import admin_router as admin_dashboard_router, user_router as user_dashboard_router
 from app.api.v1.uploads.router import router as uploads_router
 from app.api.v1.users.router import router as users_router
 
@@ -9,4 +9,5 @@ api_router = APIRouter()
 api_router.include_router(auth_router)
 api_router.include_router(users_router)
 api_router.include_router(uploads_router)
-api_router.include_router(dashboard_router)
+api_router.include_router(admin_dashboard_router)
+api_router.include_router(user_dashboard_router)

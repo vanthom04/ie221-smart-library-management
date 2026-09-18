@@ -45,7 +45,6 @@ export const MOCK_QUICK_STATS: DashboardQuickStat[] = [
   }
 ]
 
-
 export const MOCK_BORROWED_BOOKS: BorrowedBook[] = [
   {
     id: "dac-nhan-tam",
@@ -72,7 +71,6 @@ export const MOCK_BORROWED_BOOKS: BorrowedBook[] = [
     daysLeft: 24
   }
 ]
-
 
 export const MOCK_RECENT_ACTIVITIES: ActivityItem[] = [
   {

@@ -7,6 +7,6 @@ export function useAdminStats() {
     queryKey: ["admin-quick-stats"],
     queryFn: async () => {
       return await api.get<AdminQuickStat[]>("/dashboard/admin/stats")
-    },
+    }
   })
 }

@@ -7,6 +7,6 @@ export function useRecentBorrows() {
     queryKey: ["admin-recent-borrows"],
     queryFn: async () => {
       return await api.get<AdminRecentBorrow[]>("/dashboard/admin/recent-borrows")
-    },
+    }
   })
 }
