@@ -45,3 +45,20 @@ class AIIndexingResponse(BaseModel):
     total_checked: int
     indexed: int
     skipped: int
+
+
+class AIRecommendationItem(BaseModel):
+    rank: int
+    book_id: uuid.UUID
+    title: str
+    isbn: str | None = None
+    author: str | None = None
+    category: str | None = None
+    publisher: str | None = None
+    score: float
+    reason: str
+
+
+class AIRecommendationResponse(BaseModel):
+    based_on_books: int
+    recommendations: list[AIRecommendationItem]

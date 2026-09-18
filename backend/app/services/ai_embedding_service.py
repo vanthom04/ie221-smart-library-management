@@ -14,7 +14,7 @@ class AIEmbeddingService:
             settings.AI_EMBEDDING_MODEL_NAME, device=settings.AI_EMBEDDING_DEVICE
         )
 
-        dimension = self._model.get_sentence_embedding_dimension()
+        dimension = self._model.get_embedding_dimension()
         if dimension != settings.AI_EMBEDDING_DIMENSION:
             raise RuntimeError(
                 "Embedding dimension mismatch: "

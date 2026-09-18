@@ -1,10 +1,13 @@
-from fastapi import APIRouter
+from typing import Annotated
 
-from app.api.deps import RequireAdmin
-from app.api.v1.ai.deps import AIIndexingSvc, AISearchSvc
+from fastapi import APIRouter, Query
+
+from app.api.deps import CurrentUser, RequireAdmin
+from app.api.v1.ai.deps import AIIndexingSvc, AIRecommendationSvc, AISearchSvc
 from app.schemas.ai_search import (
     AIIndexingRequest,
     AIIndexingResponse,
+    AIRecommendationResponse,
     AISearchRequest,
     AISearchResponse,
 )
@@ -28,3 +31,15 @@ async def index_books(
         return await ai_indexing_service.index_book(payload.book_id)
 
     return await ai_indexing_service.index_all_books()
+
+
+@router.get("/recommendations", response_model=AIRecommendationResponse)
+async def get_recommendations(
+    current_user: CurrentUser,
+    ai_recommendation_service: AIRecommendationSvc,
+    limit: Annotated[int, Query(ge=1, le=20)] = 3,
+) -> AIRecommendationResponse:
+    return await ai_recommendation_service.recommend_for_user(
+        user_id=current_user.id,
+        limit=limit,
+    )

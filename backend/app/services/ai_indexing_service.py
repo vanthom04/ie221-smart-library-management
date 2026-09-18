@@ -14,11 +14,11 @@ class AIIndexingService:
 
     def __init__(
         self,
-        repository: AISearchRepository,
-        embedding_service: AIEmbeddingService,
+        ai_search_repository: AISearchRepository,
+        ai_embedding_service: AIEmbeddingService,
     ) -> None:
-        self._repository = repository
-        self._embedding_service = embedding_service
+        self._ai_search = ai_search_repository
+        self._ai_embeddings = ai_embedding_service
 
     @staticmethod
     def _build_document(book: AIIndexedBook) -> str:
@@ -36,14 +36,14 @@ class AIIndexingService:
         return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
     async def index_book(self, book_id: uuid.UUID) -> AIIndexingResponse:
-        books = await self._repository.get_books_by_ids([book_id])
+        books = await self._ai_search.get_books_by_ids([book_id])
         if not books:
             raise ResourceNotFoundError("Không tìm thấy sách cần lập chỉ mục!")
 
         book = books[0]
         content = self._build_document(book)
         content_hash = self._compute_hash(content)
-        hashes = await self._repository.get_embedding_hashes()
+        hashes = await self._ai_search.get_embedding_hashes()
 
         if hashes.get(book_id) == content_hash:
             return AIIndexingResponse(
@@ -53,10 +53,10 @@ class AIIndexingService:
                 skipped=1,
             )
 
-        vector = await asyncio.to_thread(self._embedding_service.embed_document, content)
+        vector = await asyncio.to_thread(self._ai_embeddings.embed_document, content)
 
-        async with self._repository.transaction():
-            await self._repository.upsert_embedding(
+        async with self._ai_search.transaction():
+            await self._ai_search.upsert_embedding(
                 book_id=book.book_id,
                 content=content,
                 embedding=vector.tolist(),
@@ -72,8 +72,8 @@ class AIIndexingService:
         )
 
     async def index_all_books(self) -> AIIndexingResponse:
-        books = await self._repository.list_books_for_indexing()
-        hashes = await self._repository.get_embedding_hashes()
+        books = await self._ai_search.list_books_for_indexing()
+        hashes = await self._ai_search.get_embedding_hashes()
 
         pending: list[tuple[AIIndexedBook, str, str]] = []
         for book in books:
@@ -92,15 +92,15 @@ class AIIndexingService:
             )
 
         contents = [content for _, content, _ in pending]
-        vectors = await asyncio.to_thread(self._embedding_service.embed_documents, contents)
+        vectors = await asyncio.to_thread(self._ai_embeddings.embed_documents, contents)
 
-        async with self._repository.transaction():
+        async with self._ai_search.transaction():
             for (book, content, content_hash), vector in zip(
                 pending,
                 vectors,
                 strict=True,
             ):
-                await self._repository.upsert_embedding(
+                await self._ai_search.upsert_embedding(
                     book_id=book.book_id,
                     content=content,
                     embedding=vector.tolist(),
