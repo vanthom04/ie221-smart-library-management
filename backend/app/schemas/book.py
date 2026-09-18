@@ -1,5 +1,7 @@
 from uuid import UUID
+
 from pydantic import BaseModel
+
 
 class BookBase(BaseModel):
     title: str
@@ -10,9 +12,11 @@ class BookBase(BaseModel):
     quantity: int = 1
     available_quantity: int = 1
 
+
 class BookCreate(BookBase):
     author_id: UUID | None = None
     author_ids: list[UUID] = []
+
 
 class BookOut(BookBase):
     id: UUID

@@ -17,7 +17,9 @@
 - **Backend:** Python 3, FastAPI. Quản lý môi trường và package bằng `uv`.
 - **Frontend:** ReactJS (khởi tạo qua Vite), JavaScript/TypeScript.
 - **Cơ sở dữ liệu:** PostgreSQL (kết hợp SQLAlchemy ORM).
-- **Tích hợp AI:** Sử dụng API của [Groq] để hỗ trợ gợi ý sách thông minh.
+- **Tích hợp AI:** Sentence Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) tạo embedding đa ngôn ngữ 384 chiều tại backend; PostgreSQL/pgvector hỗ trợ tìm kiếm ngữ nghĩa. Gợi ý cá nhân hóa dựa trên lịch sử mượn và cosine similarity, dự phòng bằng sách phổ biến. Hiện không dùng API Groq.
+
+Chi tiết API, cấu hình AI và các điểm cần hoàn thiện (bao gồm lỗi dependency lập chỉ mục) xem tại [README backend](backend/README.md).
 
 ## 📂 Cấu trúc thư mục (Monorepo)
 

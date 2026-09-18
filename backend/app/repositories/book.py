@@ -39,7 +39,9 @@ async def get_book_by_id(db: AsyncSession, book_id: UUID):
 
     if db_book:
         # Lấy danh sách tác giả để gắn vào BookOut
-        author_res = await db.execute(select(BookAuthor.author_id).where(BookAuthor.book_id == book_id))
+        author_res = await db.execute(
+            select(BookAuthor.author_id).where(BookAuthor.book_id == book_id)
+        )
         author_ids = author_res.scalars().all()
         db_book.author_ids = list(author_ids)
         db_book.author_id = author_ids[0] if author_ids else None
@@ -89,16 +91,17 @@ async def delete_book(db: AsyncSession, book_id: UUID):
         await db.delete(db_book)
         await db.commit()
         return True
-    except IntegrityError:
+    except IntegrityError as e:  # THÊM as e Ở ĐÂY
         await db.rollback()
-        raise ValueError("Không thể xóa sách do đang tồn tại lịch sử mượn trả")
+        # THÊM from e Ở ĐÂY
+        raise ValueError("Không thể xóa sách do đang tồn tại lịch sử mượn trả") from e
 
 
 async def search_books(
-        db: AsyncSession,
-        title: str | None = None,
-        category_id: UUID | None = None,
-        author_id: UUID | None = None,
+    db: AsyncSession,
+    title: str | None = None,
+    category_id: UUID | None = None,
+    author_id: UUID | None = None,
 ):
     query = select(Book)
 

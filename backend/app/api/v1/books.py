@@ -41,7 +41,8 @@ async def update_book(book_id: UUID, book: schemas.BookCreate, db: DbSession):
             raise HTTPException(status_code=404, detail="Không tìm thấy sách!")
         return updated_book
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        # THÊM from e Ở ĐÂY
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -52,4 +53,5 @@ async def delete_book(book_id: UUID, db: DbSession):
             raise HTTPException(status_code=404, detail="Không tìm thấy sách để xóa!")
         return None
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        # THÊM from e Ở ĐÂY
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e

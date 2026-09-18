@@ -4,6 +4,20 @@ API server cho hệ thống **Quản Lý Thư Viện & Mượn Trả Sách Thôn
 
 ---
 
+## Tiến độ triển khai
+
+
+| Phân hệ | Đã triển khai | Phần còn thiếu / giới hạn |
+| :--- | :--- | :--- |
+| Auth & User | Đăng ký/đăng nhập, JWT, refresh rotation, logout, đổi mật khẩu, hồ sơ cá nhân, khóa/mở khóa, RBAC | Chưa có API danh sách user, sửa hồ sơ, quản lý vai trò |
+| Borrowing | Đặt trước, duyệt/từ chối/hủy/hết hạn, mượn trực tiếp/từ phiếu đặt, trả, gia hạn, lịch sử cá nhân và danh sách admin | Trả toàn bộ phiếu; chưa có scheduler hết hạn |
+| Upload | JPEG, PNG, WebP lên Cloudinary, kiểm tra Content-Type/dung lượng | Endpoint chưa yêu cầu đăng nhập; không hỗ trợ GIF trong whitelist |
+| AI | Embedding đa ngôn ngữ, indexing, semantic search, gợi ý từ lịch sử mượn | Có lỗi nối dependency indexing, chi tiết bên dưới |
+| Catalog | Model/migration sách, tác giả, danh mục, nhà xuất bản | Chưa có API CRUD catalog |
+| Fines & Dashboard | Model/migration tiền phạt | Chưa có nghiệp vụ tính/thu phạt hoặc API dashboard |
+| AI logs | Model/migration `ai_search_logs` | Search chưa ghi nhật ký |
+| Hạ tầng | Async DB, migration, CORS, lỗi chuẩn hóa, Scalar, cleanup token, 8 unit test borrowing/transaction | Chưa có test AI/auth/upload hoặc test tích hợp DB trong `tests/` |
+
 ## 🌟 Chức năng nổi bật
 
 - **Kiến trúc Layered Architecture (Phân tầng rõ ràng)**: Phân chia rõ ràng giữa Router (API) ➔ Service (Business Logic) ➔ Repository (Data Access) ➔ Schema (Pydantic) ➔ Model (SQLAlchemy ORM).
@@ -12,7 +26,7 @@ API server cho hệ thống **Quản Lý Thư Viện & Mượn Trả Sách Thôn
   - Cấp phát **JWT Access Token** (truyền qua header `Authorization: Bearer <token>`).
   - Quản lý **Refresh Token Rotation** bảo mật với HTTP-only Cookie (`samesite="lax"`, `secure`), lưu hash SHA-256 trong CSDL.
   - Phân quyền theo vai trò (Role-Based Access Control - RBAC) với 2 vai trò chính: `ADMIN` và `USER`.
-  - Hỗ trợ đổi mật khẩu, tự động thu hồi (revoke) toàn bộ phiên đăng nhập trên các thiết bị khác.
+  - Hỗ trợ đổi mật khẩu, thu hồi toàn bộ refresh token. Access token đã cấp vẫn có thể dùng đến khi hết hạn nếu tài khoản còn hoạt động.
 - **Quản lý Tài khoản & Trạng thái User**:
   - API lấy thông tin cá nhân (`GET /api/v1/users/me`).
   - Quản trị viên (Admin) có quyền khóa (`LOCKED`) hoặc mở khóa (`ACTIVE`) tài khoản người dùng, lập tức thu hồi mọi Refresh Token đang hoạt động.
@@ -20,7 +34,7 @@ API server cho hệ thống **Quản Lý Thư Viện & Mượn Trả Sách Thôn
   - Hệ thống ngoại lệ domain (`DomainError`, `InvalidCredentialsError`, `EmailAlreadyExistsError`, `InvalidTokenError`, `UserNotFoundError`, `InsufficientPermissionError`).
   - Bắt lỗi validation input (422) và trả về định dạng tiếng Việt chuẩn hóa (`ErrorResponse` & `FieldError`).
   - Tích hợp giao diện tài liệu API trực quan hiện đại **Scalar UI** tại `/docs` và tùy chỉnh OpenAPI schema linh hoạt.
-- **Mô hình Dữ liệu Thư viện Toàn diện (13 Entities)**:
+- **Mô hình Dữ liệu Thư viện Toàn diện (14 Entities)**:
   - Quản lý danh mục (`categories`), nhà xuất bản (`publishers`), tác giả (`authors`), sách (`books`), liên kết tác giả - sách (`book_authors`).
   - Quản lý mượn/trả sách (`borrow_records`, `borrow_items`), đặt trước sách (`reservations`, `reservation_items`), tiền phạt quá hạn (`fines`).
   - Đăng ký nhật ký tìm kiếm AI (`ai_search_logs` hỗ trợ lưu JSONB result).
@@ -67,69 +81,31 @@ HTTP Request ──► CORS / Middleware ──► API Router (v1)
 
 ```text
 backend/
-├── app/                        # Mã nguồn chính của ứng dụng
-│   ├── api/                    # Tầng API Controllers & Endpoints
-│   │   ├── v1/                 # API Version 1
-│   │   │   ├── auth/           # Endpoints đăng ký, đăng nhập, refresh, logout, đổi mật khẩu
-│   │   │   │   ├── deps.py     # Dependency riêng cho AuthService
-│   │   │   │   └── router.py
-│   │   │   ├── users/          # Endpoints người dùng (profile me, lock, unlock)
-│   │   │   │   ├── deps.py     # Dependency riêng cho UserService
-│   │   │   │   └── router.py
-│   │   │   └── router.py       # Main Router gom tất cả v1 modules
-│   │   └── deps.py             # Common API Dependencies (get_db, CurrentUser, require_admin)
-│   ├── core/                   # Cấu hình cốt lõi & Tiện ích chung
-│   │   ├── config.py           # Class Settings đọc biến môi trường
-│   │   ├── exceptions.py       # Các lớp ngoại lệ Domain (DomainError, InvalidCredentials, ...)
-│   │   ├── openapi.py          # Custom OpenAPI schema generator (override 422 response)
-│   │   └── security.py         # Hàm băm mật khẩu Argon2, JWT token, SHA-256 refresh hash
-│   ├── db/                     # Quản lý kết nối CSDL & Base models
-│   │   ├── base.py             # Declarative Base với Naming Convention (pk, fk, uq, ix, ck)
-│   │   ├── mixins.py           # Repositories reusable mixins (UUIDPkMixin, TimestampMixin, CreatedAtMixin)
-│   │   └── session.py          # Async Engine, AsyncSessionLocal & get_db dependency
-│   ├── models/                 # SQLAlchemy ORM Models (Bảng CSDL)
-│   │   ├── user.py             # User & UserRole/UserStatus Enums
-│   │   ├── refresh_token.py    # RefreshToken lưu hash token & trạng thái revoked
-│   │   ├── category.py         # Danh mục sách
-│   │   ├── publisher.py        # Nhà xuất bản
-│   │   ├── author.py           # Tác giả
-│   │   ├── book.py             # Sách (tích hợp GIN Trigram index)
-│   │   ├── book_author.py      # Bảng trung gian Sách - Tác giả
-│   │   ├── borrow_record.py    # Phếu mượn sách & BorrowStatus Enum
-│   │   ├── borrow_item.py      # Chi tiết mượn sách
-│   │   ├── reservation.py      # Phiếu đặt trước & ReservationStatus Enum
-│   │   ├── reservation_item.py # Chi tiết đặt trước
-│   │   ├── fine.py             # Tiền phạt quá hạn & PaymentStatus Enum
-│   │   └── ai_search_log.py    # Lịch sử tìm kiếm AI (JSONB)
-│   ├── repositories/           # Tầng Truy vấn CSDL (CRUD Data Access)
-│   │   ├── user_repository.py          # Thao tác CSDL cho User
-│   │   └── refresh_token_repository.py # Thao tác CSDL cho RefreshToken
-│   ├── schemas/                # Pydantic Schemas (Request/Response Validation)
-│   │   ├── auth.py             # Schema Login, ChangePassword
-│   │   ├── user.py             # Schema CreateUser, UserRead
-│   │   ├── token.py            # Schema Token, TokenPair, TokenPayload
-│   │   └── error.py            # Schema ErrorResponse, FieldError
-│   ├── services/               # Tầng Nghiệp vụ (Business Logic)
-│   │   ├── auth_service.py     # Xử lý login, register, issue/refresh token, logout, change password
-│   │   └── user_service.py     # Xử lý lock/unlock tài khoản
-│   └── main.py                 # FastAPI Application Entry Point
-├── alembic/                    # Database Migrations
-│   ├── versions/               # Các tệp script migration
-│   ├── env.py                  # Alembic environment config (kết nối target_metadata = Base.metadata)
-│   └── script.py.mako          # Template script migration
-├── alembic.ini                 # Cấu hình Alembic
-├── pyproject.toml              # Cấu hình dự án & dependencies (uv)
-├── uv.lock                     # Lock file cố định phiên bản gói
-├── .python-version             # Khai báo phiên bản Python (3.12)
-├── .env.example                # File mẫu biến môi trường
-└── README.md                   # Tài liệu hướng dẫn sử dụng
+├── app/
+│   ├── api/v1/         # auth, users, borrowing, uploads, ai
+│   ├── core/           # Settings, security, errors, OpenAPI, Cloudinary
+│   ├── db/             # AsyncSession, Base, mixins
+│   ├── models/         # 14 bảng ORM, bao gồm book_embeddings
+│   ├── repositories/   # User, refresh token, borrowing, AI search
+│   ├── schemas/        # Request/response Pydantic
+│   ├── services/       # Auth, user, borrowing, embedding, indexing, search, recommendation
+│   ├── scripts/        # cleanup_refresh_tokens.py
+│   └── main.py
+├── alembic/versions/   # Migration schema và extension PostgreSQL
+├── tests/              # Unit test borrowing/transaction
+├── alembic.ini
+├── pyproject.toml
+├── uv.lock
+├── .python-version
+├── .env.example
+└── README.md
 ```
 
 ---
 
 ## 🗃️ Cơ sở dữ liệu & Các bảng chính (Entities)
 
-Hệ thống được thiết kế chuẩn mực với 13 bảng dữ liệu quan hệ:
+Hệ thống được thiết kế chuẩn mực với 14 bảng dữ liệu quan hệ:
 
 1. **`users`**: Quản lý thông tin tài khoản người dùng, vai trò (`admin`, `user`), trạng thái (`active`, `locked`).
 2. **`refresh_tokens`**: Lưu trữ chuỗi hash SHA-256 của Refresh Token, thời gian hết hạn và trạng thái thu hồi (`revoked`).
@@ -140,10 +116,11 @@ Hệ thống được thiết kế chuẩn mực với 13 bảng dữ liệu qua
 7. **`book_authors`**: Bảng liên kết nhiều-nhiều giữa Sách và Tác giả.
 8. **`borrow_records`**: Phiếu mượn sách, quản lý ngày mượn, hạn trả, ngày trả thực tế và trạng thái (`borrowing`, `returned`, `overdue`).
 9. **`borrow_items`**: Danh sách các cuốn sách thuộc một phiếu mượn.
-10. **`reservations`**: Phiếu đặt giữ sách trước, trạng thái (`pending`, `approved`, `cancelled`, `expired`).
+10. **`reservations`**: Phiếu đặt giữ sách trước, trạng thái (`pending`, `approved`, `rejected`, `fulfilled`, `cancelled`, `expired`).
 11. **`reservation_items`**: Danh sách sách đặt giữ trong một phiếu đặt.
 12. **`fines`**: Thông tin tiền phạt do trả sách quá hạn, số ngày quá hạn, số tiền phạt và trạng thái thanh toán (`unpaid`, `paid`).
 13. **`ai_search_logs`**: Nhật ký tìm kiếm bằng AI của người dùng (lưu câu truy vấn và mảng ID sách kết quả dưới dạng `JSONB`).
+14. **`book_embeddings`**: Mỗi sách có một vector 384 chiều, nội dung metadata, tên model, hash SHA-256 và thời gian cập nhật; xóa theo sách qua khóa ngoại.
 
 ---
 
@@ -153,7 +130,7 @@ Hệ thống được thiết kế chuẩn mực với 13 bảng dữ liệu qua
 
 - **Python** `>= 3.12`
 - **uv** (Package manager): [Hướng dẫn cài đặt uv](https://docs.astral.sh/uv/getting-started/installation/)
-- **PostgreSQL** Server đang hoạt động
+- **PostgreSQL** đang hoạt động, có sẵn extension `pg_trgm` và `vector` (pgvector); tài khoản migration cần quyền tạo extension.
 
 ### 2. Các bước khởi chạy
 
@@ -173,10 +150,11 @@ source .venv/bin/activate
 # 4. Tạo file cấu hình môi trường từ mẫu
 cp .env.example .env
 
-# 5. Cập nhật các thông số kết nối Database & Secret Key trong file .env
+# 5. Điền DATABASE_URL, SECRET_KEY riêng và các biến CLOUDINARY_* trong .env
+# COOKIE_SECURE=false khi chạy HTTP local; cấu hình CORS cho frontend
 
 # 6. Chạy Migration để tạo cấu trúc bảng trong PostgreSQL
-alembic upgrade head
+uv run alembic upgrade head
 
 # 7. Khởi chạy server ở chế độ Development
 uv run fastapi dev
@@ -199,7 +177,7 @@ Các cấu hình chính trong file `.env`:
 | `PROJECT_NAME`         | Tên ứng dụng                                | `Smart Library Management Backend` |
 | `API_V1_PREFIX`        | Đường dẫn prefix cho API v1                 | `/api/v1`                          |
 | `ENVIRONMENT`          | Môi trường vận hành (`local`/`production`)  | `local`                            |
-| `BACKEND_CORS_ORIGINS` | Danh sách origin cho phép CORS (JSON array) | `["http://localhost:5173"]`        |
+| `BACKEND_CORS_ORIGINS` | Danh sách origin cho phép CORS (JSON array) | `[]` (file mẫu dùng localhost:5173)        |
 
 ### Security Settings
 
@@ -209,7 +187,7 @@ Các cấu hình chính trong file `.env`:
 | `ALGORITHM`                   | Thuật toán mã hóa JWT                                         | `HS256`          |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Thời gian sống của Access Token (phút)                        | `30`             |
 | `REFRESH_TOKEN_EXPIRE_DAYS`   | Thời gian sống của Refresh Token (ngày)                       | `7`              |
-| `COOKIE_SECURE`               | Bật Secure Cookie (Đặt `True` khi chạy HTTPS trên Production) | `False`          |
+| `COOKIE_SECURE`               | Bật Secure Cookie (Đặt `True` khi chạy HTTPS trên Production) | `True` (file mẫu đặt `false` cho HTTP local)          |
 
 ### Database Settings
 
@@ -225,16 +203,16 @@ Các lệnh Alembic thường dùng:
 
 ```bash
 # Tạo script migration mới khi thay đổi SQLAlchemy Models
-alembic revision --autogenerate -m "Mô tả thay đổi schema"
+uv run alembic revision --autogenerate -m "Mô tả thay đổi schema"
 
 # Áp dụng tất cả migration chưa chạy lên CSDL
-alembic upgrade head
+uv run alembic upgrade head
 
 # Rollback 1 bước migration gần nhất
-alembic downgrade -1
+uv run alembic downgrade -1
 
 # Kiểm tra lịch sử các bản migration
-alembic history
+uv run alembic history
 ```
 
 ---
@@ -307,4 +285,80 @@ Các quy tắc thời gian có thể cấu hình bằng `RESERVATION_HOLD_DAYS`,
    - Trình duyệt tự động gửi cookie `refresh_token`. Server kiểm tra tính hợp lệ và trạng thái `revoked`.
    - Thu hồi Refresh Token cũ, cấp phát một cặp (Access Token + Refresh Token) hoàn toàn mới (**Token Rotation**).
 4. **Đổi mật khẩu / Khóa tài khoản**:
-   - Khi user đổi mật khẩu hoặc bị Admin khóa tài khoản, toàn bộ các bản ghi `refresh_tokens` thuộc user đó sẽ bị chuyển thành `revoked = True`, buộc người dùng phải đăng nhập lại trên tất cả thiết bị.
+   - Khi user đổi mật khẩu hoặc bị Admin khóa tài khoản, toàn bộ các bản ghi `refresh_tokens` thuộc user đó sẽ bị chuyển thành `revoked = True`, ngăn cấp token mới từ các refresh token cũ. Đổi mật khẩu không thu hồi ngay access token đã cấp; khóa tài khoản bị chặn ngay bởi dependency kiểm tra trạng thái user.
+
+
+## Upload và cấu hình nghiệp vụ
+
+`POST /api/v1/uploads/image` nhận multipart trường `file`, trả `url` HTTPS và `public_id`; hiện không yêu cầu xác thực. Whitelist thực tế chỉ gồm JPEG, PNG, WebP.
+
+| Biến `.env` | Mặc định / yêu cầu |
+| :--- | :--- |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Bắt buộc có trong Settings; điền thông tin hợp lệ để upload |
+| `CLOUDINARY_UPLOAD_FOLDER` | `smart-library-management` |
+| `MAX_UPLOAD_SIZE_MB` | `5` |
+| `RESERVATION_HOLD_DAYS` | `3` ngày |
+| `BORROW_DAYS` | `14` ngày |
+| `RENEWAL_DAYS` | `7` ngày |
+| `MAX_RENEWALS` | `1` lần |
+
+Duyệt phiếu đặt giữ tồn kho; chuyển sang phiếu mượn không trừ kho lần nữa. Hủy/hết hạn phiếu đã duyệt và trả sách hoàn tồn kho. Gia hạn bị chặn khi phiếu đã trả/quá hạn, hết số lần gia hạn hoặc có độc giả khác chờ sách.
+
+## AI: tìm kiếm và gợi ý sách
+
+AI dùng **Sentence Transformers + NumPy + PostgreSQL/pgvector**, chạy embedding tại backend; hiện không tích hợp Groq hoặc LLM sinh nội dung.
+
+- **Embedding:** `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, vector chuẩn hóa 384 chiều, mặc định CPU. Model được nạp khi dependency embedding dùng lần đầu và có thể cần tải nếu chưa có cache. Encode chạy qua `asyncio.to_thread`.
+- **Indexing:** ghép tiêu đề, tác giả, danh mục, nhà xuất bản, ISBN, mô tả; tính hash SHA-256, bỏ qua nội dung không đổi và upsert vào `book_embeddings`. Hỗ trợ một sách hoặc toàn bộ catalog.
+- **Search:** embedding truy vấn rồi xếp hạng cosine distance trong PostgreSQL; score là `1 - distance`. Chỉ tìm sách đã có embedding; chưa có ngưỡng điểm hoặc lọc tồn kho.
+- **Recommendations:** lấy các sách khác nhau trong lịch sử mượn, tính vector trung bình, xếp hạng cosine similarity bằng NumPy và loại sách đã mượn. Nếu thiếu lịch sử/vector phù hợp hoặc không có ứng viên, dùng độ phổ biến theo tổng số lượng sách đã mượn. Lý do gợi ý là chuỗi cố định.
+
+### API AI
+
+| Method | Endpoint | Quyền | Request / response |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/ai/search` | Công khai | `query`: 1–500 ký tự; `limit`: 1–20, mặc định 5. Trả `query`, `results`, `total` |
+| `POST` | `/api/v1/ai/index-books` | Admin | Body `{}` index toàn bộ hoặc `{"book_id":"<UUID>"}` index một sách. Trả `message`, `total_checked`, `indexed`, `skipped` |
+| `GET` | `/api/v1/ai/recommendations?limit=3` | CurrentUser | `limit`: 1–20, mặc định 3. Trả `based_on_books`, `recommendations` với metadata, `rank`, `score`, `reason` |
+
+Ví dụ body tìm kiếm trong Scalar `/docs`:
+
+```json
+{
+  "query": "Sách nhập môn lập trình Python cho người mới bắt đầu",
+  "limit": 5
+}
+```
+
+### Cấu hình AI
+
+Đã khai báo trong `app/core/config.py`, chưa có trong `.env.example`; thêm vào `.env` khi cần ghi đè.
+
+| Biến | Mặc định |
+| :--- | :--- |
+| `AI_EMBEDDING_MODEL_NAME` | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` |
+| `AI_EMBEDDING_DIMENSION` | `384` |
+| `AI_EMBEDDING_DEVICE` | `cpu` |
+| `AI_EMBEDDING_BATCH_SIZE` | `32` |
+| `AI_SEARCH_TOP_K` | `5`; hiện chưa được service/schema sử dụng, request `limit` quyết định số kết quả |
+
+Migration `161868ae43c2` tạo extension `vector` và cột `VECTOR(384)`. Đổi số chiều cần migration tương ứng. Indexing chỉ so sánh hash nội dung, nên đổi model mà nội dung giữ nguyên chưa tự tạo lại embedding.
+
+### Điểm cần hoàn thiện
+
+- **Lỗi dependency indexing:** `get_ai_indexing_service()` trong `app/api/v1/ai/deps.py` truyền `embedding_service=...`, trong khi constructor nhận `ai_embedding_service`. Endpoint index chưa thể chạy thành công trước khi sửa chỗ này. Sau khi sửa, cần có dữ liệu sách và index trước khi thử semantic search.
+- Chưa tự đồng bộ vector khi catalog thay đổi, chưa ghi `ai_search_logs`, chưa có test AI. Migration chưa tạo index HNSW/IVFFlat; recommendation tải toàn bộ embedding vào RAM để tính điểm.
+
+## Kiểm thử và bảo trì
+
+Chạy từ `backend` sau khi cài dependency và cấu hình môi trường:
+
+```bash
+uv run python -m unittest discover -s tests -v
+uv run ruff check .
+uv run python -m app.scripts.cleanup_refresh_tokens
+```
+
+Có 8 unit test trong `tests/test_borrowing_service.py`: commit/rollback, giữ tồn kho khi duyệt, tránh trừ kho hai lần, hoàn kho khi trả/hủy/hết hạn và chặn gia hạn khi người khác đang chờ. Test dùng mock/repository giả, không xác nhận khóa đồng thời trên PostgreSQL thực tế.
+
+Cleanup xóa refresh token hết hạn hoặc bị thu hồi; cần cron/scheduler bên ngoài để chạy định kỳ. `/heathz` chỉ trả trạng thái ứng dụng, không kiểm tra DB hay model AI.
