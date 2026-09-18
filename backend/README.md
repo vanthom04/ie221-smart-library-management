@@ -9,13 +9,12 @@ API server cho hệ thống **Quản Lý Thư Viện & Mượn Trả Sách Thôn
 
 | Phân hệ | Đã triển khai | Phần còn thiếu / giới hạn |
 | :--- | :--- | :--- |
-| Auth & User | Đăng ký/đăng nhập, JWT, refresh rotation, logout, đổi mật khẩu, hồ sơ cá nhân, khóa/mở khóa, RBAC | Chưa có API danh sách user, sửa hồ sơ, quản lý vai trò |
-| Borrowing | Đặt trước, duyệt/từ chối/hủy/hết hạn, mượn trực tiếp/từ phiếu đặt, trả, gia hạn, lịch sử cá nhân và danh sách admin | Trả toàn bộ phiếu; chưa có scheduler hết hạn |
-| AI | Embedding đa ngôn ngữ, indexing, semantic search, gợi ý từ lịch sử mượn | Có lỗi nối dependency indexing, chi tiết bên dưới |
-| Catalog | Model/migration sách, tác giả, danh mục, nhà xuất bản | Chưa có API CRUD catalog |
-| Fines & Dashboard | Model/migration tiền phạt | Chưa có nghiệp vụ tính/thu phạt hoặc API dashboard |
-| AI logs | Model/migration `ai_search_logs` | Search chưa ghi nhật ký |
-| Hạ tầng | Async DB, migration, CORS, lỗi chuẩn hóa, Scalar, cleanup token, 8 unit test borrowing/transaction | Chưa có test AI/auth hoặc test tích hợp DB trong `tests/` |
+| Auth & User | Đăng ký/đăng nhập, JWT, refresh rotation, logout, đổi mật khẩu, hồ sơ cá nhân, khóa/mở khóa, RBAC | Chưa có API danh sách user, quản lý vai trò |
+| Borrowing | Đặt trước, duyệt/từ chối/hủy/hết hạn, mượn trực tiếp/từ phiếu đặt, trả sách, gia hạn, lịch sử cá nhân và quản trị admin | Chưa có background scheduler tự động quét hết hạn |
+| AI | Embedding đa ngôn ngữ, indexing, semantic search, gợi ý cá nhân hóa từ lịch sử mượn, fallback theo độ phổ biến | Chưa tự động đồng bộ vector khi catalog thay đổi |
+| Catalog | Model/migration sách, tác giả, danh mục, nhà xuất bản; API CRUD đầy đủ và phân quyền Admin/Public | Quản lý ảnh bìa trực tiếp qua URL |
+| Fines & Dashboard | API Dashboard cho Độc giả & Quản trị viên (thống kê mượn trả, xu hướng, phân bố thể loại, hoạt động gần đây) | Chưa có cổng thanh toán tiền phạt trực tuyến |
+| Hạ tầng | Async DB, Alembic migration (head `cb66150fe45c`), CORS, lỗi chuẩn hóa, Scalar UI, 19 unit tests (100% pass) | Cần cron/scheduler bên ngoài để chạy định kỳ cleanup token |
 
 ## 🌟 Chức năng nổi bật
 
@@ -33,10 +32,10 @@ API server cho hệ thống **Quản Lý Thư Viện & Mượn Trả Sách Thôn
   - Hệ thống ngoại lệ domain (`DomainError`, `InvalidCredentialsError`, `EmailAlreadyExistsError`, `InvalidTokenError`, `UserNotFoundError`, `InsufficientPermissionError`).
   - Bắt lỗi validation input (422) và trả về định dạng tiếng Việt chuẩn hóa (`ErrorResponse` & `FieldError`).
   - Tích hợp giao diện tài liệu API trực quan hiện đại **Scalar UI** tại `/docs` và tùy chỉnh OpenAPI schema linh hoạt.
-- **Mô hình Dữ liệu Thư viện Toàn diện (14 Entities)**:
+- **Mô hình Dữ liệu Thư viện Toàn diện (13 Entities)**:
   - Quản lý danh mục (`categories`), nhà xuất bản (`publishers`), tác giả (`authors`), sách (`books`), liên kết tác giả - sách (`book_authors`).
   - Quản lý mượn/trả sách (`borrow_records`, `borrow_items`), đặt trước sách (`reservations`, `reservation_items`), tiền phạt quá hạn (`fines`).
-  - Đăng ký nhật ký tìm kiếm AI (`ai_search_logs` hỗ trợ lưu JSONB result).
+  - Quản lý biểu diễn ngữ nghĩa của sách (`book_embeddings`) phục vụ Semantic Search & AI Recommendation.
   - Tối ưu hóa truy vấn tìm kiếm tiêu đề sách với **PostgreSQL GIN Trigram Index** (`gin_trgm_ops`).
 
 ---
@@ -104,7 +103,7 @@ backend/
 
 ## 🗃️ Cơ sở dữ liệu & Các bảng chính (Entities)
 
-Hệ thống được thiết kế chuẩn mực với 14 bảng dữ liệu quan hệ:
+Hệ thống được thiết kế chuẩn mực với 13 bảng dữ liệu quan hệ:
 
 1. **`users`**: Quản lý thông tin tài khoản người dùng, vai trò (`admin`, `user`), trạng thái (`active`, `locked`).
 2. **`refresh_tokens`**: Lưu trữ chuỗi hash SHA-256 của Refresh Token, thời gian hết hạn và trạng thái thu hồi (`revoked`).
@@ -118,8 +117,7 @@ Hệ thống được thiết kế chuẩn mực với 14 bảng dữ liệu qua
 10. **`reservations`**: Phiếu đặt giữ sách trước, trạng thái (`pending`, `approved`, `rejected`, `fulfilled`, `cancelled`, `expired`).
 11. **`reservation_items`**: Danh sách sách đặt giữ trong một phiếu đặt.
 12. **`fines`**: Thông tin tiền phạt do trả sách quá hạn, số ngày quá hạn, số tiền phạt và trạng thái thanh toán (`unpaid`, `paid`).
-13. **`ai_search_logs`**: Nhật ký tìm kiếm bằng AI của người dùng (lưu câu truy vấn và mảng ID sách kết quả dưới dạng `JSONB`).
-14. **`book_embeddings`**: Mỗi sách có một vector 384 chiều, nội dung metadata, tên model, hash SHA-256 và thời gian cập nhật; xóa theo sách qua khóa ngoại.
+13. **`book_embeddings`**: Mỗi sách có một vector 384 chiều, nội dung metadata, tên model, hash SHA-256 và thời gian cập nhật; xóa theo sách qua khóa ngoại.
 
 ---
 
@@ -336,12 +334,11 @@ Ví dụ body tìm kiếm trong Scalar `/docs`:
 | `AI_EMBEDDING_BATCH_SIZE` | `32` |
 | `AI_SEARCH_TOP_K` | `5`; hiện chưa được service/schema sử dụng, request `limit` quyết định số kết quả |
 
-Migration `161868ae43c2` tạo extension `vector` và cột `VECTOR(384)`. Đổi số chiều cần migration tương ứng. Indexing chỉ so sánh hash nội dung, nên đổi model mà nội dung giữ nguyên chưa tự tạo lại embedding.
+Chuỗi migration kết thúc ở head `cb66150fe45c` (khởi đầu từ `161868ae43c2` tạo extension `vector` và bảng `book_embeddings`, `d90ed9debb8e` xóa `ai_search_logs`, và `cb66150fe45c` xóa các trường Cloudinary không dùng). Đổi số chiều cần migration tương ứng. Indexing chỉ so sánh hash nội dung, nên đổi model mà nội dung giữ nguyên chưa tự tạo lại embedding.
 
 ### Điểm cần hoàn thiện
 
-- **Lỗi dependency indexing:** `get_ai_indexing_service()` trong `app/api/v1/ai/deps.py` truyền `embedding_service=...`, trong khi constructor nhận `ai_embedding_service`. Endpoint index chưa thể chạy thành công trước khi sửa chỗ này. Sau khi sửa, cần có dữ liệu sách và index trước khi thử semantic search.
-- Chưa tự đồng bộ vector khi catalog thay đổi, chưa ghi `ai_search_logs`, chưa có test AI. Migration chưa tạo index HNSW/IVFFlat; recommendation tải toàn bộ embedding vào RAM để tính điểm.
+- Chưa tự động đồng bộ vector khi catalog thay đổi. Migration hiện tại chưa tạo index HNSW/IVFFlat (đang dùng Flat scan); recommendation tải embedding vào bộ nhớ để tính điểm tương đồng Cosine.
 
 ## Kiểm thử và bảo trì
 
@@ -353,6 +350,12 @@ uv run ruff check .
 uv run python -m app.scripts.cleanup_refresh_tokens
 ```
 
-Có 8 unit test trong `tests/test_borrowing_service.py`: commit/rollback, giữ tồn kho khi duyệt, tránh trừ kho hai lần, hoàn kho khi trả/hủy/hết hạn và chặn gia hạn khi người khác đang chờ. Test dùng mock/repository giả, không xác nhận khóa đồng thời trên PostgreSQL thực tế.
+Bộ 19 unit test trong thư mục `tests/` kiểm thử toàn diện: AI recommendation (fallback theo độ phổ biến & cá nhân hóa theo lịch sử), borrowing service transactions (commit/rollback, trừ kho/hoàn kho, chặn gia hạn), catalog authorization & repositories, dashboard service & routes.
+
+Ngoài ra có thể kiểm tra trực tiếp với CSDL thật:
+```bash
+uv run python -m tests.manual_borrowing_db_check
+uv run python -m tests.manual_ai_db_check
+```
 
 Cleanup xóa refresh token hết hạn hoặc bị thu hồi; cần cron/scheduler bên ngoài để chạy định kỳ. `/heathz` chỉ trả trạng thái ứng dụng, không kiểm tra DB hay model AI.
