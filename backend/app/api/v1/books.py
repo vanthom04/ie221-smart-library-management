@@ -35,15 +35,21 @@ async def search_books(
 
 @router.put("/{book_id}", response_model=schemas.BookOut)
 async def update_book(book_id: UUID, book: schemas.BookCreate, db: DbSession):
-    updated_book = await crud.update_book(db=db, book_id=book_id, book_update=book)
-    if not updated_book:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách!")
-    return updated_book
+    try:
+        updated_book = await crud.update_book(db=db, book_id=book_id, book_update=book)
+        if not updated_book:
+            raise HTTPException(status_code=404, detail="Không tìm thấy sách!")
+        return updated_book
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_book(book_id: UUID, db: DbSession):
-    success = await crud.delete_book(db=db, book_id=book_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách để xóa!")
-    return None
+    try:
+        success = await crud.delete_book(db=db, book_id=book_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Không tìm thấy sách để xóa!")
+        return None
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
