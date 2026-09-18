@@ -97,16 +97,7 @@ export const LoginForm = () => {
             name="password"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
-                  <Link
-                    tabIndex={-1}
-                    to="/forgot-password"
-                    className="text-[13px] text-primary hover:underline hover:underline-offset-4"
-                  >
-                    Quên mật khẩu?
-                  </Link>
-                </div>
+                <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
                 <div className="relative">
                   <LockIcon className="pointer-events-none absolute top-1/2 left-3 size-4.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
