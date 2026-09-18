@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_, func, select
@@ -550,34 +550,52 @@ class DashboardService:
         ]
 
     async def get_admin_borrow_overview(self, period: str) -> BorrowOverviewResponse:
-        '''Lấy dữ liệu tổng quan mượn sách toàn hệ thống cho Admin theo khoảng thời gian.'''
+        """Lấy dữ liệu tổng quan mượn sách toàn hệ thống cho Admin theo khoảng thời gian."""
         months_map = {"3m": 3, "6m": 6, "12m": 12}
         months_count = months_map.get(period, 3)
-        
-        now = datetime.now()
-        trend_data: list[BorrowTrendPoint] = []
-        
+
+        # 1. Sử dụng UTC timezone-aware để tránh lỗi naive datetime
+        now = datetime.now(UTC)
+
+        # 2. Xây dựng danh sách các tháng cần thống kê & mốc bắt đầu
+        months_to_fetch = []
         for i in range(months_count - 1, -1, -1):
             total_months = now.year * 12 + (now.month - 1) - i
             target_year = total_months // 12
             target_month = (total_months % 12) + 1
-            month_label = f"{target_month:02d}/{target_year}"
-            
-            stmt = select(func.count(BorrowRecord.id)).where(
-                and_(
-                    func.extract("month", BorrowRecord.borrow_date) == target_month,
-                    func.extract("year", BorrowRecord.borrow_date) == target_year
-                )
+            months_to_fetch.append((target_year, target_month))
+
+        start_year, start_month = months_to_fetch[0]
+        start_date = datetime(start_year, start_month, 1, tzinfo=UTC)
+
+        # 3. Gộp thành 1 query duy nhất bằng GROUP BY (Tối ưu N+1 Query)
+        stmt = (
+            select(
+                func.extract("year", BorrowRecord.borrow_date).label("year"),
+                func.extract("month", BorrowRecord.borrow_date).label("month"),
+                func.count(BorrowRecord.id).label("count"),
             )
-            count = (await self.db.execute(stmt)).scalar() or 0
+            .where(BorrowRecord.borrow_date >= start_date)
+            .group_by("year", "month")
+        )
+
+        results = (await self.db.execute(stmt)).all()
+
+        # Map kết quả từ DB thành dictionary {(year, month): count}
+        counts_map: dict[tuple[int, int], int] = {
+        (int(r.year), int(r.month)): int(r.total_count) for r in results
+        }
+
+        # 4. Map kết quả ra danh sách trả về frontend
+        trend_data: list[BorrowTrendPoint] = []
+        for year, month in months_to_fetch:
+            month_label = f"{month:02d}/{year}"
+            count = counts_map.get((year, month), 0)
             trend_data.append(BorrowTrendPoint(month=month_label, count=float(count)))
 
         stats = await self.get_admin_borrow_summary()
 
-        return BorrowOverviewResponse(
-            stats=stats,
-            trend=trend_data
-        )
+        return BorrowOverviewResponse(stats=stats, trend=trend_data)
 
     async def approve_borrow_request(self, record_id: uuid.UUID) -> None:
         '''Phê duyệt yêu cầu mượn sách của độc giả.'''

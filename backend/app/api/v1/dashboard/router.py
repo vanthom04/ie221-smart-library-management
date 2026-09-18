@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, Query
+
 from app.api.deps import CurrentUser, require_admin
 from app.api.v1.dashboard.deps import DashboardSvc
 from app.schemas.dashboard import (

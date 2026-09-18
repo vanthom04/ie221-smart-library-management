@@ -50,7 +50,7 @@ export const PendingRequestsCard = ({
                   size="sm"
                   variant="outline"
                   className="h-8 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-                  onClick={() => onApprove?.(req.id)}
+                  // onClick={() => onApprove?.(req.id)}
                 >
                   <CheckIcon className="mr-1 size-3.5" /> Duyệt
                 </Button>
@@ -58,7 +58,7 @@ export const PendingRequestsCard = ({
                   size="sm"
                   variant="outline"
                   className="h-8 border-rose-500 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                  onClick={() => onReject?.(req.id)}
+                  // onClick={() => onReject?.(req.id)}
                 >
                   <XIcon className="mr-1 size-3.5" /> Từ chối
                 </Button>
