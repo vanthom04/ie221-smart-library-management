@@ -104,6 +104,14 @@ export const router = createBrowserRouter([
       {
         path: "books",
         lazy: () => import("@/pages/admin/BookAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "reservations",
+        lazy: () => import("@/pages/admin/ReservationAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "borrows",
+        lazy: () => import("@/pages/admin/BorrowAdmin").then((m) => ({ Component: m.default }))
       }
     ]
   }

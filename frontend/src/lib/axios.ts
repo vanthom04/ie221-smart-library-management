@@ -5,11 +5,11 @@ import { ApiError, type ApiErrorResponse } from "./api-error"
 
 declare module "axios" {
   interface AxiosInstance {
-    get<T = unknown>(url: string, config?: InternalAxiosRequestConfig): Promise<T>
-    post<T = unknown>(url: string, data?: unknown, config?: InternalAxiosRequestConfig): Promise<T>
-    put<T = unknown>(url: string, data?: unknown, config?: InternalAxiosRequestConfig): Promise<T>
-    patch<T = unknown>(url: string, data?: unknown, config?: InternalAxiosRequestConfig): Promise<T>
-    delete<T = unknown>(url: string, config?: InternalAxiosRequestConfig): Promise<T>
+    get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
+    post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+    put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+    patch<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+    delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
   }
 }
 
