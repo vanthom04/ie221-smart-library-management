@@ -100,6 +100,14 @@ async def list_borrow_records(_: RequireAdmin, service: BorrowingSvc) -> list[Bo
     return [BorrowRecordRead.from_entity(item) for item in records]
 
 
+@router.patch("/borrow-records/{borrow_id}/renew", response_model=BorrowRecordRead)
+async def renew_borrow(
+    borrow_id: uuid.UUID, current_user: CurrentUser, service: BorrowingSvc
+) -> BorrowRecordRead:
+    borrow = await service.renew_borrow(borrow_id, current_user)
+    return BorrowRecordRead.from_entity(borrow)
+
+
 @router.patch("/borrow-records/{borrow_id}/return", response_model=BorrowRecordRead)
 async def return_borrow(
     borrow_id: uuid.UUID, _: RequireAdmin, service: BorrowingSvc
