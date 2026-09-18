@@ -12,11 +12,11 @@ export const router = createBrowserRouter([
     ErrorBoundary: RootErrorBoundary,
     children: [
       {
-        path: "/login",
+        path: "login",
         lazy: () => import("@/pages/auth/login").then((m) => ({ Component: m.LoginPage }))
       },
       {
-        path: "/register",
+        path: "register",
         lazy: () => import("@/pages/auth/register").then((m) => ({ Component: m.RegisterPage }))
       }
     ]
@@ -29,20 +29,24 @@ export const router = createBrowserRouter([
     lazy: () => import("@/layouts/main-layout").then((m) => ({ Component: m.MainLayout })),
     children: [
       {
-        path: "/",
+        index: true,
         lazy: () => import("@/pages/user/home").then((m) => ({ Component: m.HomePage }))
       },
       {
-        path: "/search",
+        path: "books",
+        lazy: () => import("@/pages/BookList").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "search",
         lazy: () => import("@/pages/user/search").then((m) => ({ Component: m.SearchPage }))
       },
       {
-        path: "/books/:id",
+        path: "books/:id",
         lazy: () =>
           import("@/pages/user/book-detail").then((m) => ({ Component: m.BookDetailPage }))
       },
       {
-        path: "/book-reservation",
+        path: "book-reservation",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () =>
@@ -51,20 +55,20 @@ export const router = createBrowserRouter([
           }))
       },
       {
-        path: "/borrow-history",
+        path: "borrow-history",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () =>
           import("@/pages/user/borrow-history").then((m) => ({ Component: m.BorrowHistoryPage }))
       },
       {
-        path: "/dashboard",
+        path: "dashboard",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () => import("@/pages/user/dashboard").then((m) => ({ Component: m.DashboardPage }))
       },
       {
-        path: "/profile",
+        path: "profile",
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () => import("@/pages/user/profile").then((m) => ({ Component: m.ProfilePage }))
@@ -75,6 +79,30 @@ export const router = createBrowserRouter([
         HydrateFallback: FallbackLoader,
         lazy: () =>
           import("@/pages/admin/dashboard").then((m) => ({ Component: m.AdminDashboardPage }))
+      }
+    ]
+  },
+  {
+    path: "/admin",
+    HydrateFallback: FallbackLoader,
+    ErrorBoundary: RootErrorBoundary,
+    lazy: () => import("@/pages/admin/AdminLayout").then((m) => ({ Component: m.default })),
+    children: [
+      {
+        index: true,
+        lazy: () => import("@/pages/admin/CategoryAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "authors",
+        lazy: () => import("@/pages/admin/AuthorAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "publishers",
+        lazy: () => import("@/pages/admin/PublisherAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "books",
+        lazy: () => import("@/pages/admin/BookAdmin").then((m) => ({ Component: m.default }))
       }
     ]
   }

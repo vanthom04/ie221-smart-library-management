@@ -1,22 +1,20 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-.pytest_cache/
-.ruff_cache/
-
-# Virtual environments
-.venv/
-
 # Environment variables
 .env
 .env.*
 !.env.example
 
-# IDE
+# Dependencies & Virtual Envs
+node_modules/
+.venv/
+__pycache__/
+*.py[oc]
+
+# Build outputs
+dist/
+build/
+
+# Editor & OS files
 .idea/
-.vscode/
-*.swp
+.DS_Store
+Thumbs.db
+*.log

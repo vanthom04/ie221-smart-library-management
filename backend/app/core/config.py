@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
 
+    # Borrowing core
+    RESERVATION_HOLD_DAYS: int = 3
+    BORROW_DAYS: int = 14
+    RENEWAL_DAYS: int = 7
+    MAX_RENEWALS: int = 1
+
     # Upload
     MAX_UPLOAD_SIZE_MB: int = 5
 
@@ -32,6 +38,13 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
     CLOUDINARY_UPLOAD_FOLDER: str = "smart-library-management"
+
+    # AI Search
+    AI_EMBEDDING_MODEL_NAME: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    AI_EMBEDDING_DIMENSION: int = 384
+    AI_EMBEDDING_DEVICE: str = "cpu"
+    AI_EMBEDDING_BATCH_SIZE: int = 32
+    AI_SEARCH_TOP_K: int = 5
 
 
 @lru_cache
