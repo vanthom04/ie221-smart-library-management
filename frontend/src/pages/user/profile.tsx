@@ -1,19 +1,9 @@
 import { useState } from "react"
 import { m, AnimatePresence } from "motion/react"
-import {
-  BellIcon,
-  CalendarIcon,
-  LockIcon,
-  MailIcon,
-  PhoneIcon,
-  SettingsIcon,
-  User2Icon
-} from "lucide-react"
+import { CalendarIcon, LockIcon, MailIcon, PhoneIcon, User2Icon } from "lucide-react"
 
 import { ProfileTab } from "@/features/profile/components/profile-tab"
 import { SecurityTab } from "@/features/profile/components/security-tab"
-import { SettingsTab } from "@/features/profile/components/settings-tab"
-import { NotificationsTab } from "@/features/profile/components/notifications-tab"
 
 import { cn, formatPhoneNumber, getInitials } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
@@ -22,13 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useCurrentUser } from "@/features/profile/hooks/use-current-user"
 import { useQuickStats } from "@/features/user-dashboard/hooks/use-quick-stats"
 
-type Tab = "profile" | "security" | "notifications" | "settings"
+type Tab = "profile" | "security"
 
 const TABS = [
   { id: "profile", label: "Thông tin cá nhân", icon: User2Icon },
-  { id: "security", label: "Bảo mật", icon: LockIcon },
-  { id: "notifications", label: "Thông báo", icon: BellIcon },
-  { id: "settings", label: "Thiết lập", icon: SettingsIcon }
+  { id: "security", label: "Bảo mật", icon: LockIcon }
 ] as const
 
 export const ProfilePage = () => {
@@ -166,8 +154,6 @@ export const ProfilePage = () => {
           >
             {activeTab === "profile" && <ProfileTab />}
             {activeTab === "security" && <SecurityTab />}
-            {activeTab === "notifications" && <NotificationsTab />}
-            {activeTab === "settings" && <SettingsTab />}
           </m.div>
         </AnimatePresence>
       </div>

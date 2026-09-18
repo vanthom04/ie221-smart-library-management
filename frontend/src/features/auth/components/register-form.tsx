@@ -13,7 +13,6 @@ import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { AuthSocialButton } from "./auth-social-button"
 import { registerSchema, type RegisterValues } from "../schemas"
 
 export const RegisterForm = () => {
@@ -44,7 +43,7 @@ export const RegisterForm = () => {
             title: "Đăng ký thành công.",
             message: "Vui lòng đăng nhập lại!"
           })
-          navigate("/login", { replace: true })
+          navigate("/login")
         })
         .catch((error) => {
           if (!isApiError(error)) {
@@ -60,13 +59,6 @@ export const RegisterForm = () => {
 
           addToast({ type: "error", message: error.message })
         })
-    })
-  }
-
-  const onSocial = () => {
-    addToast({
-      type: "info",
-      message: "Nút bấm chỉ để làm đẹp, hoàn toàn không có tác dụng."
     })
   }
 
@@ -204,19 +196,6 @@ export const RegisterForm = () => {
             )}
           </Button>
         </form>
-        <div className="mx-8 mt-6 flex items-center gap-2">
-          <div className="h-px flex-1 bg-muted-foreground/15" />
-          <span className="text-xs text-muted-foreground">hoặc đăng ký với</span>
-          <div className="h-px flex-1 bg-muted-foreground/15" />
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <AuthSocialButton iconSrc="/icons/google.svg" iconAlt="Google" onClick={onSocial}>
-            Đăng ký với Google
-          </AuthSocialButton>
-          <AuthSocialButton iconSrc="/icons/facebook.svg" iconAlt="Facebook" onClick={onSocial}>
-            Đăng ký với Facebook
-          </AuthSocialButton>
-        </div>
         <div className="mt-6 flex items-center justify-center">
           <p className="text-sm text-muted-foreground">
             Đã có tài khoản?{" "}

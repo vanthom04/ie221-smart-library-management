@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, useLocation, useNavigate } from "react-router"
 import {
-  BellIcon,
   ChevronDownIcon,
   HistoryIcon,
   LayoutDashboardIcon,
@@ -65,15 +64,6 @@ export const AppHeader = () => {
       <div className="flex items-center justify-center gap-6">
         {user ? (
           <>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => navigate("/profile")}
-              title="Hồ sơ & Thông báo"
-              className="[&_svg]:size-5!"
-            >
-              <BellIcon />
-            </Button>
             {isPending ? (
               <Skeleton className="h-11 w-56" />
             ) : (

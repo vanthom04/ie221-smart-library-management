@@ -14,7 +14,6 @@ import { useAnimatedToast } from "@/components/ui/animated-toast"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { AuthSocialButton } from "./auth-social-button"
 import { useAuthStore } from "../stores/use-auth-store"
 import { loginSchema, type LoginValues } from "../schemas"
 
@@ -50,13 +49,6 @@ export const LoginForm = () => {
           const message = isApiError(error) ? error.message : "Có lỗi xảy ra vui lòng thử lại sau!"
           addToast({ type: "error", message })
         })
-    })
-  }
-
-  const onSocial = () => {
-    addToast({
-      type: "info",
-      message: "Nút bấm chỉ để làm đẹp, hoàn toàn không có tác dụng."
     })
   }
 
@@ -138,19 +130,6 @@ export const LoginForm = () => {
             )}
           </Button>
         </form>
-        <div className="mx-8 mt-6 flex items-center gap-2">
-          <div className="h-px flex-1 bg-muted-foreground/15" />
-          <span className="text-xs text-muted-foreground">hoặc đăng nhập với</span>
-          <div className="h-px flex-1 bg-muted-foreground/15" />
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <AuthSocialButton iconSrc="/icons/google.svg" iconAlt="Google" onClick={onSocial}>
-            Tiếp tục với Google
-          </AuthSocialButton>
-          <AuthSocialButton iconSrc="/icons/facebook.svg" iconAlt="Facebook" onClick={onSocial}>
-            Tiếp tục với Facebook
-          </AuthSocialButton>
-        </div>
         <div className="mt-6 flex items-center justify-center">
           <p className="text-sm text-muted-foreground">
             Chưa có tài khoản?{" "}
