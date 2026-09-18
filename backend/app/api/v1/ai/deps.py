@@ -23,7 +23,7 @@ AISearchSvc = Annotated[AISearchService, Depends(get_ai_search_service)]
 def get_ai_indexing_service(db: DbSession) -> AIIndexingService:
     return AIIndexingService(
         ai_search_repository=AISearchRepository(db),
-        embedding_service=AIEmbeddingService.get_instance(),
+        ai_embedding_service=AIEmbeddingService.get_instance(),
     )
 
 
