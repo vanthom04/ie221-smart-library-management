@@ -33,6 +33,10 @@ export const router = createBrowserRouter([
         lazy: () => import("@/pages/user/home").then((m) => ({ Component: m.HomePage }))
       },
       {
+        path: "books",
+        lazy: () => import("@/pages/BookList").then((m) => ({ Component: m.default }))
+      },
+      {
         path: "search",
         lazy: () => import("@/pages/user/search").then((m) => ({ Component: m.SearchPage }))
       },
@@ -68,6 +72,30 @@ export const router = createBrowserRouter([
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () => import("@/pages/user/profile").then((m) => ({ Component: m.ProfilePage }))
+      }
+    ]
+  },
+  {
+    path: "/admin",
+    HydrateFallback: FallbackLoader,
+    ErrorBoundary: RootErrorBoundary,
+    lazy: () => import("@/pages/admin/AdminLayout").then((m) => ({ Component: m.default })),
+    children: [
+      {
+        index: true,
+        lazy: () => import("@/pages/admin/CategoryAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "authors",
+        lazy: () => import("@/pages/admin/AuthorAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "publishers",
+        lazy: () => import("@/pages/admin/PublisherAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "books",
+        lazy: () => import("@/pages/admin/BookAdmin").then((m) => ({ Component: m.default }))
       }
     ]
   }
