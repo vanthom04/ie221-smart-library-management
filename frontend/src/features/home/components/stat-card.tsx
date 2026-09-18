@@ -20,15 +20,26 @@ export const StatCard = ({ stat }: { stat: StatItemType }) => {
       <div>
         <p className="text-2xl leading-tight font-bold text-slate-800">{stat.value}</p>
         <p className="mb-1.5 text-sm text-slate-500">{stat.title}</p>
-        <Link
-          to="#"
-          className={cn(
-            "inline-flex items-center gap-1 text-sm font-medium hover:underline hover:underline-offset-2 [&_svg]:size-4",
-            stat.textColorClass
-          )}
-        >
-          {stat.actionText} <ArrowRightIcon />
-        </Link>
+        {stat.href ? (
+          <Link
+            to={stat.href}
+            className={cn(
+              "inline-flex items-center gap-1 text-sm font-medium hover:underline hover:underline-offset-2 [&_svg]:size-4",
+              stat.textColorClass
+            )}
+          >
+            {stat.actionText} <ArrowRightIcon />
+          </Link>
+        ) : (
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 text-sm font-medium [&_svg]:size-4",
+              stat.textColorClass
+            )}
+          >
+            {stat.actionText}
+          </span>
+        )}
       </div>
     </div>
   )

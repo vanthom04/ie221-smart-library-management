@@ -12,6 +12,7 @@ export interface StatItemType {
   actionText: string
   colorClass: string
   textColorClass: string
+  href?: string
 }
 
 export interface CategoryItemType {
