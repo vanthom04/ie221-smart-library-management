@@ -1,5 +1,5 @@
 export type ReservationStatus =
-  "pending" | "approved" | "rejected" | "fulfilled" | "cancelled" | "expired"
+  "pending" | "approved" | "cancelled" | "expired"
 
 export type BorrowStatus = "borrowing" | "returned" | "overdue"
 
@@ -16,10 +16,6 @@ export interface Reservation {
   user_id: string
   status: ReservationStatus
   expires_at: string | null
-  reviewed_at: string | null
-  reviewed_by: string | null
-  rejection_reason: string | null
-  fulfilled_at: string | null
   created_at: string
   items: ReservationItem[]
 }
@@ -40,8 +36,6 @@ export interface BorrowRecord {
   borrow_date: string
   due_date: string
   return_date: string | null
-  renewal_count: number
-  renewed_at: string | null
   status: BorrowStatus
   created_at: string
   items: BorrowItem[]
