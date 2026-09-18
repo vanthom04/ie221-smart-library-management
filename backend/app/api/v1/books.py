@@ -7,7 +7,10 @@ from app.repositories import book as crud
 from app.schemas import book as schemas
 
 router = APIRouter()
-
+"""
+Module này cung cấp các API endpoints để quản lý Sách (Book CRUD).
+Bao gồm các tính năng: thêm sách mới, lấy danh sách, cập nhật thông tin, xóa sách và tìm kiếm.
+"""
 
 @router.post("/", response_model=schemas.BookOut, status_code=status.HTTP_201_CREATED)
 async def create_book(book: schemas.BookCreate, db: DbSession, _: RequireAdmin):

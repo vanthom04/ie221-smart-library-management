@@ -162,7 +162,7 @@ uv run fastapi dev
 
 Server sẽ khởi chạy tại: **`http://localhost:8000`**
 
-Giao diện tài liệu API (Scalar UI): **`http://localhost:8000/docs`**
+Giao diện tài liệu API (Scalar UI): **`http://localhost:8000/docs`**.
 
 ---
 
