@@ -148,6 +148,26 @@ class BorrowingService:
             borrow.status = BorrowStatus.RETURNED
             return await self._repository.refresh_borrow_record(borrow)
 
+    async def renew_borrow(self, borrow_id: uuid.UUID, user: User) -> BorrowRecord:
+        now = datetime.now(UTC)
+        async with self._repository.transaction():
+            borrow = await self._get_borrow_record(borrow_id, for_update=True)
+            if borrow.user_id != user.id:
+                raise InsufficientPermissionError("Bạn không có quyền gia hạn phiếu mượn này!")
+            if borrow.status != BorrowStatus.BORROWING or borrow.due_date <= now:
+                raise InvalidOperationError("Chỉ có thể gia hạn phiếu đang mượn và chưa quá hạn!")
+
+            has_waiting = await self._repository.has_waiting_reservation(
+                [item.book_id for item in borrow.items],
+                excluding_user_id=user.id,
+                now=now,
+            )
+            if has_waiting:
+                raise InvalidOperationError("Không thể gia hạn vì sách đang có độc giả khác chờ đặt!")
+
+            borrow.due_date += timedelta(days=settings.RENEWAL_DAYS)
+            return await self._repository.refresh_borrow_record(borrow)
+
     async def _get_reservation(
         self, reservation_id: uuid.UUID, *, for_update: bool = False
     ) -> Reservation:
