@@ -5,15 +5,15 @@ import { ApiError, type ApiErrorResponse } from "./api-error"
 
 declare module "axios" {
   interface AxiosInstance {
-    get<T = unknown>(url: string, config?: InternalAxiosRequestConfig): Promise<T>
-    post<T = unknown>(url: string, data?: unknown, config?: InternalAxiosRequestConfig): Promise<T>
-    put<T = unknown>(url: string, data?: unknown, config?: InternalAxiosRequestConfig): Promise<T>
-    patch<T = unknown>(url: string, data?: unknown, config?: InternalAxiosRequestConfig): Promise<T>
-    delete<T = unknown>(url: string, config?: InternalAxiosRequestConfig): Promise<T>
+    get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
+    post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+    put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+    patch<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+    delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>
   }
 }
 
-const AUTH_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh"]
+const AUTH_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh", "/auth/change-password"]
 
 interface RetriableConfig extends InternalAxiosRequestConfig {
   _retry?: boolean
@@ -41,15 +41,28 @@ api.interceptors.response.use((response) => response.data)
 
 // --- Xử lý refresh token ---
 let isRefreshing = false
-let refreshQueue: Array<(token: string) => void> = []
+let refreshQueue: Array<{ resolve: (token: string) => void; reject: (error: unknown) => void }> = []
 
-function subscribeRefresh(callback: (token: string) => void) {
-  refreshQueue.push(callback)
+function subscribeRefresh(resolve: (token: string) => void, reject: (error: unknown) => void) {
+  refreshQueue.push({ resolve, reject })
 }
 
 function onRefreshed(token: string) {
-  refreshQueue.forEach((callback) => callback(token))
+  refreshQueue.forEach(({ resolve }) => resolve(token))
   refreshQueue = []
+}
+
+function onRefreshFailed(error: unknown) {
+  refreshQueue.forEach(({ reject }) => reject(error))
+  refreshQueue = []
+}
+
+function logoutAndRedirect() {
+  useAuthStore.getState().logout()
+  if (window.location.pathname !== "/login") {
+    const returnTo = window.location.pathname + window.location.search
+    window.location.assign(`/login?redirect=${encodeURIComponent(returnTo)}`)
+  }
 }
 
 function isAuthEndpoint(url?: string): boolean {
@@ -61,7 +74,7 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as RetriableConfig
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (error.response?.status !== 401) {
       return Promise.reject(error)
     }
 
@@ -69,27 +82,33 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    if (originalRequest._retry) {
+      logoutAndRedirect()
+      return Promise.reject(error)
+    }
+
     originalRequest._retry = true
 
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        subscribeRefresh((newToken) => {
+      return new Promise<string>((resolve, reject) => subscribeRefresh(resolve, reject)).then(
+        (newToken) => {
           originalRequest.headers.Authorization = `Bearer ${newToken}`
-          resolve(api(originalRequest))
-        })
-      })
+          return api(originalRequest)
+        }
+      )
     }
 
     isRefreshing = true
 
     try {
-      const { accessToken } = await api.post<{ accessToken: string }>("/auth/refresh")
-      useAuthStore.getState().setAccessToken(accessToken)
-      onRefreshed(accessToken)
-      originalRequest.headers.Authorization = `Bearer ${accessToken}`
+      const { access_token } = await api.post<{ access_token: string }>("/auth/refresh")
+      useAuthStore.getState().setAccessToken(access_token)
+      onRefreshed(access_token)
+      originalRequest.headers.Authorization = `Bearer ${access_token}`
       return api(originalRequest)
     } catch (refreshError) {
-      useAuthStore.getState().logout()
+      onRefreshFailed(refreshError)
+      logoutAndRedirect()
       return Promise.reject(refreshError)
     } finally {
       isRefreshing = false

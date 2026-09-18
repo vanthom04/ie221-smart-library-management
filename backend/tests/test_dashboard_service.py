@@ -4,7 +4,13 @@ from types import SimpleNamespace
 from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, Mock, patch
 
+from fastapi.testclient import TestClient
+
+from app.api.deps import require_admin
+from app.api.v1.dashboard.deps import get_dashboard_service
 from app.api.v1.dashboard.router import admin_router
+from app.main import app
+from app.models.borrow_record import BorrowStatus
 from app.schemas.dashboard import BorrowOverviewResponse
 from app.services.dashboard_service import DashboardService
 
@@ -22,8 +28,59 @@ class DashboardRoutesTests(TestCase):
         self.assertNotIn("/dashboard/admin/requests/{record_id}/approve", paths)
         self.assertNotIn("/dashboard/admin/requests/{record_id}/reject", paths)
 
+    def test_recent_borrows_api_returns_overdue_for_overdue_record(self):
+        now = datetime.now(UTC)
+        row = SimpleNamespace(
+            id=uuid.uuid4(),
+            user_name="Reader",
+            book_title="Book",
+            borrow_date=now - timedelta(days=3),
+            due_date=now + timedelta(days=3),
+            status=BorrowStatus.OVERDUE,
+        )
+        db = SimpleNamespace(execute=AsyncMock(return_value=rows_result([row])))
+        app.dependency_overrides[require_admin] = lambda: None
+        app.dependency_overrides[get_dashboard_service] = lambda: DashboardService(db)
+
+        try:
+            with TestClient(app) as client:
+                response = client.get("/api/v1/dashboard/admin/recent-borrows")
+        finally:
+            app.dependency_overrides.clear()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()[0]["status"], "overdue")
+
 
 class DashboardServiceTests(IsolatedAsyncioTestCase):
+    async def test_admin_recent_borrows_statuses(self):
+        now = datetime.now(UTC)
+        statuses_and_due_dates = [
+            (BorrowStatus.RETURNED, now - timedelta(days=1)),
+            (BorrowStatus.OVERDUE, now + timedelta(days=1)),
+            (BorrowStatus.BORROWING, now - timedelta(days=1)),
+            (BorrowStatus.BORROWING, now + timedelta(days=1)),
+        ]
+        rows = [
+            SimpleNamespace(
+                id=uuid.uuid4(),
+                user_name="Reader",
+                book_title="Book",
+                borrow_date=now - timedelta(days=7),
+                due_date=due_date,
+                status=status,
+            )
+            for status, due_date in statuses_and_due_dates
+        ]
+        db = SimpleNamespace(execute=AsyncMock(return_value=rows_result(rows)))
+
+        borrows = await DashboardService(db).get_admin_recent_borrows()
+
+        self.assertEqual(
+            [borrow.status for borrow in borrows],
+            ["returned", "overdue", "overdue", "borrowing"],
+        )
+
     async def test_recent_activities_sort_by_datetime_across_months(self):
         returned = SimpleNamespace(
             id=uuid.uuid4(), title="Returned", return_date=datetime(2026, 8, 31, 23, 0, tzinfo=UTC)

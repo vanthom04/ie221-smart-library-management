@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 import { SearchFilterSidebar } from "./search-filter-sidebar"
-import type { ActiveFilterTag, AvailabilityStatus, SearchFilterState } from "../types"
+import type { ActiveFilterTag, AvailabilityStatus, FilterOption, SearchFilterState } from "../types"
 
 interface SearchFilterDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   state: SearchFilterState
   activeTags: ActiveFilterTag[]
+  categoryOptions: FilterOption[]
+  authorOptions: FilterOption[]
+  publisherOptions: FilterOption[]
   totalItems: number
   onToggleStatus: (status: AvailabilityStatus) => void
   onToggleCategory: (category: string) => void
@@ -27,6 +30,9 @@ export const SearchFilterDrawer = ({
   onOpenChange,
   state,
   activeTags,
+  categoryOptions,
+  authorOptions,
+  publisherOptions,
   totalItems,
   onToggleStatus,
   onToggleCategory,
@@ -64,6 +70,11 @@ export const SearchFilterDrawer = ({
           <SearchFilterSidebar
             state={state}
             activeTags={activeTags}
+            categoryOptions={categoryOptions}
+            authorOptions={authorOptions}
+            publisherOptions={publisherOptions}
+            languageOptions={[]}
+            hasPublicationYears={false}
             onToggleStatus={onToggleStatus}
             onToggleCategory={onToggleCategory}
             onToggleAuthor={onToggleAuthor}

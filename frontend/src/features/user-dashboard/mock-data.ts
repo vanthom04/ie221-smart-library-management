@@ -1,10 +1,4 @@
-import type {
-  ActivityItem,
-  BookSuggestion,
-  BorrowedBook,
-  DashboardQuickStat,
-  DueSoonBook
-} from "./types"
+import type { ActivityItem, BorrowedBook, DashboardQuickStat, DueSoonBook } from "./types"
 
 export const MOCK_QUICK_STATS: DashboardQuickStat[] = [
   {
@@ -104,30 +98,6 @@ export const MOCK_RECENT_ACTIVITIES: ActivityItem[] = [
     bookTitle: "Atomic Habits",
     date: "02/05/2024",
     time: "08:20"
-  }
-]
-
-export const MOCK_SUGGESTED_BOOKS: BookSuggestion[] = [
-  {
-    id: "tu-duy-nhanh-va-cham",
-    title: "Tư duy nhanh và chậm",
-    author: "Daniel Kahneman",
-    category: "Tâm lý học",
-    coverUrl: "https://dtv-ebook.com.vn/images/truyen-online/ebook-dac-nhan-tam-prc-pdf-epub.jpg"
-  },
-  {
-    id: "doi-thay-doi",
-    title: "Đời thay đổi khi chúng ta thay đổi",
-    author: "Andrew Matthews",
-    category: "Kỹ năng sống",
-    coverUrl: "https://dtv-ebook.com.vn/images/truyen-online/ebook-dac-nhan-tam-prc-pdf-epub.jpg"
-  },
-  {
-    id: "nghi-giau-lam-giau",
-    title: "Nghĩ giàu và làm giàu",
-    author: "Napoleon Hill",
-    category: "Kinh tế - Kinh doanh",
-    coverUrl: "https://dtv-ebook.com.vn/images/truyen-online/ebook-dac-nhan-tam-prc-pdf-epub.jpg"
   }
 ]
 

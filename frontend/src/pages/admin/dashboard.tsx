@@ -13,11 +13,21 @@ import { useBorrowOverview } from "@/features/admin-dashboard/hooks/use-borrow-o
 export const AdminDashboardPage = () => {
   const [period, setPeriod] = useState<string>("3m")
 
-  const { data: borrowData } = useBorrowOverview(period)
+  const {
+    data: borrowData,
+    isPending: overviewPending,
+    isError: overviewError
+  } = useBorrowOverview(period)
 
-  const { data: adminStats } = useAdminStats()
-  const { data: borrows } = useRecentBorrows()
-  const { data: categoryStats } = useCategoryStats()
+  const { data: adminStats, isPending: statsPending, isError: statsError } = useAdminStats()
+  const { data: borrows, isPending: borrowsPending, isError: borrowsError } = useRecentBorrows()
+  const {
+    data: categoryStats,
+    isPending: categoriesPending,
+    isError: categoriesError
+  } = useCategoryStats()
+  const isPending = overviewPending || statsPending || borrowsPending || categoriesPending
+  const isError = overviewError || statsError || borrowsError || categoriesError
   return (
     <div className="flex flex-col gap-8 p-6">
       {/* Thanh tiêu đề & Nút hành động nhanh */}
@@ -27,6 +37,13 @@ export const AdminDashboardPage = () => {
           <p className="text-sm text-muted-foreground">Thống kê tổng quan hoạt động thư viện.</p>
         </div>
       </div>
+
+      {isPending && <p className="text-sm text-muted-foreground">Đang tải thống kê...</p>}
+      {isError && (
+        <p role="alert" className="text-sm text-destructive">
+          Không thể tải một phần dữ liệu thống kê. Vui lòng tải lại trang.
+        </p>
+      )}
 
       {/* Thẻ chỉ số tổng quan */}
       <AdminStatCards stats={adminStats ?? []} />

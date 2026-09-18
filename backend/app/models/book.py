@@ -36,4 +36,3 @@ class Book(UUIDPkMixin, TimestampMixin, Base):
     available_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     published_year: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     cover_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    cover_image_storage_key: Mapped[str | None] = mapped_column(String(255), nullable=True)

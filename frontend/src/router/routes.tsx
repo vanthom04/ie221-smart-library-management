@@ -72,22 +72,21 @@ export const router = createBrowserRouter([
         middleware: [requireAuth],
         HydrateFallback: FallbackLoader,
         lazy: () => import("@/pages/user/profile").then((m) => ({ Component: m.ProfilePage }))
-      },
-      {
-        path: "/admin/dashboard",
-        middleware: [requireAdmin],
-        HydrateFallback: FallbackLoader,
-        lazy: () =>
-          import("@/pages/admin/dashboard").then((m) => ({ Component: m.AdminDashboardPage }))
       }
     ]
   },
   {
     path: "/admin",
+    middleware: [requireAdmin],
     HydrateFallback: FallbackLoader,
     ErrorBoundary: RootErrorBoundary,
     lazy: () => import("@/pages/admin/AdminLayout").then((m) => ({ Component: m.default })),
     children: [
+      {
+        path: "dashboard",
+        lazy: () =>
+          import("@/pages/admin/dashboard").then((m) => ({ Component: m.AdminDashboardPage }))
+      },
       {
         index: true,
         lazy: () => import("@/pages/admin/CategoryAdmin").then((m) => ({ Component: m.default }))
@@ -103,6 +102,14 @@ export const router = createBrowserRouter([
       {
         path: "books",
         lazy: () => import("@/pages/admin/BookAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "reservations",
+        lazy: () => import("@/pages/admin/ReservationAdmin").then((m) => ({ Component: m.default }))
+      },
+      {
+        path: "borrows",
+        lazy: () => import("@/pages/admin/BorrowAdmin").then((m) => ({ Component: m.default }))
       }
     ]
   }

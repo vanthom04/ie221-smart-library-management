@@ -30,15 +30,6 @@ class Settings(BaseSettings):
     RENEWAL_DAYS: int = 7
     MAX_RENEWALS: int = 1
 
-    # Upload
-    MAX_UPLOAD_SIZE_MB: int = 5
-
-    # Cloudinary
-    CLOUDINARY_CLOUD_NAME: str
-    CLOUDINARY_API_KEY: str
-    CLOUDINARY_API_SECRET: str
-    CLOUDINARY_UPLOAD_FOLDER: str = "smart-library-management"
-
     # AI Search
     AI_EMBEDDING_MODEL_NAME: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     AI_EMBEDDING_DIMENSION: int = 384

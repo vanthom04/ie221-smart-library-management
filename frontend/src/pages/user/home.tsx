@@ -1,55 +1,11 @@
 import { Link } from "react-router"
-import {
-  ClockIcon,
-  WalletIcon,
-  BookOpenIcon,
-  ArrowRightIcon,
-  CalendarCheckIcon
-} from "lucide-react"
+import { ClockIcon, BookOpenIcon, ArrowRightIcon, CalendarCheckIcon } from "lucide-react"
 
 import { StatCard } from "@/features/home/components/stat-card"
 import { HeroBanner } from "@/features/home/components/hero-banner"
 import { CategoryCard } from "@/features/home/components/category-card"
+import { useQuickStats } from "@/features/user-dashboard/hooks/use-quick-stats"
 import type { CategoryItemType, StatItemType } from "@/features/home/types"
-
-const statsData: StatItemType[] = [
-  {
-    id: "1",
-    title: "Sách đang mượn",
-    value: 3,
-    actionText: "Xem chi tiết",
-    colorClass: "bg-blue-50",
-    textColorClass: "text-blue-600",
-    icon: <BookOpenIcon className="size-6" />
-  },
-  {
-    id: "2",
-    title: "Sách quá hạn",
-    value: 1,
-    actionText: "Xem chi tiết",
-    colorClass: "bg-amber-50",
-    textColorClass: "text-amber-500",
-    icon: <ClockIcon className="size-6" />
-  },
-  {
-    id: "3",
-    title: "Tiền phạt chưa thanh toán",
-    value: "25.000đ",
-    actionText: "Thanh toán ngay",
-    colorClass: "bg-orange-50",
-    textColorClass: "text-orange-500",
-    icon: <WalletIcon className="size-6" />
-  },
-  {
-    id: "4",
-    title: "Đặt trước đang chờ",
-    value: 2,
-    actionText: "Xem chi tiết",
-    colorClass: "bg-green-50",
-    textColorClass: "text-green-600",
-    icon: <CalendarCheckIcon className="size-6" />
-  }
-]
 
 const categoriesData: CategoryItemType[] = [
   {
@@ -207,12 +163,49 @@ const categoriesData: CategoryItemType[] = [
 ]
 
 export const HomePage = () => {
+  const { data: quickStats } = useQuickStats()
+
+  const statsMap = new Map(quickStats?.map((s) => [s.id, s.value]) ?? [])
+
+  const statsData: StatItemType[] = [
+    {
+      id: "borrowed",
+      title: "Sách đang mượn",
+      value: statsMap.get("borrowed") ?? 0,
+      actionText: "Xem chi tiết",
+      colorClass: "bg-blue-50",
+      textColorClass: "text-blue-600",
+      icon: <BookOpenIcon className="size-6" />,
+      href: "/borrow-history"
+    },
+    {
+      id: "overdue",
+      title: "Sách quá hạn",
+      value: statsMap.get("overdue") ?? 0,
+      actionText: "Xem chi tiết",
+      colorClass: "bg-amber-50",
+      textColorClass: "text-amber-500",
+      icon: <ClockIcon className="size-6" />,
+      href: "/borrow-history"
+    },
+    {
+      id: "reservations",
+      title: "Đặt trước đang chờ",
+      value: statsMap.get("reservations") ?? 0,
+      actionText: "Xem chi tiết",
+      colorClass: "bg-green-50",
+      textColorClass: "text-green-600",
+      icon: <CalendarCheckIcon className="size-6" />,
+      href: "/book-reservation"
+    }
+  ]
+
   return (
     <div className="flex flex-col gap-8">
       <HeroBanner />
 
       {/* Thống kê nhanh */}
-      <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {statsData.map((stat) => (
           <StatCard key={stat.id} stat={stat} />
         ))}
@@ -223,7 +216,7 @@ export const HomePage = () => {
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-800">Danh mục nổi bật</h2>
           <Link
-            to="#"
+            to="/search"
             className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline hover:underline-offset-2 [&_svg]:size-4"
           >
             Xem tất cả <ArrowRightIcon />

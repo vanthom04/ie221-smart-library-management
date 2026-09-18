@@ -18,20 +18,17 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible"
-import {
-  MIN_YEAR,
-  MAX_YEAR,
-  CATEGORY_FILTERS,
-  AUTHOR_FILTERS,
-  PUBLISHER_FILTERS,
-  STATUS_OPTIONS,
-  LANGUAGE_OPTIONS
-} from "../constants"
-import type { ActiveFilterTag, AvailabilityStatus, SearchFilterState } from "../types"
+import { MIN_YEAR, MAX_YEAR, STATUS_OPTIONS } from "../constants"
+import type { ActiveFilterTag, AvailabilityStatus, FilterOption, SearchFilterState } from "../types"
 
 interface SearchFilterSidebarProps {
   state: SearchFilterState
   activeTags: ActiveFilterTag[]
+  categoryOptions: FilterOption[]
+  authorOptions: FilterOption[]
+  publisherOptions: FilterOption[]
+  languageOptions: FilterOption[]
+  hasPublicationYears: boolean
   onToggleStatus: (status: AvailabilityStatus) => void
   onToggleCategory: (category: string) => void
   onToggleAuthor: (author: string) => void
@@ -168,7 +165,7 @@ interface StatusFilterProps {
 const StatusFilter = ({ statusSet, onToggleStatus }: StatusFilterProps) => (
   <FilterSection title="Tình trạng tài liệu" isOpenDefault>
     <div className="space-y-2">
-      {STATUS_OPTIONS.map((status) => {
+      {STATUS_OPTIONS.filter((status) => status.id !== "ebook").map((status) => {
         const isChecked = statusSet.has(status.id)
         return (
           <div key={status.id} className="flex items-center space-x-2">
@@ -194,6 +191,7 @@ const StatusFilter = ({ statusSet, onToggleStatus }: StatusFilterProps) => (
 interface CategoryFilterProps {
   categorySet: Set<string>
   onToggleCategory: (category: string) => void
+  options: FilterOption[]
 }
 
 interface CountedFilterOptionRowProps {
@@ -232,11 +230,11 @@ const CountedFilterOptionRow = ({
   </div>
 )
 
-const CategoryFilter = ({ categorySet, onToggleCategory }: CategoryFilterProps) => {
+const CategoryFilter = ({ categorySet, onToggleCategory, options }: CategoryFilterProps) => {
   const [categorySearch, setCategorySearch] = useState("")
   const [showAllCategories, setShowAllCategories] = useState(false)
 
-  let filteredCategories = CATEGORY_FILTERS
+  let filteredCategories = options
   if (categorySearch.trim()) {
     const q = categorySearch.toLowerCase().trim()
     filteredCategories = filteredCategories.filter((c) => c.label.toLowerCase().includes(q))
@@ -270,13 +268,13 @@ const CategoryFilter = ({ categorySet, onToggleCategory }: CategoryFilterProps) 
             />
           )
         })}
-        {CATEGORY_FILTERS.length > 5 && !categorySearch && (
+        {options.length > 5 && !categorySearch && (
           <button
             type="button"
             onClick={() => setShowAllCategories(!showAllCategories)}
             className="cursor-pointer text-xs font-semibold text-primary hover:underline"
           >
-            {showAllCategories ? "Thu gọn" : `+ Xem thêm (${CATEGORY_FILTERS.length - 5})`}
+            {showAllCategories ? "Thu gọn" : `+ Xem thêm (${options.length - 5})`}
           </button>
         )}
       </div>
@@ -287,13 +285,14 @@ const CategoryFilter = ({ categorySet, onToggleCategory }: CategoryFilterProps) 
 interface AuthorFilterProps {
   authorSet: Set<string>
   onToggleAuthor: (author: string) => void
+  options: FilterOption[]
 }
 
-const AuthorFilter = ({ authorSet, onToggleAuthor }: AuthorFilterProps) => {
+const AuthorFilter = ({ authorSet, onToggleAuthor, options }: AuthorFilterProps) => {
   const [authorSearch, setAuthorSearch] = useState("")
   const [showAllAuthors, setShowAllAuthors] = useState(false)
 
-  let filteredAuthors = AUTHOR_FILTERS
+  let filteredAuthors = options
   if (authorSearch.trim()) {
     const q = authorSearch.toLowerCase().trim()
     filteredAuthors = filteredAuthors.filter((a) => a.label.toLowerCase().includes(q))
@@ -327,13 +326,13 @@ const AuthorFilter = ({ authorSet, onToggleAuthor }: AuthorFilterProps) => {
             />
           )
         })}
-        {AUTHOR_FILTERS.length > 4 && !authorSearch && (
+        {options.length > 4 && !authorSearch && (
           <button
             type="button"
             onClick={() => setShowAllAuthors(!showAllAuthors)}
             className="cursor-pointer text-xs font-semibold text-primary hover:underline"
           >
-            {showAllAuthors ? "Thu gọn" : `+ Xem thêm (${AUTHOR_FILTERS.length - 4})`}
+            {showAllAuthors ? "Thu gọn" : `+ Xem thêm (${options.length - 4})`}
           </button>
         )}
       </div>
@@ -344,12 +343,13 @@ const AuthorFilter = ({ authorSet, onToggleAuthor }: AuthorFilterProps) => {
 interface PublisherFilterProps {
   publisherSet: Set<string>
   onTogglePublisher: (publisher: string) => void
+  options: FilterOption[]
 }
 
-const PublisherFilter = ({ publisherSet, onTogglePublisher }: PublisherFilterProps) => (
+const PublisherFilter = ({ publisherSet, onTogglePublisher, options }: PublisherFilterProps) => (
   <FilterSection title="Nhà xuất bản" isOpenDefault={false}>
     <div className="space-y-2">
-      {PUBLISHER_FILTERS.map((pub) => {
+      {options.map((pub) => {
         const isChecked = publisherSet.has(pub.label)
         return (
           <CountedFilterOptionRow
@@ -447,12 +447,13 @@ const YearFilter = ({ yearRange, onSetYearRange }: YearFilterProps) => {
 interface LanguageFilterProps {
   languageSet: Set<string>
   onToggleLanguage: (language: string) => void
+  options: FilterOption[]
 }
 
-const LanguageFilter = ({ languageSet, onToggleLanguage }: LanguageFilterProps) => (
+const LanguageFilter = ({ languageSet, onToggleLanguage, options }: LanguageFilterProps) => (
   <FilterSection title="Ngôn ngữ" isOpenDefault={false} showSeparator={false}>
     <div className="space-y-2">
-      {LANGUAGE_OPTIONS.map((lang) => {
+      {options.map((lang) => {
         const isChecked = languageSet.has(lang.label)
         return (
           <CountedFilterOptionRow
@@ -473,6 +474,11 @@ const LanguageFilter = ({ languageSet, onToggleLanguage }: LanguageFilterProps) 
 export const SearchFilterSidebar = ({
   state,
   activeTags,
+  categoryOptions,
+  authorOptions,
+  publisherOptions,
+  languageOptions,
+  hasPublicationYears,
   onToggleStatus,
   onToggleCategory,
   onToggleAuthor,
@@ -506,11 +512,35 @@ export const SearchFilterSidebar = ({
         {/* Filter Sections */}
         <div className="space-y-1 pt-1">
           <StatusFilter statusSet={statusSet} onToggleStatus={onToggleStatus} />
-          <CategoryFilter categorySet={categorySet} onToggleCategory={onToggleCategory} />
-          <AuthorFilter authorSet={authorSet} onToggleAuthor={onToggleAuthor} />
-          <PublisherFilter publisherSet={publisherSet} onTogglePublisher={onTogglePublisher} />
-          <YearFilter yearRange={state.yearRange} onSetYearRange={onSetYearRange} />
-          <LanguageFilter languageSet={languageSet} onToggleLanguage={onToggleLanguage} />
+          <CategoryFilter
+            categorySet={categorySet}
+            onToggleCategory={onToggleCategory}
+            options={categoryOptions}
+          />
+          {authorOptions.length > 0 && (
+            <AuthorFilter
+              authorSet={authorSet}
+              onToggleAuthor={onToggleAuthor}
+              options={authorOptions}
+            />
+          )}
+          {publisherOptions.length > 0 && (
+            <PublisherFilter
+              publisherSet={publisherSet}
+              onTogglePublisher={onTogglePublisher}
+              options={publisherOptions}
+            />
+          )}
+          {hasPublicationYears && (
+            <YearFilter yearRange={state.yearRange} onSetYearRange={onSetYearRange} />
+          )}
+          {languageOptions.length > 0 && (
+            <LanguageFilter
+              languageSet={languageSet}
+              onToggleLanguage={onToggleLanguage}
+              options={languageOptions}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

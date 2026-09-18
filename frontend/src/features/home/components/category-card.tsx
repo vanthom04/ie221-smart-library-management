@@ -4,7 +4,7 @@ import type { CategoryItemType } from "../types"
 
 export const CategoryCard = ({ category }: { category: CategoryItemType }) => {
   return (
-    <div className="flex cursor-pointer flex-col items-center gap-3 rounded-2xl bg-slate-50 px-4 py-5 text-center transition-colors hover:bg-slate-100">
+    <div className="flex flex-col items-center gap-3 rounded-2xl bg-slate-50 px-4 py-5 text-center transition-colors">
       <div
         className={cn(
           "flex size-12 items-center justify-center rounded-xl",

@@ -1,46 +1,28 @@
 import { useState } from "react"
 import { m, AnimatePresence } from "motion/react"
-import {
-  BellIcon,
-  BookIcon,
-  LockIcon,
-  MailIcon,
-  StarIcon,
-  MarsIcon,
-  PhoneIcon,
-  User2Icon,
-  WalletIcon,
-  MapPinIcon,
-  CameraIcon,
-  SettingsIcon,
-  CalendarIcon,
-  HourglassIcon,
-  AlertTriangleIcon,
-  BriefcaseBusinessIcon
-} from "lucide-react"
+import { CalendarIcon, LockIcon, MailIcon, PhoneIcon, User2Icon } from "lucide-react"
 
 import { ProfileTab } from "@/features/profile/components/profile-tab"
 import { SecurityTab } from "@/features/profile/components/security-tab"
-import { SettingsTab } from "@/features/profile/components/settings-tab"
-import { NotificationsTab } from "@/features/profile/components/notifications-tab"
 
 import { cn, formatPhoneNumber, getInitials } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-type Tab = "profile" | "security" | "notifications" | "settings"
+import { useCurrentUser } from "@/features/profile/hooks/use-current-user"
+import { useQuickStats } from "@/features/user-dashboard/hooks/use-quick-stats"
+
+type Tab = "profile" | "security"
 
 const TABS = [
   { id: "profile", label: "Thông tin cá nhân", icon: User2Icon },
-  { id: "security", label: "Bảo mật", icon: LockIcon },
-  { id: "notifications", label: "Thông báo", icon: BellIcon },
-  { id: "settings", label: "Thiết lập", icon: SettingsIcon }
+  { id: "security", label: "Bảo mật", icon: LockIcon }
 ] as const
 
 export const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("profile")
-
-  const gender = "male"
+  const { data: currentUser } = useCurrentUser()
+  const { data: quickStats = [] } = useQuickStats()
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
@@ -94,58 +76,40 @@ export const ProfilePage = () => {
                 <div className="absolute -inset-x-6 -top-6 h-[60%] bg-blue-200" />
                 <div className="relative">
                   <Avatar className="size-24 border-3 border-white shadow">
-                    <AvatarImage src={"https://github.com/vanthom04.png"} />
-                    <AvatarFallback className="text-3xl">{getInitials("vanthom04")}</AvatarFallback>
+                    <AvatarImage src={currentUser?.avatar_url ?? ""} />
+                    <AvatarFallback className="text-3xl">
+                      {getInitials(currentUser?.full_name ?? "User")}
+                    </AvatarFallback>
                   </Avatar>
-                  <button
-                    type="button"
-                    onClick={() => {}}
-                    aria-label="Thay đổi ảnh đại diện"
-                    className="absolute right-0 bottom-0 inline-flex size-6.5 items-center justify-center rounded-full border border-border/60 bg-white shadow hover:bg-muted [&_svg]:size-3.5"
-                  >
-                    <CameraIcon />
-                  </button>
                 </div>
                 <div className="flex flex-col items-center gap-0.5">
-                  <p className="text-lg font-semibold text-foreground">{"Chu Văn Thơm"}</p>
-                  <div
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-full px-2 py-1",
-                      gender === "male" ? "bg-blue-500" : "bg-pink-500"
-                    )}
-                  >
-                    <MarsIcon className="size-3 text-white" />
-                    <span className="text-xs text-white">{gender === "male" ? "Nam" : "Nữ"}</span>
+                  <p className="text-lg font-semibold text-foreground">
+                    {currentUser?.full_name ?? "Độc giả"}
+                  </p>
+                  <div className="flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                    <span>{currentUser?.role === "admin" ? "Quản trị viên" : "Độc giả"}</span>
                   </div>
                 </div>
               </div>
               <div className="mt-3 flex w-full flex-col items-start gap-2">
                 <div className="flex w-full items-center gap-2">
                   <MailIcon className="size-3.5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{"vanthom04@gmail.com"}</span>
+                  <span className="text-sm text-muted-foreground">{currentUser?.email ?? "—"}</span>
                 </div>
-                <div className="flex w-full items-center gap-2">
-                  <PhoneIcon className="size-3.5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {formatPhoneNumber("0123456789")}
-                  </span>
-                </div>
+                {currentUser?.phone && (
+                  <div className="flex w-full items-center gap-2">
+                    <PhoneIcon className="size-3.5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {formatPhoneNumber(currentUser.phone)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex w-full items-center gap-2">
                   <CalendarIcon className="size-3.5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{"01/01/2000"}</span>
-                </div>
-                <div className="flex w-full items-center gap-2">
-                  <StarIcon className="size-3.5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{"Kinh tế học"}</span>
-                </div>
-                <div className="flex w-full items-center gap-2">
-                  <BriefcaseBusinessIcon className="size-3.5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{"Quản trị kinh doanh"}</span>
-                </div>
-                <div className="flex w-full items-center gap-2">
-                  <MapPinIcon className="size-3.5 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    {"Hồ Chí Minh City, Việt Nam"}
+                    {currentUser?.created_at
+                      ? `Tham gia: ${new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date(currentUser.created_at))}`
+                      : "Thành viên thư viện"}
                   </span>
                 </div>
               </div>
@@ -154,48 +118,26 @@ export const ProfilePage = () => {
           {/* Quick */}
           <Card className="rounded-lg py-5 shadow-sm">
             <CardContent className="space-y-3 px-5">
-              <h3 className="text-sm font-semibold text-foreground">Thống kê nhanh</h3>
+              <h3 className="text-sm font-semibold text-foreground">Thống kê hoạt động</h3>
               <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                    <BookIcon className="size-5 text-blue-600" />
-                  </div>
-                  <div className="min-w-0 space-y-0.5">
-                    <p className="leading-tight font-bold text-foreground">3</p>
-                    <p className="text-xs leading-tight text-muted-foreground">Sách đang mượn</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-red-50">
-                    <AlertTriangleIcon className="size-5 text-red-600" />
-                  </div>
-                  <div className="min-w-0 space-y-0.5">
-                    <p className="leading-tight font-bold text-foreground">1</p>
-                    <p className="text-xs leading-tight text-muted-foreground">Sách quá hạn</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-green-50">
-                    <HourglassIcon className="size-5 text-green-600" />
-                  </div>
-                  <div className="min-w-0 space-y-0.5">
-                    <p className="leading-tight font-bold text-foreground">2</p>
-                    <p className="text-xs leading-tight text-muted-foreground">
-                      Đặt trước đang chờ
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-yellow-50">
-                    <WalletIcon className="size-5 text-yellow-600" />
-                  </div>
-                  <div className="min-w-0 space-y-0.5">
-                    <p className="leading-tight font-bold text-foreground">25.000đ</p>
-                    <p className="text-xs leading-tight text-muted-foreground">
-                      Tiền phạt chưa thanh toán
-                    </p>
-                  </div>
-                </div>
+                {quickStats && quickStats.length > 0 ? (
+                  quickStats.map((item) => (
+                    <div key={item.id} className="flex items-center gap-2">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-base font-bold text-blue-600">
+                        {item.value}
+                      </div>
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="text-xs leading-tight font-medium text-foreground">
+                          {item.title}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="col-span-2 text-xs text-muted-foreground">
+                    Chưa có hoạt động mượn trả nào.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -212,8 +154,6 @@ export const ProfilePage = () => {
           >
             {activeTab === "profile" && <ProfileTab />}
             {activeTab === "security" && <SecurityTab />}
-            {activeTab === "notifications" && <NotificationsTab />}
-            {activeTab === "settings" && <SettingsTab />}
           </m.div>
         </AnimatePresence>
       </div>

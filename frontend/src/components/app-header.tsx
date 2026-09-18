@@ -1,12 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, useLocation, useNavigate } from "react-router"
 import {
-  BellIcon,
-  User2Icon,
-  HistoryIcon,
-  LogOutIcon,
   ChevronDownIcon,
-  LayoutDashboardIcon
+  HistoryIcon,
+  LayoutDashboardIcon,
+  LogOutIcon,
+  ShieldIcon,
+  User2Icon
 } from "lucide-react"
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store"
@@ -42,7 +42,8 @@ export const AppHeader = () => {
       await api.post("/auth/logout")
 
       logout()
-      queryClient.removeQueries({ queryKey: ["current-user"] })
+      queryClient.clear()
+      navigate("/login", { replace: true })
     } catch (error) {
       const message = isApiError(error) ? error.message : "Có lỗi xảy ra vui lòng thử lại sau!"
       addToast({ type: "error", message })
@@ -63,12 +64,6 @@ export const AppHeader = () => {
       <div className="flex items-center justify-center gap-6">
         {user ? (
           <>
-            <Button size="icon" variant="ghost" className="relative [&_svg]:size-5!">
-              <BellIcon />
-              <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
-                3
-              </span>
-            </Button>
             {isPending ? (
               <Skeleton className="h-11 w-56" />
             ) : (
@@ -89,6 +84,12 @@ export const AppHeader = () => {
                   )}
                 />
                 <DropdownMenuContent sideOffset={10}>
+                  {user?.role === "admin" && (
+                    <DropdownMenuItem onClick={() => navigate("/admin/dashboard")}>
+                      <ShieldIcon />
+                      <span>Trang quản trị</span>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => navigate("/profile")}>
                     <User2Icon />
                     <span>Cá nhân</span>
