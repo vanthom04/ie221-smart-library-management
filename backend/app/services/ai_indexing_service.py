@@ -36,6 +36,7 @@ class AIIndexingService:
         return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
     async def index_book(self, book_id: uuid.UUID) -> AIIndexingResponse:
+        """Bỏ qua việc mã hóa khi nội dung chưa đổi và đẩy tác vụ CPU khỏi vòng lặp bất đồng bộ."""
         books = await self._ai_search.get_books_by_ids([book_id])
         if not books:
             raise ResourceNotFoundError("Không tìm thấy sách cần lập chỉ mục!")
@@ -72,6 +73,7 @@ class AIIndexingService:
         )
 
     async def index_all_books(self) -> AIIndexingResponse:
+        """Chỉ mã hóa sách đã đổi và ghi cả đợt trong một transaction để tránh chỉ mục dở dang."""
         books = await self._ai_search.list_books_for_indexing()
         hashes = await self._ai_search.get_embedding_hashes()
 

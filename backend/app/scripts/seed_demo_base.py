@@ -1,9 +1,3 @@
-"""Seed master data và tài khoản phục vụ demo.
-
-Chạy:
-    uv run python -m app.scripts.seed_demo_base
-"""
-
 from __future__ import annotations
 
 import asyncio

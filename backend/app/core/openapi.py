@@ -5,19 +5,7 @@ from app.schemas.error import ErrorResponse
 
 
 def _build_schema(app: FastAPI) -> dict:
-    """Tạo và tùy chỉnh lược đồ (schema) OpenAPI cho ứng dụng FastAPI.
-
-    Hàm này giải quyết một giới hạn đã biết của FastAPI: Khi tùy chỉnh exception handler
-    cho lỗi 422 (Validation Error), FastAPI vẫn hardcode component `HTTPValidationError`
-    (gồm loc/msg/type/input/ctx) mà không tự động cập nhật OpenAPI docs. Hàm này ghi đè
-    component đó bằng chính schema `ErrorResponse` đang thực sự được trả về lúc runtime.
-
-    Args:
-        app (FastAPI): Thể hiện (instance) của ứng dụng FastAPI cần tạo schema.
-
-    Returns:
-        dict: Một từ điển (dictionary) chứa lược đồ OpenAPI đã được chỉnh sửa.
-    """
+    """Ghi đè schema 422 bị FastAPI cố định để tài liệu khớp ErrorResponse lúc chạy."""
     schema = get_openapi(title=app.title, version=app.version, routes=app.routes)
 
     error_schema = ErrorResponse.model_json_schema(ref_template="#/components/schemas/{model}")
@@ -39,19 +27,7 @@ def _build_schema(app: FastAPI) -> dict:
 
 
 def use_custom_openapi(app: FastAPI) -> None:
-    """Ghi đè phương thức tạo OpenAPI mặc định của ứng dụng FastAPI.
-
-    Hàm này thay thế `app.openapi` bằng một hàm tùy chỉnh. Nó giữ nguyên cơ chế
-    cache của FastAPI gốc: lược đồ OpenAPI chỉ được xây dựng (build) một lần duy nhất
-    cho lần gọi `/openapi.json` đầu tiên, sau đó sẽ được lưu lại và tái sử dụng
-    nhằm tối ưu hiệu suất.
-
-    Args:
-        app (FastAPI): Thể hiện (instance) của ứng dụng FastAPI cần ghi đè cấu hình OpenAPI.
-
-    Returns:
-        None
-    """
+    """Thay app.openapi nhưng giữ cache gốc để không dựng lại schema mỗi request."""
 
     def custom_openapi() -> dict:
         if app.openapi_schema is None:

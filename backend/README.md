@@ -83,7 +83,7 @@ backend/
 │   ├── api/v1/         # auth, users, borrowing, ai
 │   ├── core/           # Settings, security, errors, OpenAPI
 │   ├── db/             # AsyncSession, Base, mixins
-│   ├── models/         # 14 bảng ORM, bao gồm book_embeddings
+│   ├── models/         # 13 bảng ORM, bao gồm book_embeddings
 │   ├── repositories/   # User, refresh token, borrowing, AI search
 │   ├── schemas/        # Request/response Pydantic
 │   ├── services/       # Auth, user, borrowing, embedding, indexing, search, recommendation
@@ -192,6 +192,20 @@ Các cấu hình chính trong file `.env`:
 | :-------------- | :-------------------------------------------------- | :------------------------------------------------------------- |
 | `DATABASE_URL`  | Chuỗi kết nối PostgreSQL Async via `asyncpg` driver | `postgresql+asyncpg://user:password@localhost:5432/library_db` |
 
+### Borrowing & AI Settings
+
+| Biến | Mặc định | Ý nghĩa |
+| :--- | :--- | :--- |
+| `RESERVATION_HOLD_DAYS` | `3` | Số ngày giữ sách sau khi duyệt đặt trước |
+| `BORROW_DAYS` | `14` | Thời hạn của một phiếu mượn |
+| `RENEWAL_DAYS` | `7` | Số ngày cộng thêm khi gia hạn |
+| `MAX_RENEWALS` | `1` | Số lần gia hạn tối đa |
+| `AI_EMBEDDING_MODEL_NAME` | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | Model embedding đa ngôn ngữ |
+| `AI_EMBEDDING_DIMENSION` | `384` | Số chiều vector, phải khớp schema pgvector |
+| `AI_EMBEDDING_DEVICE` | `cpu` | Thiết bị chạy model |
+| `AI_EMBEDDING_BATCH_SIZE` | `32` | Kích thước batch khi index |
+| `AI_SEARCH_TOP_K` | `5` | Giá trị top-k cấu hình; API hiện ưu tiên `limit` từ request |
+
 ---
 
 ## 🗃️ Hướng dẫn Quản lý Database Migration (Alembic)
@@ -266,6 +280,31 @@ Mỗi thao tác thay đổi phiếu và tồn kho chạy trong cùng một datab
 Các quy tắc thời gian có thể cấu hình bằng `RESERVATION_HOLD_DAYS`, `BORROW_DAYS`,
 `RENEWAL_DAYS` và `MAX_RENEWALS` trong file `.env`.
 
+### Catalog (`/api/v1`)
+
+| Method | Endpoint | Mô tả | Quyền |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/books/`, `/categories/`, `/authors/`, `/publishers/` | Danh sách dữ liệu catalog | Công khai |
+| `GET` | `/books/search` | Tìm theo tiêu đề và lọc theo danh mục/tác giả/NXB | Công khai |
+| `POST` | `/books/`, `/categories/`, `/authors/`, `/publishers/` | Tạo dữ liệu catalog | Admin |
+| `PUT` | `/{resource}/{id}` | Cập nhật toàn bộ một bản ghi | Admin |
+| `DELETE` | `/{resource}/{id}` | Xóa một bản ghi | Admin |
+
+`resource` là `books`, `categories`, `authors` hoặc `publishers`. Các endpoint danh sách hiện trả toàn bộ dữ liệu, chưa có phân trang phía server.
+
+### Dashboard (`/api/v1/dashboard`)
+
+| Method | Endpoint | Nội dung | Quyền |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/user/quick-stats` | Chỉ số nhanh của bạn đọc | User |
+| `GET` | `/user/borrowed-books` | Sách đang mượn | User |
+| `GET` | `/user/recent-activities` | Hoạt động gần đây | User |
+| `GET` | `/user/due-soon-books` | Sách sắp đến hạn | User |
+| `GET` | `/admin/stats` | Chỉ số tổng quan thư viện | Admin |
+| `GET` | `/admin/recent-borrows` | Phiếu mượn gần đây | Admin |
+| `GET` | `/admin/category-stats` | Phân bố theo thể loại | Admin |
+| `GET` | `/admin/borrow-overview?period=week|month|year` | Xu hướng mượn theo kỳ | Admin |
+
 ---
 
 ## 🔒 Quy trình Bảo mật & Luồng Xác thực
@@ -324,7 +363,7 @@ Ví dụ body tìm kiếm trong Scalar `/docs`:
 
 ### Cấu hình AI
 
-Đã khai báo trong `app/core/config.py`, chưa có trong `.env.example`; thêm vào `.env` khi cần ghi đè.
+Đã khai báo trong `app/core/config.py`; thêm các biến này vào `.env` khi cần ghi đè giá trị mặc định.
 
 | Biến | Mặc định |
 | :--- | :--- |
@@ -359,3 +398,13 @@ uv run python -m tests.manual_ai_db_check
 ```
 
 Cleanup xóa refresh token hết hạn hoặc bị thu hồi; cần cron/scheduler bên ngoài để chạy định kỳ. `/heathz` chỉ trả trạng thái ứng dụng, không kiểm tra DB hay model AI.
+
+## Dữ liệu demo
+
+Sau khi migration, có thể tạo catalog, tài khoản, giao dịch mượn/đặt và dữ liệu dashboard mẫu:
+
+```bash
+uv run python -m app.scripts.seed_demo
+```
+
+Dùng `--skip-ai` nếu chưa muốn tải model embedding; chạy `uv run python -m app.scripts.index_demo_ai` để index sau. Tài khoản mặc định là `demo.admin@example.com`, `demo.minhanh@example.com`, `demo.giahuy@example.com`, cùng mật khẩu `Demo123!@#` (có thể đổi bằng `DEMO_DEFAULT_PASSWORD`). Script từ chối chạy trong production trừ khi bật rõ `ALLOW_DEMO_SEED=1`.

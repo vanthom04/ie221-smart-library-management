@@ -18,13 +18,14 @@ from app.schemas.ai_search import AIIndexedBook
 
 
 class AISearchRepository:
-    """Data access cho AI indexing semantic search."""
+    """Tầng truy xuất dữ liệu cho tìm kiếm ngữ nghĩa. Không chứa business logic."""
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
     @asynccontextmanager
     async def transaction(self) -> AsyncGenerator[None]:
+        """Giữ toàn bộ đợt cập nhật embedding cùng thành công hoặc cùng rollback."""
         try:
             yield
             await self._session.commit()

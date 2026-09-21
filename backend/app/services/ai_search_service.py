@@ -14,11 +14,10 @@ class AISearchService:
         ai_embedding_service: AIEmbeddingService,
     ) -> None:
         self._ai_search = ai_search_repository
-        self._embeddings = ai_embedding_service
+        self._embedding_svc = ai_embedding_service
 
     async def search(self, *, query: str, limit: int) -> list[AISearchResult]:
-        query_vector = await asyncio.to_thread(self._embeddings.embed_query, query)
-
+        query_vector = await asyncio.to_thread(self._embedding_svc.embed_query, query)
         matches = await self._ai_search.search_by_vector(query_vector.tolist(), limit)
 
         if not matches:

@@ -1,8 +1,3 @@
-"""Exercise real AI API and pgvector indexing with temporary database rows.
-
-Usage: uv run python -m tests.manual_ai_db_check
-"""
-
 import asyncio
 import uuid
 from datetime import UTC, datetime, timedelta

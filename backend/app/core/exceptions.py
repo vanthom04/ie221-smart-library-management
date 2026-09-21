@@ -1,5 +1,5 @@
 class DomainError(Exception):
-    """Base exception cho toàn bộ business logic."""
+    """Lớp gốc để ánh xạ lỗi nghiệp vụ sang phản hồi HTTP thống nhất."""
 
     status_code: int = 400
     headers: dict[str, str] | None = None
@@ -30,13 +30,13 @@ class InvalidTokenError(DomainError):
 
 
 class UserNotFoundError(DomainError):
-    """Không tìm thấy user hoặc user không tồn tại."""
+    """Không tìm thấy người dùng theo định danh được yêu cầu."""
 
     status_code = 404
 
 
 class InsufficientPermissionError(DomainError):
-    """User đã xác thực hợp lệ nhưng không đủ quyền."""
+    """Người dùng đã xác thực nhưng không có quyền thực hiện thao tác."""
 
     status_code = 403
 

@@ -4,8 +4,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Cấu hình toàn cục, đọc từ file .env"""
-
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     # --- App ---
@@ -40,7 +38,7 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Cấu hình cache để chỉ đọc/parse .env một lần duy nhất."""
+    """Dùng cache để tránh đọc và phân tích lại `.env` ở mỗi lần inject cấu hình."""
     return Settings(**{})
 
 

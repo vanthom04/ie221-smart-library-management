@@ -38,6 +38,7 @@ class BorrowingService:
         return await self._repository.list_reservations(status)
 
     async def approve_reservation(self, reservation_id: uuid.UUID, admin: User) -> Reservation:
+        """Giữ trước tồn kho ngay khi duyệt để không bán cùng một bản sách hai lần."""
         now = datetime.now(UTC)
 
         await self.expire_reservations()
@@ -72,6 +73,7 @@ class BorrowingService:
             return await self._repository.refresh_reservation(reservation)
 
     async def cancel_reservation(self, reservation_id: uuid.UUID, actor: User) -> Reservation:
+        """Hoàn lại tồn kho nếu phiếu đã được duyệt vì số lượng đã bị giữ trước đó."""
         async with self._repository.transaction():
             reservation = await self._get_reservation(reservation_id, for_update=True)
             if actor.role != UserRole.ADMIN and reservation.user_id != actor.id:
@@ -87,10 +89,12 @@ class BorrowingService:
             return await self._repository.refresh_reservation(reservation)
 
     async def expire_reservations(self) -> int:
+        """Giải phóng tồn kho của các phiếu đã duyệt nhưng quá thời hạn nhận sách."""
         async with self._repository.transaction():
             return await self._release_expired_reservations(datetime.now(UTC))
 
     async def create_direct_borrow(self, payload: BorrowCreate) -> BorrowRecord:
+        """Khóa sách và trừ tồn kho trong cùng transaction để tránh mượn vượt số lượng."""
         now = datetime.now(UTC)
 
         await self.expire_reservations()
@@ -116,6 +120,7 @@ class BorrowingService:
             return await self._repository.refresh_borrow_record(borrow)
 
     async def borrow_from_reservation(self, reservation_id: uuid.UUID) -> BorrowRecord:
+        """Không trừ tồn kho lần nữa vì số lượng đã được giữ khi duyệt phiếu đặt trước."""
         now = datetime.now(UTC)
 
         await self.expire_reservations()
@@ -144,6 +149,7 @@ class BorrowingService:
         return await self._repository.list_borrow_records()
 
     async def return_borrow(self, borrow_id: uuid.UUID) -> BorrowRecord:
+        """Chỉ hoàn tồn kho cho mục chưa trả để thao tác lặp lại không cộng dư số lượng."""
         now = datetime.now(UTC)
         async with self._repository.transaction():
             borrow = await self._get_borrow_record(borrow_id, for_update=True)
@@ -162,6 +168,7 @@ class BorrowingService:
             return await self._repository.refresh_borrow_record(borrow)
 
     async def renew_borrow(self, borrow_id: uuid.UUID, actor: User) -> BorrowRecord:
+        """Từ chối gia hạn khi người khác đang chờ để bảo đảm thứ tự phục vụ."""
         now = datetime.now(UTC)
         async with self._repository.transaction():
             borrow = await self._get_borrow_record(borrow_id, for_update=True)
