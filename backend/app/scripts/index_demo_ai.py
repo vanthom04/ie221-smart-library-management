@@ -1,9 +1,3 @@
-"""Tạo/cập nhật embedding để demo AI Search và Recommendation.
-
-Chạy:
-    uv run python -m app.scripts.index_demo_ai
-"""
-
 from __future__ import annotations
 
 import asyncio

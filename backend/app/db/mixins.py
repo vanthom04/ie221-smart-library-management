@@ -6,19 +6,19 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class UUIDPkMixin:
-    """UUID Primary Key tự sinh - dùng cho mọi model TRỪ bảng trung gian N-N có PK composite."""
+    """Chuẩn hóa khóa UUID tự sinh; bảng trung gian có khóa ghép không dùng mixin này."""
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
 
 class CreatedAtMixin:
-    """created_at - dùng cho model chỉ cần ghi nhận thời điểm tạo, không theo dõi chỉnh sửa."""
+    """Dành cho model chỉ cần dấu thời gian tạo và không theo dõi chỉnh sửa."""
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class TimestampMixin(CreatedAtMixin):
-    """created_at + updated_at - dùng cho model có thể bị chỉnh sửa sau khi tạo."""
+    """Bổ sung dấu thời gian cập nhật cho model có thể thay đổi sau khi tạo."""
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

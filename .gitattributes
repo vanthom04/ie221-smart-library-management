@@ -1,2 +1,6 @@
 # Ignore frontend directory from GitHub language statistics
 frontend/** linguist-detectable=false
+
+# Treat exported documents as binary files in Git diffs.
+*.pdf binary
+*.docx binary

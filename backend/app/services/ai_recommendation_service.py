@@ -15,6 +15,7 @@ class AIRecommendationService:
     async def recommend_for_user(
         self, *, user_id: uuid.UUID, limit: int
     ) -> AIRecommendationResponse:
+        """Dùng sách phổ biến làm phương án dự phòng khi lịch sử chưa đủ vector hợp lệ."""
         borrowed_book_ids = await self._ai_search.get_user_borrowed_book_ids(user_id)
 
         if not borrowed_book_ids:

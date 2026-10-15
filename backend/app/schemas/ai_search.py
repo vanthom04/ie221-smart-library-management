@@ -4,8 +4,6 @@ from pydantic import BaseModel, Field
 
 
 class AIIndexedBook(BaseModel):
-    """Metadata sách dùng nội bộ cho indexing/search."""
-
     book_id: uuid.UUID
     title: str
     isbn: str | None = None

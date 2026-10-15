@@ -23,13 +23,11 @@ async def get_categories(db: AsyncSession):
 
 
 async def get_category_by_id(db: AsyncSession, category_id: UUID):
-    """Hàm phụ trợ để tìm thể loại theo ID"""
     result = await db.execute(select(Category).filter(Category.id == category_id))
     return result.scalar_one_or_none()
 
 
 async def update_category(db: AsyncSession, category_id: UUID, category_update: CategoryCreate):
-    """Xử lý cập nhật thể loại"""
     db_category = await get_category_by_id(db, category_id)
     if not db_category:
         return None
@@ -44,7 +42,6 @@ async def update_category(db: AsyncSession, category_id: UUID, category_update: 
 
 
 async def delete_category(db: AsyncSession, category_id: UUID):
-    """Xử lý xóa thể loại"""
     db_category = await get_category_by_id(db, category_id)
     if not db_category:
         return False

@@ -1,10 +1,4 @@
 # ruff: noqa: E501
-"""Dữ liệu mẫu phục vụ demo Smart Library.
-
-Dữ liệu này chỉ nhằm mục đích demo chức năng, không phải metadata thư mục
-chính thức của từng ấn bản sách.
-"""
-
 from __future__ import annotations
 
 import os

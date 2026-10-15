@@ -1,10 +1,4 @@
 # ruff: noqa: E501
-"""Seed lịch sử mượn/đặt trước cho Dashboard và AI Recommendation.
-
-Chạy:
-    uv run python -m app.scripts.seed_demo_activity
-"""
-
 from __future__ import annotations
 
 import asyncio

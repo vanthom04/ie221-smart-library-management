@@ -1,8 +1,3 @@
-"""Run the borrowing checklist against the configured database, then roll it back.
-
-Usage: uv run python -m tests.manual_borrowing_db_check
-"""
-
 import asyncio
 import uuid
 from datetime import UTC, datetime, timedelta

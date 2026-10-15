@@ -5,8 +5,6 @@ from app.core.config import settings
 
 
 class AIEmbeddingService:
-    """Lazy singleton bọc SentenceTransformer."""
-
     _instance: "AIEmbeddingService | None" = None
 
     def __init__(self) -> None:
@@ -23,6 +21,7 @@ class AIEmbeddingService:
 
     @classmethod
     def get_instance(cls) -> "AIEmbeddingService":
+        """Trì hoãn tải model nặng và tái sử dụng một bản duy nhất trong tiến trình."""
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance

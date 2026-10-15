@@ -9,8 +9,6 @@ from app.db.mixins import TimestampMixin, UUIDPkMixin
 
 
 class BookEmbedding(UUIDPkMixin, TimestampMixin, Base):
-    """Vector embedding tương ứng với một cuốn sách trong catalog."""
-
     __tablename__ = "book_embeddings"
 
     book_id: Mapped[uuid.UUID] = mapped_column(

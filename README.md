@@ -1,141 +1,216 @@
 # 📚 Hệ Thống Quản Lý Thư Viện & Mượn Trả Sách Thông Minh
 
-Đây là kho lưu trữ mã nguồn (repository) cho đồ án kết thúc môn: **Kỹ thuật lập trình Python (IE221)**. Dự án được phát triển theo mô hình Client-Server với giao diện người dùng hiện đại và hệ thống xử lý backend hiệu năng cao, tích hợp AI để tối ưu hóa trải nghiệm mượn trả sách.
+Repository đồ án kết thúc môn **Kỹ thuật lập trình Python (IE221)**. Dự án được phát triển theo mô hình client-server, hỗ trợ nghiệp vụ dành cho bạn đọc và quản trị viên, đồng thời tích hợp tìm kiếm ngữ nghĩa và gợi ý sách cá nhân hóa.
+
+## ✨ Chức năng chính
+
+### Bạn đọc
+
+- Đăng ký, đăng nhập, refresh token và đổi mật khẩu.
+- Tra cứu catalog, lọc sách và tìm kiếm ngữ nghĩa bằng AI.
+- Đặt trước, hủy đặt trước, xem lịch sử mượn và gia hạn sách.
+- Theo dõi dashboard cá nhân: sách đang mượn, sắp đến hạn, hoạt động gần đây và gợi ý sách.
+
+### Quản trị viên
+
+- Quản lý sách, thể loại, tác giả và nhà xuất bản.
+- Duyệt/từ chối phiếu đặt, lập phiếu mượn và xác nhận trả sách.
+- Theo dõi dashboard thống kê, xu hướng mượn và phân bố thể loại.
+- Khóa/mở khóa tài khoản và lập chỉ mục AI cho catalog.
 
 ## 👥 Danh sách thành viên (Nhóm 11)
 
-| STT | Tên thành viên  |   MSSV   | Phân công      |
-| :-: | :-------------- | :------: | :------------- |
-|  1  | Trần Ngọc Tâm   | 25410300 | Book Catalog   |
-|  2  | Hồ Thiên Phúc   | 25410284 | Dashboard & QA |
-|  3  | Chu Văn Thơm    | 25410314 | IAM & Infra    |
-|  4  | Trần Bình Trọng | 25410324 | Borrowing Core |
-|  5  | Lê Thanh Quốc   | 25410289 | Fines & AI     |
+| STT | Tên thành viên | MSSV | Phân công |
+| :-: | :--- | :---: | :--- |
+| 1 | Trần Ngọc Tâm | 25410300 | Book Catalog |
+| 2 | Hồ Thiên Phúc | 25410284 | Dashboard & QA |
+| 3 | Chu Văn Thơm | 25410314 | IAM & Infra |
+| 4 | Trần Bình Trọng | 25410324 | Borrowing Core |
+| 5 | Lê Thanh Quốc | 25410289 | Fines & AI |
 
 ## 🚀 Công nghệ sử dụng
 
-- **Backend:** Python 3, FastAPI. Quản lý môi trường và package bằng `uv`.
-- **Frontend:** ReactJS (khởi tạo qua Vite), JavaScript/TypeScript.
-- **Cơ sở dữ liệu:** PostgreSQL (kết hợp SQLAlchemy ORM).
-- **Tích hợp AI:** Sentence Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) tạo embedding đa ngôn ngữ 384 chiều tại backend; PostgreSQL/pgvector hỗ trợ tìm kiếm ngữ nghĩa. Gợi ý cá nhân hóa dựa trên lịch sử mượn và cosine similarity, dự phòng bằng sách phổ biến. Hiện không dùng API Groq.
+- **Backend:** Python 3.12+, FastAPI, SQLAlchemy Async, Alembic; quản lý package bằng `uv`.
+- **Frontend:** React 19, TypeScript 6, Vite 8, React Router, TanStack Query và Zustand.
+- **Cơ sở dữ liệu:** PostgreSQL kết hợp `pg_trgm`, `pgvector` và SQLAlchemy ORM.
+- **AI:** Sentence Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) tạo embedding đa ngôn ngữ 384 chiều. Tìm kiếm dùng cosine distance trong PostgreSQL; gợi ý cá nhân hóa dựa trên lịch sử mượn và fallback theo độ phổ biến. Dự án hiện không dùng API Groq.
 
-Chi tiết API, cấu hình AI và các điểm cần hoàn thiện (bao gồm lỗi dependency lập chỉ mục) xem tại [README backend](backend/README.md).
+Tài liệu chi tiết:
 
-## 📂 Cấu trúc thư mục (Monorepo)
+- [Backend README](backend/README.md): kiến trúc, database, API, xác thực, AI, seed và kiểm thử.
+- [Frontend README](frontend/README.md): chức năng, routing, phân quyền, HTTP client và build.
 
-Dự án được chia thành 2 phân hệ chính nằm trong cùng một repository để dễ dàng quản lý cho làm việc nhóm:
+## 📂 Cấu trúc monorepo
 
 ```text
 ie221-smart-library-management/
-├─ .github/                      # Cấu hình GitHub Actions CI/CD workflows
-├─ .vscode/                      # Cấu hình workspace & extension gợi ý cho VS Code
-├─ backend/                      # Nơi chứa mã nguồn FastAPI (Python)
-│  ├─ alembic/                   # Thư mục chứa các kịch bản migration tự động sinh ra
-│  ├─ app/                       # Code chính của ứng dụng
-│  │  ├─ api/                    # Các router định tuyến API (users.py, books.py, ...)
-│  │  ├─ core/                   # Cấu hình chung (config, security, JWT)
-│  │  ├─ db/                     # Kết nối CSDL và các file migration (Alembic)
-│  │  ├─ models/                 # Khai báo các table trong Database (SQLAlchemy)
-│  │  ├─ repositories/           # Lớp truy vấn CSDL (CRUD, SELECT, INSERT...) tách biệt với Service
-│  │  ├─ schemas/                # Pydantic models (validate data in/out)
-│  │  ├─ services/               # Chứa logic xử lý nghiệp vụ và gọi API AI
-│  │  └─ main.py                 # File chạy chính của FastAPI
-│  ├─ pyproject.toml             # Quản lý thư viện Python bởi `uv`
-│  └─ .env                       # (Không commit) Các biến môi trường backend
-│
-├─ frontend/                     # Nơi chứa mã nguồn ReactJS (Vite)
-│  ├─ src/                       # Code chính của giao diện
-│  │  ├─ components/             # Các component dùng chung (Button, Modal, Navbar...)
-│  │  ├─ features/               # Mô-đun theo tính năng (Feature-driven)
-│  │  ├─ hooks/                  # Custom React Hooks
-│  │  ├─ layouts/                # App Layouts
-│  │  ├─ lib/                    # Utilities & Config Layer
-│  │  ├─ pages/                  # Các trang chính (Home, Login, Dashboard, Search)
-│  │  ├─ router/                 # Route definitions & Middleware
-│  │  └─ main.tsx                # Entry point của React
-│  ├─ package.json               # Quản lý thư viện Node.js
-│  └─ .env                       # (Không commit) Cấu hình URL gọi API
-│
-├─ docs/                         # Tài liệu của đồ án (Bắt buộc)
-│  ├─ BaoCao_Final.pdf           # Báo cáo chi tiết nghiệp vụ và hệ thống
-│  ├─ Slide_Final.pdf            # Slide thuyết trình (Tối đa 10-12 trang)
-│  └─ KhaiBaoAI.md               # Bảng kê khai chi tiết các prompt AI đã dùng
-│
-├─ package.json                  # Scripts quản lý và khởi chạy toàn bộ monorepo
-├─ README.md                     # Hướng dẫn dự án
-└─ .gitignore                    # Bỏ qua các file không cần thiết khi commit
+├── .github/                  # GitHub Actions
+├── backend/
+│   ├── alembic/              # Database migrations
+│   ├── app/
+│   │   ├── api/              # FastAPI routers và dependencies
+│   │   ├── core/             # Settings, security, errors, OpenAPI
+│   │   ├── db/               # Base model, mixin và AsyncSession
+│   │   ├── models/           # SQLAlchemy models
+│   │   ├── repositories/     # Data-access layer
+│   │   ├── schemas/          # Pydantic request/response schemas
+│   │   ├── services/         # Business logic
+│   │   ├── scripts/          # Seed, AI indexing và cleanup
+│   │   └── main.py           # FastAPI application
+│   ├── tests/                # Unit test và kiểm tra DB thủ công
+│   ├── .env.example
+│   ├── pyproject.toml
+│   └── README.md
+├── frontend/
+│   ├── public/               # Static assets
+│   ├── src/
+│   │   ├── components/       # Component dùng chung và UI primitives
+│   │   ├── features/         # Module theo tính năng
+│   │   ├── layouts/          # Application layouts
+│   │   ├── lib/              # Axios, query client và utilities
+│   │   ├── pages/            # User, admin và auth pages
+│   │   ├── router/           # Routes và middleware
+│   │   └── main.tsx
+│   ├── .env.example
+│   ├── package.json
+│   └── README.md
+├── docs/                     # Báo cáo, slide và kê khai AI
+├── package.json              # Scripts chạy monorepo
+└── README.md
 ```
 
-## 🛠 Hướng dẫn cài đặt và chạy dự án
+## 🛠 Cài đặt và chạy dự án
 
-### 1. Yêu cầu hệ thống (Prerequisites)
+### 1. Yêu cầu hệ thống
 
-- **Python:** >= 3.10
-- **uv:** Công cụ quản lý package Python cực nhanh (Cài đặt: `curl -LsSf https://astral.sh/uv/install.sh | sh` hoặc `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`)
-- **Node.js:** >= 20.x
-- **Git**
+- Python >= 3.12.
+- Node.js >= 22.
+- `uv` package manager.
+- PostgreSQL có extension `pg_trgm` và `vector` (pgvector).
+- Git.
 
----
+### 2. Cấu hình môi trường
 
-### 2. Khởi chạy nhanh toàn bộ dự án (Khuyến nghị)
-
-Tại thư mục gốc của repository:
+Tạo hai file môi trường từ mẫu:
 
 ```bash
-# 1. Cài đặt các công cụ chạy song song ở root
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Trên PowerShell:
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+Copy-Item frontend/.env.example frontend/.env
+```
+
+Cập nhật tối thiểu trong `backend/.env`:
+
+```env
+DATABASE_URL="postgresql+asyncpg://postgres:password@localhost:5432/library_db"
+SECRET_KEY="your-random-secret-key"
+BACKEND_CORS_ORIGINS=["http://localhost:5173"]
+COOKIE_SECURE=false
+```
+
+Frontend mặc định sử dụng:
+
+```env
+VITE_API_URL="http://localhost:8000/api/v1"
+```
+
+Không commit các file `.env`. Khi production chạy qua HTTPS, đặt `COOKIE_SECURE=true`.
+
+### 3. Cài dependency và migration
+
+Từ thư mục gốc:
+
+```bash
 npm install
-
-# 2. Tự động cài đặt dependencies cho cả Backend & Frontend
 npm run install:all
+cd backend
+uv run alembic upgrade head
+cd ..
+```
 
-# 3. Khởi chạy đồng thời cả Backend (FastAPI) và Frontend (ReactJS)
+Migration sẽ bật các extension PostgreSQL cần thiết; tài khoản database chạy migration phải có quyền tương ứng.
+
+### 4. Chạy đồng thời backend và frontend
+
+```bash
 npm run dev
 ```
 
-- **Frontend:** `http://localhost:5173`
-- **Backend API Docs (Scalar UI / Swagger):** `http://localhost:8000/docs`
+| Dịch vụ | Địa chỉ |
+| :--- | :--- |
+| Frontend | `http://localhost:5173` |
+| Backend | `http://localhost:8000` |
+| Scalar API Docs | `http://localhost:8000/docs` |
+| OpenAPI JSON | `http://localhost:8000/api/v1/openapi.json` |
+| Health check | `http://localhost:8000/heathz` |
 
----
+> `npm run dev` chỉ khởi chạy hai development server; lệnh này không tự tạo `.env`, database hoặc chạy migration.
 
-### 3. Khởi chạy thủ công từng phân hệ (Manual)
+### 5. Chạy từng phân hệ
 
-#### A. Khởi chạy Backend (FastAPI)
-
-Mở terminal và di chuyển vào thư mục `backend`:
+Backend:
 
 ```bash
 cd backend
-
-# Cài đặt thư viện bằng uv
 uv sync
-
-# Khởi chạy server ở chế độ dev
+uv run alembic upgrade head
 uv run fastapi dev
 ```
 
-#### B. Khởi chạy Frontend (ReactJS)
-
-Mở một terminal mới và di chuyển vào thư mục `frontend`:
+Frontend, trong terminal khác:
 
 ```bash
 cd frontend
-
-# Cài đặt thư viện
 npm install
-
-# Khởi chạy giao diện
 npm run dev
 ```
 
-Giao diện sẽ chạy tại: `http://localhost:5173`
+## 🌱 Dữ liệu demo
 
-## 🤝 Quy trình làm việc nhóm trên Git (Bắt buộc tuân thủ)
+Sau khi migration thành công, tạo dữ liệu minh họa cho catalog, dashboard, mượn trả và tài khoản:
 
-Để có lịch sử commit (`beat`) rõ ràng, mọi người hãy tuân thủ quy tắc sau:
+```bash
+cd backend
+uv run python -m app.scripts.seed_demo
+```
 
-1. **Không push trực tiếp lên nhánh `main`.**
-2. Mỗi khi làm tính năng mới, tạo nhánh theo cú pháp:
-   - `feature/ten-tinh-nang` (ví dụ: `feature/login-api`)
-   - `fix/ten-loi` (ví dụ: `fix/button-color`)
-3. Cú pháp commit rõ ràng: `[Loại]: Mô tả ngắn gọn`. (Ví dụ: `[Backend]: Thêm API mượn sách`, `[Frontend]: Hoàn thiện UI trang chủ`).
-4. Khi code xong, tạo Pull Request (PR) để các thành viên khác review trước khi merge vào nhánh chính.
+Dùng `--skip-ai` nếu chưa muốn tải model Sentence Transformer. Có thể index sau bằng `uv run python -m app.scripts.index_demo_ai`.
+
+| Vai trò | Email | Mật khẩu mặc định |
+| :--- | :--- | :--- |
+| Admin | `demo.admin@example.com` | `Demo123!@#` |
+| User | `demo.minhanh@example.com` | `Demo123!@#` |
+| User | `demo.giahuy@example.com` | `Demo123!@#` |
+
+Có thể thay mật khẩu seed bằng biến `DEMO_DEFAULT_PASSWORD`. Script mặc định từ chối chạy khi `ENVIRONMENT=production` hoặc `prod`.
+
+## ✅ Kiểm tra dự án
+
+Backend:
+
+```bash
+cd backend
+uv run python -m unittest discover -s tests -v
+uv run ruff check .
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+## 🤝 Quy trình làm việc nhóm
+
+1. Không push trực tiếp lên nhánh `main`.
+2. Tạo nhánh `feature/ten-tinh-nang` hoặc `fix/ten-loi`.
+3. Commit rõ ràng, ví dụ `[Backend]: Thêm API mượn sách` hoặc `[Frontend]: Hoàn thiện UI trang chủ`.
+4. Tạo Pull Request để thành viên khác review trước khi merge.

@@ -1,12 +1,3 @@
-"""Seed toàn bộ dữ liệu demo.
-
-Chạy đầy đủ:
-    uv run python -m app.scripts.seed_demo
-
-Bỏ qua AI:
-    uv run python -m app.scripts.seed_demo --skip-ai
-"""
-
 from __future__ import annotations
 
 import argparse

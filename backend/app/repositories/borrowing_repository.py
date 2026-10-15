@@ -16,17 +16,14 @@ from app.models.user import User
 
 
 class BorrowingRepository:
-    """Data access cho toàn bộ luồng đặt trước và mượn/trả.
-
-    Các phương thức ghi chỉ ``flush``. Service quyết định ranh giới transaction
-    để thay đổi phiếu và tồn kho luôn commit hoặc rollback cùng nhau.
-    """
+    """Tầng truy xuất dữ liệu cho đặt trước và mượn/trả. Không chứa business logic."""
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
     @asynccontextmanager
     async def transaction(self) -> AsyncIterator[None]:
+        """Để service gom thay đổi phiếu và tồn kho vào cùng một lần commit hoặc rollback."""
         try:
             yield
             await self._session.commit()
@@ -38,7 +35,7 @@ class BorrowingRepository:
         return await self._session.get(User, user_id)
 
     async def lock_books(self, book_ids: Sequence[uuid.UUID]) -> dict[uuid.UUID, Book]:
-        # Stable ordering reduces deadlock risk when two requests contain the same books.
+        """Khóa theo thứ tự ổn định để giảm deadlock giữa các request trùng sách."""
         statement = select(Book).where(Book.id.in_(book_ids)).order_by(Book.id).with_for_update()
         result = await self._session.execute(statement)
         return {book.id: book for book in result.scalars().all()}

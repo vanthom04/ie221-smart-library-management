@@ -55,6 +55,7 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 def require_roles(*allowed_roles: UserRole):
+    """Tạo dependency riêng theo từng nhóm quyền để FastAPI kiểm tra trước khi vào route."""
     async def _check(current_user: CurrentUser) -> User:
         if current_user.role not in allowed_roles:
             raise InsufficientPermissionError("Bạn không có quyền thực hiện hành động này!")
